@@ -1,152 +1,524 @@
+"use client"
 
-function Header() {
-  return (
-    <header className="bg-[#e7e1c9] backdrop-blur sticky top-0 z-50 border-b border-black/5 py-4">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-6 gap-4">
-        {/* Logo - centered on mobile, left on desktop */}
-        <div className="flex justify-center md:justify-start items-center w-full md:w-auto mb-2 md:mb-0">
-          <Image src="/logo.png" alt="OAT & MATCHA Logo" width={120} height={40} priority />
-        </div>
-        {/* Nav Links - center */}
-        <nav className="w-full md:w-auto flex justify-center order-2 md:order-none">
-          <ul className="flex gap-6 list-none">
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-[#9e9b65]" style={{ fontFamily: 'Futura, sans-serif' }}>Bowls</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-[#9e9b65]" style={{ fontFamily: 'Futura, sans-serif' }}>Matcha</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-[#9e9b65]" style={{ fontFamily: 'Futura, sans-serif' }}>Contact</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-[#9e9b65]" style={{ fontFamily: 'Futura, sans-serif' }}>Pop-ups</a></li>
-          </ul>
-        </nav>
-        {/* Order Online CTA - right */}
-        <div className="w-full md:w-auto flex justify-center md:justify-end order-3 md:order-none">
-          <a href="#" className="bg-[#9e9b65] text-white px-5 py-2 rounded-full font-semibold hover:bg-[#7c7a4e] transition">Order Online</a>
-        </div>
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+
+export default function OrderPage() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [cart, setCart] = useState({} as Record<string, number>);
+  const [totalBowls, setTotalBowls] = useState(0);
+  const [isOrderingOpen, setIsOrderingOpen] = useState(true);
+  const [isBurgerOpen, setIsBurgerOpen] = useState(false);
+  const [isBasketOpen, setIsBasketOpen] = useState(false);
+  const [customDateInput, setCustomDateInput] = useState('');
+  const [customDateError, setCustomDateError] = useState('');
+  const [previewDate, setPreviewDate] = useState('');
+  const [isCustomDateActive, setIsCustomDateActive] = useState(false);
+  
+  const datePickerRef = useRef<HTMLInputElement>(null);
+
+  // Delivery days: next Monday, Wednesday, and Friday (excluding next 2 days)
+  const getValidDeliveryDates = () => {
+    const today = new Date();
+    const validDates: string[] = [];
+    const cutoffDate = new Date();
+    cutoffDate.setDate(today.getDate() + 2); // 2-day cutoff
+    
+    // Target days: 1=Monday, 3=Wednesday, 5=Friday
+    const deliveryDays = [1, 3, 5];
+    
+    // Look ahead up to 3 weeks to find delivery days
+    for (let daysAhead = 1; daysAhead <= 21; daysAhead++) {
+      const checkDate = new Date();
+      checkDate.setDate(today.getDate() + daysAhead);
+      
+      const dayOfWeek = checkDate.getDay();
+      
+      // If it's a delivery day and past the cutoff
+      if (deliveryDays.includes(dayOfWeek) && checkDate > cutoffDate) {
+        validDates.push(checkDate.toISOString().split('T')[0]);
+        
+        // Stop after finding 6 valid dates (2 weeks worth)
+        if (validDates.length >= 6) break;
+      }
+    }
+
+    return validDates;
+  };
+
+  const locations = ['Lancashire', 'Manchester'];
+
+  const products = [
+    { id: 'classic-oat', name: 'Classic Oat Bowl', price: 6.5 },
+    { id: 'berry-boost', name: 'Berry Boost Bowl', price: 7.0 },
+    { id: 'matcha-dream', name: 'Matcha Dream Bowl', price: 7.5 },
+    { id: 'tropical-twist', name: 'Tropical Twist Bowl', price: 7.25 }
+  ];
+
+  const validDates = getValidDeliveryDates();
+
+  useEffect(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    setIsOrderingOpen(dayOfWeek !== 0 && dayOfWeek !== 6); // closed on weekends
+  }, []);
+
+  const handleLocationSelect = (location: string) => {
+    setSelectedLocation(location);
+    setPreviewDate('');
+    setCurrentStep(2);
+  };
+
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+    setIsCustomDateActive(false);
+    setCustomDateInput('');
+    setCustomDateError('');
+    setPreviewDate('');
+    setCurrentStep(3);
+  };
+
+  const handleDatePreview = (date: string) => {
+    setPreviewDate(date);
+    setIsCustomDateActive(false);
+  };
+
+  const handleCustomDateChange = (dateValue: string) => {
+    setCustomDateInput(dateValue);
+    setIsCustomDateActive(true);
+    
+    if (!dateValue) {
+      setCustomDateError('');
+      setPreviewDate('');
+      return;
+    }
+    
+    const selectedDay = new Date(dateValue);
+    const dayOfWeek = selectedDay.getDay();
+    const today = new Date();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(today.getDate() + 2);
+    
+    // Validate: must be Mon/Wed/Fri and past cutoff
+    if (![1, 3, 5].includes(dayOfWeek)) {
+      setCustomDateError('Please select a Monday, Wednesday, or Friday.');
+      setPreviewDate('');
+      return;
+    }
+    
+    if (selectedDay <= cutoffDate) {
+      setCustomDateError('Date must be more than 2 days in advance.');
+      setPreviewDate('');
+      return;
+    }
+    
+    // Valid date - set as preview
+    setCustomDateError('');
+    setPreviewDate(dateValue);
+  };
+
+  const handleCustomDateSubmit = () => {
+    if (!customDateInput) {
+      setCustomDateError('Please select a date.');
+      return;
+    }
+    
+    if (customDateError) {
+      return; // Don't submit if there's an error
+    }
+    
+    handleDateSelect(customDateInput);
+  };
+
+  const updateQuantity = (productId: string, quantity: number) => {
+    const newCart = { ...cart };
+    if (quantity === 0) delete newCart[productId];
+    else newCart[productId] = quantity;
+    setCart(newCart);
+    const total = Object.values(newCart).reduce((s, q) => s + q, 0);
+    setTotalBowls(total);
+  };
+
+  const proceedToCheckout = () => {
+    if (totalBowls >= 2) setCurrentStep(4);
+  };
+
+  const handleCheckout = () => {
+    setCurrentStep(5);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  };
+
+  const getTotalPrice = () => {
+    return Object.entries(cart).reduce((total, [productId, quantity]) => {
+      const product = products.find(p => p.id === productId)!;
+      return total + (product.price * quantity);
+    }, 0);
+  };
+
+  const StepIndicator = ({ step, title, isActive, isCompleted }: any) => (
+    <div
+      className={`relative flex items-center py-3 cursor-pointer transition-all duration-300 ${
+        isActive 
+          ? 'bg-[#9e9b65] text-white z-10 px-4 md:px-6' 
+          : isCompleted 
+            ? 'text-zinc-700 hover:bg-[#c4c2a8] px-3 md:px-6' 
+            : 'bg-[#e7e1c9] text-zinc-400 px-3'
+      }`}
+      onClick={() => isCompleted && setCurrentStep(step)}
+      style={{ 
+        clipPath: step === 1 
+          ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)' 
+          : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)',
+        marginLeft: '0',
+        fontFamily: 'Futura, sans-serif',
+        cursor: isCompleted ? 'pointer' : 'default'
+      }}
+    >
+      <div className="flex items-center gap-2 whitespace-nowrap">
+        <span className={`flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold ${
+          isActive ? 'bg-white text-[#9e9b65]' : isCompleted ? 'bg-[#9e9b65] text-white' : 'bg-zinc-300 text-zinc-500'
+        }`}>
+          {step}
+        </span>
+        {isActive && <span className="font-semibold text-sm md:text-base">{title}</span>}
+        {isCompleted && <span className="hidden md:inline font-semibold text-sm md:text-base">{title}</span>}
       </div>
-    </header>
+    </div>
   );
-}
 
-
-import Image from "next/image";
-import HeroVideoWrapper from "./HeroVideoWrapper";
-
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-[#e7e1c9] font-sans dark:bg-black">
-      <Header />
-      <section className="w-full py-0 bg-[#e7e1c9] relative min-h-[400px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Hero Video Background as Client Component */}
-  <HeroVideoWrapper />
-        {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-black/20 z-10" />
-        {/* Hero Content */}
-        <div className="relative z-20 max-w-4xl mx-auto px-6 py-24 flex flex-col items-start text-left gap-6">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tighter drop-shadow-lg" style={{ fontFamily: 'Futura, sans-serif', letterSpacing: '-0.08em' }}>
-            The UK’s only b.y.o oat bowl & iced matcha
-          </h1>
-          <a href="#" className="bg-[#9e9b65] text-white px-8 py-3 rounded-full font-semibold text-lg shadow hover:bg-[#7c7a4e] transition">Create Your Bowl</a>
+  if (!isOrderingOpen) {
+    return (
+      <div className="min-h-screen bg-[#e7e1c9] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="text-4xl mb-4">⏸️</div>
+          <h2 className="text-2xl font-bold text-zinc-900 mb-2">Ordering Closed</h2>
+          <p className="text-zinc-700">Our ordering system is currently closed. Please check back during our opening hours.</p>
+          <button onClick={() => setIsOrderingOpen(true)} className="mt-6 bg-[#9e9b65] hover:bg-[#7c7a4e] text-white px-6 py-3 rounded-lg font-medium">Refresh Status</button>
         </div>
+      </div>
+    );
+  }
 
-      </section>
+  if (currentStep === 5) {
+    return (
+      <div className="min-h-screen bg-[#F6F5EF] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="text-4xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold text-zinc-900 mb-2">Order Confirmed!</h2>
+          <p className="text-zinc-700 mb-4">Your oat bowls are confirmed for delivery to {selectedLocation} on {formatDate(selectedDate)}.</p>
+          <div className="bg-gray-50 rounded-lg p-4 mb-4 text-left">
+            <h3 className="font-semibold text-zinc-900 mb-2">Order Summary:</h3>
+            {Object.entries(cart).map(([productId, quantity]) => {
+              const product = products.find(p => p.id === productId)!;
+              return (
+                <div key={productId} className="flex justify-between text-sm">
+                  <span>{product.name} × {quantity}</span>
+                  <span>£{(product.price * quantity).toFixed(2)}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-zinc-700 text-sm">You'll receive a confirmation email shortly. Thank you!</p>
+        </div>
+      </div>
+    );
+  }
 
-      {/* November Specials Section */}
-  <section className="py-24 bg-zinc-100 relative overflow-hidden">
-        {/* Faint coffee overlay, behind all content */}
-        <div className="container mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 section-title tracking-tighter text-black" style={{ fontFamily: 'Futura, sans-serif', letterSpacing: '-0.08em', color: '#000' }}>
-              November Specials
-            </h2>
-          <div className="flex flex-col md:flex-row gap-4 justify-center specials-grid md:flex-nowrap md:overflow-x-auto" style={{ minWidth: '0' }}>
-            {/* Blueberry Cheesecake Oat Bowl - Polaroid Style, full content */}
-            <div className="bg-white rounded-lg special-card flex flex-col items-center pb-4 pt-4 px-4" style={{ boxShadow: '0 16px 32px -8px rgba(0,0,0,0.18)', borderRadius: '18px', border: '1.5px solid #e7e1c9', maxWidth: 340, background: '#fff' }}>
-              <div className="w-full flex justify-center items-center" style={{ background: '#f5f5f5', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', height: '260px', minHeight: '260px', maxHeight: '260px' }}>
-                <img src="/nov_1.png" alt="Blueberry Cheesecake Oat Bowl" className="object-contain rounded-lg" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }} />
-              </div>
-              <div className="w-full flex flex-col items-start mt-4 special-content flex-1">
-                <h3 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Blueberry Cheesecake Oat Bowl</h3>
-                <div className="font-bold text-[#9e9b65] text-lg special-price">£4.95</div>
-              </div>
+  return (
+    <div className="min-h-screen bg-[#e7e1c9] font-sans">
+      {/* Header */}
+      <header className="bg-[#e7e1c9] sticky top-0 z-40 border-b border-black/5">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="logo" width={120} height={40} priority />
+          </div>
+          <nav className="hidden md:flex">
+            <div className="flex gap-6" style={{ fontFamily: 'Futura, sans-serif' }}>
+              <a href="/" className="text-zinc-900 hover:text-[#9e9b65]">Home</a>
+              <a href="/menu" className="text-zinc-900 hover:text-[#9e9b65]">Menu</a>
+              <a href="/contact" className="text-zinc-900 hover:text-[#9e9b65]">Contact</a>
             </div>
-            {/* Toasted Marshmallow Matcha - Polaroid Style, full content */}
-            <div className="bg-white rounded-lg special-card flex flex-col items-center pb-4 pt-4 px-4" style={{ boxShadow: '0 16px 32px -8px rgba(0,0,0,0.18)', borderRadius: '18px', border: '1.5px solid #e7e1c9', maxWidth: 340, background: '#fff' }}>
-              <div className="w-full flex justify-center items-center" style={{ background: '#f5f5f5', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', height: '260px', minHeight: '260px', maxHeight: '260px' }}>
-                <img src="/nov_2.png" alt="Toasted Marshmallow Matcha" className="object-contain rounded-lg" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }} />
-              </div>
-              <div className="w-full flex flex-col items-start mt-4 special-content flex-1">
-                <h3 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Toasted Marshmallow Matcha</h3>
-                <div className="font-bold text-[#9e9b65] text-lg special-price">£5.95</div>
-              </div>
-            </div>
+          </nav>
+          <div className="md:hidden">
+            <button onClick={() => setIsBurgerOpen(!isBurgerOpen)} className="px-3 py-2 border rounded">Menu</button>
           </div>
         </div>
-      </section>
-            {/* Full-width hero2 image between specials and menu */}
-      <div className="w-full">
-        <img src="/hero2.jpg" alt="Oat & Matcha" className="w-full object-cover" style={{ maxHeight: '420px', width: '100%' }} />
+        {isBurgerOpen && (
+          <div className="md:hidden bg-white border-t">
+            <div className="container mx-auto px-6 py-4">
+              <a href="/" className="block mb-2">Home</a>
+              <a href="/menu" className="block mb-2">Menu</a>
+              <a href="/contact" className="block">Contact</a>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Location & Date bar with embedded step navigation */}
+      <div className="border-b shadow-sm">
+        {/* Location & Date info */}
+        {(selectedLocation || selectedDate) && (
+          <div className="bg-[#fff7e6] border-b border-[#f0e1c6] py-3">
+            <div className="container mx-auto px-6 flex flex-wrap items-center gap-4">
+              {selectedLocation && (
+                <div className="flex items-center gap-2 text-zinc-800 font-medium" style={{ fontFamily: 'Futura, sans-serif' }}>
+                  📍 {selectedLocation}
+                  <button onClick={() => setCurrentStep(1)} className="underline text-sm">Change</button>
+                </div>
+              )}
+              {selectedDate && (
+                <div className="flex items-center gap-2 text-zinc-800 font-medium" style={{ fontFamily: 'Futura, sans-serif' }}>
+                  📅 {formatDate(selectedDate)}
+                  <button onClick={() => setCurrentStep(2)} className="underline text-sm">Change</button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Step navigation */}
+        <div className="container mx-auto px-6 justify-items-center md:justify-items-start">
+          <nav className="flex" style={{ backgroundColor: '#e7e1c9' }}>
+            <StepIndicator step={1} title="Location" isActive={currentStep===1} isCompleted={currentStep>1} />
+            <StepIndicator step={2} title="Delivery Date" isActive={currentStep===2} isCompleted={currentStep>2} />
+            <StepIndicator step={3} title="Products" isActive={currentStep===3} isCompleted={currentStep>3} />
+            <StepIndicator step={4} title="Checkout" isActive={currentStep===4} isCompleted={currentStep>4} />
+          </nav>
+        </div>
       </div>
 
-      {/* Menu Section - styled like sample_code.tsx */}
-      <section className="py-24 bg-white menu-section">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 section-title tracking-tighter text-black" style={{ fontFamily: 'Futura, sans-serif', letterSpacing: '-0.08em' }}>
-            Menu
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 menu-grid">
-            {/* Oat Bowls Column */}
-            <div className="p-8 rounded-2xl bg-white shadow-lg menu-column">
-              <h3 className="text-xl font-bold mb-6 text-[#9e9b65] pb-4 border-b border-[#D7C9B0]" style={{ fontFamily: 'Futura, sans-serif' }}>OAT BOWLS</h3>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Sticky Toffee</h4>
-                <p className="italic text-zinc-500 text-base">Toffee sauce, caramelized banana, oat crumble</p>
+      <main className="container mx-auto px-6 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="lg:w-3/4">
+            {currentStep === 1 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-4" style={{ fontFamily: 'Futura, sans-serif' }}>Choose Your Location</h2>
+                <p className="text-zinc-700 mb-6">Select where you'd like your oat bowls delivered</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {locations.map((loc) => (
+                    <button key={loc} onClick={() => handleLocationSelect(loc)} className="p-6 border-2 border-[#e7e1c9] rounded-xl hover:border-[#9e9b65] hover:bg-[#f7f7f2] transition text-left">
+                      <div className="font-semibold text-zinc-900">{loc}</div>
+                      <div className="text-sm text-zinc-600 mt-2">Weekly delivery available</div>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Apple of my Eye</h4>
-                <p className="italic text-zinc-500 text-base">Stewed apple, cinnamon, almond butter, oat base</p>
+            )}
+
+            {currentStep === 2 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-4" style={{ fontFamily: 'Futura, sans-serif' }}>Choose Delivery Date</h2>
+                <p className="text-zinc-700 mb-6">Select your preferred delivery date. Orders must be placed at least 2 days in advance.</p>
+                <div className="space-y-3">
+                  {validDates.length > 0 ? validDates.map((d) => (
+                    <button 
+                      key={d} 
+                      onClick={() => handleDatePreview(d)} 
+                      className={`w-full p-4 border-2 rounded-xl transition text-left relative ${
+                        previewDate === d 
+                          ? 'border-[#9e9b65] bg-[#f7f7f2]' 
+                          : 'border-[#e7e1c9] hover:border-[#9e9b65] hover:bg-[#f7f7f2]'
+                      }`}
+                    >
+                      <div className="font-semibold text-zinc-900">{formatDate(d)}</div>
+                      <div className="text-sm text-zinc-600">Delivery to {selectedLocation}</div>
+                      {previewDate === d && (
+                        <div className="absolute top-4 right-4 text-[#9e9b65] text-2xl">✓</div>
+                      )}
+                    </button>
+                  )) : (
+                    <div className="text-center py-8 text-zinc-600">No available delivery dates within the cutoff period.</div>
+                  )}
+                  
+                  {/* Custom date option */}
+                  <button 
+                    onClick={() => { 
+                      setIsCustomDateActive(true); 
+                      setPreviewDate(''); 
+                      datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
+                    }} 
+                    className={`w-full p-4 border-2 rounded-xl transition text-left relative ${
+                      isCustomDateActive && previewDate === customDateInput
+                        ? 'border-[#9e9b65] bg-[#f7f7f2]' 
+                        : 'border-[#9e9b65] bg-[#f7f7f2] hover:bg-[#e7e1c9]'
+                    }`}
+                  >
+                    <div className="font-semibold text-zinc-900">📅 Choose a custom date</div>
+                    <div className="text-sm text-zinc-600">Select any Monday, Wednesday, or Friday beyond 3 weeks</div>
+                    {isCustomDateActive && previewDate === customDateInput && (
+                      <div className="absolute top-4 right-4 text-[#9e9b65] text-2xl">✓</div>
+                    )}
+                  </button>
+                  
+                  {/* Hidden date picker that triggers on button click */}
+                  <input 
+                    ref={datePickerRef}
+                    type="date" 
+                    value={customDateInput}
+                    onChange={(e) => handleCustomDateChange(e.target.value)}
+                    className="sr-only"
+                  />
+                  
+                  {/* Error message for custom date */}
+                  {isCustomDateActive && customDateError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      {customDateError}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Proceed button - only shown when a valid date is previewed */}
+                {previewDate && !customDateError && (
+                  <div className="mt-6 flex items-center justify-between">
+                    <button onClick={() => setCurrentStep(1)} className="underline text-sm text-zinc-800">← Back to locations</button>
+                    <button 
+                      onClick={() => handleDateSelect(previewDate)}
+                      className="px-6 py-3 bg-[#9e9b65] hover:bg-[#7c7a4e] text-white rounded-lg font-semibold"
+                    >
+                      Continue with {formatDate(previewDate)}
+                    </button>
+                  </div>
+                )}
+                
+                {(!previewDate || customDateError) && (
+                  <button onClick={() => setCurrentStep(1)} className="mt-6 underline text-sm text-zinc-800">← Back to locations</button>
+                )}
               </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Blueberry Cheesecake</h4>
-                <p className="italic text-zinc-500 text-base">Blueberry compote, cheesecake crumble, lemon zest</p>
+            )}
+
+            {currentStep === 3 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-4">Choose Your Bowls</h2>
+                <p className="text-zinc-700 mb-6">Select your favourite oat bowls. Minimum order: 2 bowls total.</p>
+                <div className="space-y-6">
+                  {products.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between p-4 border border-[#e7e1c9] rounded-xl">
+                      <div>
+                        <div className="font-semibold text-zinc-900">{product.name}</div>
+                        <div className="text-[#9e9b65] font-medium">£{product.price.toFixed(2)}</div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <button onClick={() => updateQuantity(product.id, Math.max(0, (cart[product.id]||0)-1))} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">-</button>
+                        <span className="w-8 text-center font-medium">{cart[product.id]||0}</span>
+                        <button onClick={() => updateQuantity(product.id, (cart[product.id]||0)+1)} className="w-8 h-8 rounded-full border border-zinc-300 flex items-center justify-center">+</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-4 bg-[#F6F5EF] rounded-xl">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-zinc-900">Total Bowls:</span>
+                    <span className={`text-lg font-bold ${totalBowls >= 2 ? 'text-[#9e9b65]' : 'text-red-600'}`}>{totalBowls} {totalBowls >= 2 ? '✓' : ''}</span>
+                  </div>
+                  {totalBowls < 2 && <p className="text-red-600 text-sm mt-2">You need at least 2 bowls to proceed.</p>}
+                </div>
+
+                <div className="flex space-x-4 mt-6">
+                  <button onClick={() => setCurrentStep(2)} className="px-6 py-3 border border-[#e7e1c9] rounded-lg text-zinc-800">← Back</button>
+                  <button onClick={proceedToCheckout} disabled={totalBowls < 2} className="px-6 py-3 bg-[#9e9b65] hover:bg-[#7c7a4e] disabled:bg-zinc-300 text-white rounded-lg">Proceed to Checkout</button>
+                </div>
               </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Plant based Coconut</h4>
-                <p className="italic text-zinc-500 text-base">Coconut yogurt, mango, chia, oat base</p>
+            )}
+
+            {currentStep === 4 && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-4">Checkout</h2>
+                <div className="mb-6">
+                  <h3 className="font-semibold text-zinc-900 mb-3">Order Summary</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between"><span>Location:</span><span className="font-medium">{selectedLocation}</span></div>
+                    <div className="flex justify-between"><span>Delivery Date:</span><span className="font-medium">{formatDate(selectedDate)}</span></div>
+                    <div className="border-t pt-3 mt-3">
+                      {Object.entries(cart).map(([productId, quantity]) => {
+                        const product = products.find(p => p.id === productId)!;
+                        return (
+                          <div key={productId} className="flex justify-between py-1"><span>{product.name} × {quantity}</span><span>£{(product.price * quantity).toFixed(2)}</span></div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-between font-bold text-lg pt-3 border-t"><span>Total:</span><span>£{getTotalPrice().toFixed(2)}</span></div>
+                  </div>
+                </div>
+
+                <div className="bg-white/50 rounded-lg p-4 mb-6">
+                  <p className="text-zinc-700 text-sm">You will be redirected to our secure payment provider to complete your order.</p>
+                </div>
+
+                <div className="flex space-x-4">
+                  <button onClick={() => setCurrentStep(3)} className="px-6 py-3 border border-[#e7e1c9] rounded-lg text-zinc-800">← Back to Cart</button>
+                  <button onClick={handleCheckout} className="px-6 py-3 bg-[#9e9b65] hover:bg-[#7c7a4e] text-white rounded-lg">Complete Payment</button>
+                </div>
               </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Dairy Bowl</h4>
-                <p className="italic text-zinc-500 text-base">Greek yogurt, honey, berries, oat base</p>
-              </div>
-            </div>
-            {/* Matcha Column */}
-            <div className="p-8 rounded-2xl bg-white shadow-lg menu-column">
-              <h3 className="text-xl font-bold mb-6 text-[#9e9b65] pb-4 border-b border-[#D7C9B0]" style={{ fontFamily: 'Futura, sans-serif' }}>MATCHA MENU</h3>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Banana Cream</h4>
-                <p className="italic text-zinc-500 text-base">Banana, oat milk, vanilla, ceremonial matcha</p>
-              </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Strawberry</h4>
-                <p className="italic text-zinc-500 text-base">Strawberry purée, oat milk, ceremonial matcha</p>
-              </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Iced Protein Matcha</h4>
-                <p className="italic text-zinc-500 text-base">Vanilla protein, oat milk, ice, ceremonial matcha</p>
-              </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Iced Toasted Marshmallow</h4>
-                <p className="italic text-zinc-500 text-base">Toasted marshmallow syrup, oat milk, ice, matcha</p>
-              </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>Cotton Cloud</h4>
-                <p className="italic text-zinc-500 text-base">Vanilla, oat milk, ceremonial matcha, cloud foam</p>
-              </div>
-              <div className="menu-item py-4 border-b border-dashed last:border-b-0">
-                <h4 className="text-2xl md:text-3xl font-extrabold mb-1 tracking-tighter text-left w-full" style={{ color: '#2D2D2D', letterSpacing: '-0.08em', fontFamily: 'Futura, sans-serif' }}>White Chocolate</h4>
-                <p className="italic text-zinc-500 text-base">White chocolate, oat milk, ceremonial matcha</p>
-              </div>
-            </div>
+            )}
           </div>
+
+          {/* Basket sidebar */}
+          <aside className="lg:w-1/4">
+            <div className="sticky top-8">
+              <div className="bg-white rounded-lg shadow-md p-4">
+                <div className="text-sm font-medium text-zinc-700 mb-3">YOUR ORDER</div>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-semibold text-zinc-900">Basket</h3>
+                  {/* <button onClick={() => setIsBasketOpen(!isBasketOpen)} className="text-sm text-zinc-600">Toggle</button> */}
+                </div>
+
+                <div className="max-h-96 opacity-100">
+                  {totalBowls > 0 ? (
+                    <div className="space-y-3">
+                      {Object.entries(cart).map(([productId, quantity]) => {
+                        const product = products.find(p => p.id === productId)!;
+                        return (
+                          <div key={productId} className="flex justify-between items-center py-2 border-b border-[#f0eae0]">
+                            <div>
+                              <div className="text-sm font-medium">{product.name}</div>
+                              <div className="text-xs text-zinc-500">Qty: {quantity}</div>
+                            </div>
+                            <div className="font-medium">£{(product.price * quantity).toFixed(2)}</div>
+                          </div>
+                        );
+                      })}
+
+                      <div className="pt-3">
+                        <div className="flex justify-between font-semibold"><span>Total Items:</span><span>{totalBowls}</span></div>
+                        <div className="flex justify-between font-bold text-lg mt-2"><span>Total:</span><span>£{getTotalPrice().toFixed(2)}</span></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-zinc-500">
+                      <div className="text-3xl opacity-40 mb-2">🧺</div>
+                      <p>Your basket is empty</p>
+                      <p className="text-sm mt-1">Add items to get started</p>
+                    </div>
+                  )}
+                </div>
+
+                <button onClick={proceedToCheckout} disabled={totalBowls < 2 || currentStep === 4} className="w-full mt-4 bg-[#9e9b65] hover:bg-[#7c7a4e] disabled:bg-zinc-300 text-white py-3 rounded-lg">{currentStep === 4 ? 'GO TO CHECKOUT' : 'PROCEED TO CHECKOUT'}</button>
+              </div>
+
+              <div className="lg:hidden mt-4">
+                {/* <button onClick={() => setIsBasketOpen(!isBasketOpen)} className="w-full bg-white border border-[#e7e1c9] rounded-lg p-4 text-left">  */}
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">View basket</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-[#9e9b65] text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">{totalBowls}</span>
+                      <span className="font-bold text-[#9e9b65]">£{getTotalPrice().toFixed(2)}</span>
+                    </div>
+                  </div>
+                {/* </button> */}
+              </div>
+
+            </div>
+          </aside>
         </div>
-      </section>
-      {/* Footer from sample_code.tsx */}
+      </main>
+
       <footer className="bg-[#F6F5EF] text-black pt-16 pb-8">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 footer-content mb-10">
@@ -159,15 +531,9 @@ export default function Home() {
               <h3 className="mb-4 text-xl font-bold" style={{ fontFamily: 'Futura, sans-serif', color: '#9e9b65' }}>Follow Us</h3>
               <div className="flex gap-4">
                 <a href="https://www.tiktok.com/@yourbrand" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-black hover:text-[#9e9b65] transition font-semibold" style={{ fontFamily: 'Futura, sans-serif' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-tiktok" viewBox="0 0 16 16">
-                  <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/>
-                  </svg>
                   TikTok
                 </a>
                 <a href="https://www.instagram.com/yourbrand" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-black hover:text-[#9e9b65] transition font-semibold" style={{ fontFamily: 'Futura, sans-serif' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
-                  <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
-                </svg>
                   Instagram
                 </a>
               </div>
