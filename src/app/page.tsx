@@ -51,10 +51,10 @@ export default function OrderPage() {
   const locations = ['Lancashire', 'Manchester'];
 
   const products = [
-    { id: 'classic-oat', name: 'Classic Oat Bowl', price: 6.5 },
-    { id: 'berry-boost', name: 'Berry Boost Bowl', price: 7.0 },
-    { id: 'matcha-dream', name: 'Matcha Dream Bowl', price: 7.5 },
-    { id: 'tropical-twist', name: 'Tropical Twist Bowl', price: 7.25 }
+    { id: 'blueberry-cheesecake', name: 'Blueberry Cheesecake', price: 5.95 },
+    { id: 'sticky-toffee', name: 'Sticky Toffee', price: 5.95 },
+    { id: 'apple-of-my-eye', name: 'Apple of My Eye', price: 5.95 },
+    { id: 'jam-dodger', name: 'Jam Dodger', price: 5.95 }
   ];
 
   const validDates = getValidDeliveryDates();
