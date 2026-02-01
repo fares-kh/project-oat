@@ -3,6 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Brand Colors */
+  --brand-green: #9e9b65;
+  --brand-green-hover: #7c7a4e;
+  --brand-beige: #e7e1c9;
+  --brand-beige-light: #f7f7f2;
+  --brand-grey: #beb8b9;
+  --brand-footer: #F6F5EF;
+  --brand-completed: #d4d2b8;
+  --brand-border: #D7C9B0;
+  --brand-border-light: #bbb;
+
+  --brand-error: #FF0000;
+  
+  /* Text Colors */
+  --text-dark: #2D2D2D;
+  --text-black: #000;
+  --text-white: #fff;
+  
+  /* Typography */
+  --font-brand: 'Futura', sans-serif;
 }
 
 @theme inline {
@@ -10,11 +31,52 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Brand Colors for Tailwind */
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-hover: var(--brand-green-hover);
+  --color-brand-beige: var(--brand-beige);
+  --color-brand-beige-light: var(--brand-beige-light);
+  --color-brand-footer: var(--brand-footer);
+  --color-brand-completed: var(--brand-completed);
+  --color-brand-border: var(--brand-border);
+  --color-brand-border-light: var(--brand-border-light);
+  --color-brand-grey: var(--brand-grey);
+  --color-brand-error: var(--brand-error);
+  
+  /* Text Colors for Tailwind */
+  --color-text-dark: var(--text-dark);
+  --color-text-black: var(--text-black);
+  --color-text-white: var(--text-white);
 }
 
+body, h1, h2, h3, h4, h5, h6 {
+  /* background: var(--background); */
+  /* color: var(--foreground); */
+  font-family: var(--font-brand);
+  letter-spacing: -0.08em;
+}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+h1 {
+  @apply text-4xl md:text-5xl font-extrabold text-center;
+  line-height: 1.2;
+  letter-spacing: -0.08em;
+}
+
+h2 {
+  @apply text-3xl md:text-4xl font-extrabold text-center;
+  line-height: 1.2;
+  letter-spacing: -0.08em;
+}
+
+.font-brand {
+  @apply font-sans;
+  font-family: var(--font-brand);
+  letter-spacing: -0.08em;
+}
+
+.font-brand-tight {
+  @apply font-sans tracking-tighter;
+  font-family: var(--font-brand);
+  letter-spacing: -0.08em;
 }

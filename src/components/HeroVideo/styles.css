@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.hero-video {
+  @apply w-full h-full object-cover;
+  object-position: center 70%;
+}
+
+.hero-overlay {
+  @apply absolute inset-0 bg-black/20 z-10;
+}
+
+.hero-content {
+  @apply relative z-20 max-w-screen-xl mx-auto px-6 py-24 flex flex-col items-start text-left gap-6;
+}
