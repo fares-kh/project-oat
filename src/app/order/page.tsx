@@ -6,6 +6,27 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default function OrderPage() {
+  // ============================================
+  // DELIVERY CONFIGURATION BY LOCATION
+  // ============================================
+  // Configure delivery dates per location
+  const deliveryConfig: Record<string, {
+    useCustomDates: boolean;
+    customDates: string[];
+  }> = {
+    'Lancashire': {
+      useCustomDates: false,
+      customDates: []
+    },
+    'Manchester': {
+      useCustomDates: true,
+      customDates: [
+        '2026-02-26',
+      ]
+    }
+  };
+  // ============================================
+
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
@@ -17,11 +38,31 @@ export default function OrderPage() {
   const [customDateError, setCustomDateError] = useState('');
   const [previewDate, setPreviewDate] = useState('');
   const [isCustomDateActive, setIsCustomDateActive] = useState(false);
+  const [previewLocation, setPreviewLocation] = useState('');
   
   const datePickerRef = useRef<HTMLInputElement>(null);
 
-  // Delivery days: next Monday, Wednesday, and Friday (excluding next 2 days)
+  // Get delivery dates based on selected location
   const getValidDeliveryDates = () => {
+    const locationConfig = deliveryConfig[selectedLocation];
+    
+    if (!locationConfig) {
+      return getAutomaticDeliveryDates();
+    }
+
+    if (locationConfig.useCustomDates) {
+      const today = new Date();
+      return locationConfig.customDates.filter(dateStr => {
+        const date = new Date(dateStr);
+        return date > today;
+      });
+    }
+
+    return getAutomaticDeliveryDates();
+  };
+
+  // Auto delivery logic
+  const getAutomaticDeliveryDates = () => {
     const today = new Date();
     const validDates: string[] = [];
     const cutoffDate = new Date();
@@ -58,16 +99,21 @@ export default function OrderPage() {
     { id: 'jam-dodger', name: 'Jam Dodger', price: 5.95 }
   ];
 
-  const validDates = getValidDeliveryDates();
+  const validDates = selectedLocation ? getValidDeliveryDates() : [];
 
   useEffect(() => {
     const today = new Date();
     const dayOfWeek = today.getDay();
   }, []);
 
+  const handleLocationPreview = (location: string) => {
+    setPreviewLocation(location);
+  };
+
   const handleLocationSelect = (location: string) => {
     setSelectedLocation(location);
     setPreviewDate('');
+    setPreviewLocation('');
     setCurrentStep(2);
   };
 
@@ -83,6 +129,7 @@ export default function OrderPage() {
   const handleDatePreview = (date: string) => {
     setPreviewDate(date);
     setIsCustomDateActive(false);
+    setCustomDateError('');
   };
 
   const handleCustomDateChange = (dateValue: string) => {
@@ -191,6 +238,24 @@ export default function OrderPage() {
     </div>
   );
 
+  const BackButton = ({ onClick, label }: { onClick: () => void; label?: string }) => (
+    <button 
+      onClick={onClick} 
+      className="cursor-pointer px-6 py-3 border border-brand-beige rounded-lg hover:bg-brand-beige-light transition"
+    >
+      ← {label || 'Back'}
+    </button>
+  );
+
+  const ContinueButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button 
+      onClick={onClick} 
+      className="cursor-pointer px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
+    >
+      Continue with {label}
+    </button>
+  );
+
   if (currentStep === 5) {
     // to change
     return (
@@ -261,14 +326,35 @@ export default function OrderPage() {
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Choose Your Location</h2>
                 <p className="mb-6">Select where you'd like your oat bowls delivered</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   {locations.map((loc) => (
-                    <button key={loc} onClick={() => handleLocationSelect(loc)} className="p-6 border-2 border-brand-beige rounded-xl hover:border-brand-green hover:bg-brand-beige-light transition text-left">
+                    <button 
+                      key={loc} 
+                      onClick={() => handleLocationPreview(loc)} 
+                      className={`cursor-pointer w-full p-6 border-2 rounded-xl transition text-left relative ${
+                        previewLocation === loc 
+                          ? 'border-brand-green bg-brand-beige-light' 
+                          : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
+                      }`}
+                    >
                       <div className="font-semibold">{loc}</div>
                       <div className="text-sm text-dark mt-2">Weekly delivery available</div>
+                      {previewLocation === loc && (
+                        <div className="absolute top-6 right-6 text-brand-green text-2xl">✓</div>
+                      )}
                     </button>
                   ))}
                 </div>
+
+                {/* Proceed button - only shown when a location is previewed */}
+                {previewLocation && (
+                  <div className="mt-6 flex justify-end">
+                    <ContinueButton 
+                      onClick={() => handleLocationSelect(previewLocation)} 
+                      label={previewLocation} 
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -281,14 +367,13 @@ export default function OrderPage() {
                     <button 
                       key={d} 
                       onClick={() => handleDatePreview(d)} 
-                      className={`w-full p-4 border-2 rounded-xl transition text-left relative ${
+                      className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative ${
                         previewDate === d 
                           ? 'border-brand-green bg-brand-beige-light' 
                           : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
                       }`}
                     >
                       <div className="font-semibold">{formatDate(d)}</div>
-                      <div className="text-sm text-dark">Delivery to {selectedLocation}</div>
                       {previewDate === d && (
                         <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
                       )}
@@ -298,24 +383,26 @@ export default function OrderPage() {
                   )}
                   
                   {/* Custom date option */}
-                  <button 
-                    onClick={() => { 
-                      setIsCustomDateActive(true); 
-                      setPreviewDate(''); 
-                      datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
-                    }} 
-                    className={`w-full p-4 border-2 rounded-xl transition text-left relative ${
-                      isCustomDateActive && previewDate === customDateInput
-                        ? 'border-brand-green bg-brand-beige-light' 
-                        : 'border-brand-green bg-brand-beige-light hover:bg-brand-beige'
-                    }`}
-                  >
-                    <div className="font-semibold">📅 Choose a custom date</div>
-                    <div className="text-sm text-dark">Select any Monday, Wednesday, or Friday beyond 3 weeks</div>
-                    {isCustomDateActive && previewDate === customDateInput && (
-                      <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
-                    )}
-                  </button>
+                  {!deliveryConfig[selectedLocation].useCustomDates &&
+                    <button 
+                      onClick={() => { 
+                        setIsCustomDateActive(true); 
+                        setPreviewDate(''); 
+                        datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
+                      }} 
+                      className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige ${
+                        isCustomDateActive && previewDate === customDateInput
+                          ? 'border-brand-green bg-brand-beige-light' 
+                          : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
+                      }`}
+                    >
+                      <div className="font-semibold">📅 Choose a custom date</div>
+                      <div className="text-sm text-dark">Select any Monday, Wednesday, or Friday beyond 3 weeks</div>
+                      {isCustomDateActive && previewDate === customDateInput && (
+                        <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
+                      )}
+                    </button>
+                  }
                   
                   {/* Hidden date picker that triggers on button click */}
                   <input 
@@ -328,28 +415,22 @@ export default function OrderPage() {
                   
                   {/* Error message for custom date */}
                   {isCustomDateActive && customDateError && (
-                    <div className="p-3 bg-brand-error border border-brand-error rounded-lg text-brand-error text-sm">
+                    <div className="p-3 bg-brand-error border border-brand-error text-text-white rounded-lg font-bold text-sm">
                       {customDateError}
                     </div>
                   )}
                 </div>
                 
                 {/* Proceed button - only shown when a valid date is previewed */}
-                {previewDate && !customDateError && (
-                  <div className="mt-6 flex items-center justify-between">
-                    <button onClick={() => setCurrentStep(1)} className="underline text-sm">← Back to locations</button>
-                    <button 
-                      onClick={() => handleDateSelect(previewDate)}
-                      className="px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
-                    >
-                      Continue with {formatDate(previewDate)}
-                    </button>
-                  </div>
-                )}
-                
-                {(!previewDate || customDateError) && (
-                  <button onClick={() => setCurrentStep(1)} className="mt-6 underline text-sm">← Back to locations</button>
-                )}
+                <div className="mt-6 flex items-center justify-between">
+                <BackButton onClick={() => setCurrentStep(1)}/>
+                  {previewDate && !customDateError && (
+                      <ContinueButton 
+                        onClick={() => handleDateSelect(previewDate)} 
+                        label={formatDate(previewDate)} 
+                      />
+                  )}
+                </div>
               </div>
             )}
 
@@ -382,7 +463,7 @@ export default function OrderPage() {
                 </div>
 
                 <div className="flex space-x-4 mt-6">
-                  <button onClick={() => setCurrentStep(2)} className="px-6 py-3 border border-brand-beige rounded-lg">← Back</button>
+                  <BackButton onClick={() => setCurrentStep(2)} />
                   <button onClick={proceedToCheckout} disabled={totalBowls < 2} className="px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey text-text-white rounded-lg">Proceed to Checkout</button>
                 </div>
               </div>
@@ -411,7 +492,7 @@ export default function OrderPage() {
                 <p className="text-dark text-sm mb-6">You will be redirected to our secure payment provider to complete your order.</p>
 
                 <div className="flex space-x-4">
-                  <button onClick={() => setCurrentStep(3)} className="px-6 py-3 border border-brand-beige rounded-lg">← Back to Cart</button>
+                  <BackButton onClick={() => setCurrentStep(3)}/>
                   <button onClick={handleCheckout} className="px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg">Complete Payment</button>
                 </div>
               </div>
