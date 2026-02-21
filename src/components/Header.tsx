@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -6,7 +7,9 @@ export default function Header() {
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-6 gap-4">
         {/* Logo - centered on mobile, left on desktop */}
         <div className="flex justify-center md:justify-start items-center w-full md:w-auto mb-2 md:mb-0">
-          <Image src="/logo.png" alt="OAT & MATCHA Logo" width={120} height={40} priority />
+          <Link href="/" className="cursor-pointer">
+            <Image src="/logo.png" alt="OAT & MATCHA Logo" width={120} height={40} priority />
+          </Link>
         </div>
         {/* Nav Links - center */}
         <nav className="w-full md:w-auto flex justify-center order-2 md:order-none">
