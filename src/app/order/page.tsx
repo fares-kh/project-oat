@@ -124,10 +124,10 @@ export default function OrderPage() {
   const locations = ['Lancashire', 'Manchester'];
 
   const products = [
-    { id: 'blueberry-cheesecake', name: 'Blueberry Cheesecake', price: 5.95 },
-    { id: 'sticky-toffee', name: 'Sticky Toffee', price: 5.95 },
-    { id: 'apple-of-my-eye', name: 'Apple of My Eye', price: 5.95 },
-    { id: 'jam-dodger', name: 'Jam Dodger', price: 5.95 }
+    { id: 'blueberry-cheesecake', name: 'Blueberry Cheesecake', price: 5.95, description: "Blueberry soaked oats. Topped with a cheesecake drizzle, blueberry compote & biscuit crumble" },
+    { id: 'sticky-toffee', name: 'Sticky Toffee', price: 5.95, description: "Date soaked oats, made with oat milk & Greek yoghurt. Topped with banana, cacao nibs, greek yoghurt & chopped dates." },
+    { id: 'apple-of-my-eye', name: 'Apple of My Eye', price: 5.95, description: "Apple & cinnamon soaked oats made with oat milk & Greek yoghurt. Topped with sliced apple, peanut butter, homemade granola & mixed seeds."},
+    { id: 'jam-dodger', name: 'Jam Dodger', price: 5.95, description: "Raspberry soaked oats. Topped with raspberry jam, shortbread crumble and a mini dodger biscuit.", monthlySpecial: true }
   ];
 
   const validDates = selectedLocation ? getValidDeliveryDates() : [];
@@ -493,7 +493,6 @@ export default function OrderPage() {
                       }`}
                     >
                       <div className="font-semibold">{loc}</div>
-                      <div className="text-sm text-dark mt-2">Weekly delivery available</div>
                       {previewLocation === loc && (
                         <div className="absolute top-6 right-6 text-brand-green text-2xl">✓</div>
                       )}
@@ -674,13 +673,17 @@ export default function OrderPage() {
                     return (
                       <div key={product.id} className="flex items-center justify-between p-4 border border-brand-beige rounded-xl">
                         <div>
+                          {product.monthlySpecial && 
+                            <div className="font-semibold italic text-brand-green">MONTHLY SPECIAL</div>
+                          }
                           <div className="font-semibold">{product.name}</div>
                           <div className="text-brand-green font-medium">£{product.price.toFixed(2)}</div>
+                          <div>{product.description}</div>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <button onClick={() => updateQuantity(product.id, Math.max(0, (currentCart[product.id]||0)-1))} className="w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center">-</button>
+                          <button onClick={() => updateQuantity(product.id, Math.max(0, (currentCart[product.id]||0)-1))} className="cursor-pointer w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center hover:bg-brand-beige">-</button>
                           <span className="w-8 text-center font-medium">{currentCart[product.id]||0}</span>
-                          <button onClick={() => updateQuantity(product.id, (currentCart[product.id]||0)+1)} className="w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center">+</button>
+                          <button onClick={() => updateQuantity(product.id, (currentCart[product.id]||0)+1)} className="cursor-pointer w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center hover:bg-brand-beige">+</button>
                         </div>
                       </div>
                     );
