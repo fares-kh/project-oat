@@ -14,39 +14,91 @@ export async function POST(request: NextRequest) {
       return `${day}/${month}/${year}`;
     };
     
-    const orderSummaryLines = orderData.delivery.dates.map((date: string) => {
+    const productNames: Record<string, string> = {
+      'blueberry-cheesecake': 'Blueberry Cheesecake',
+      'sticky-toffee': 'Sticky Toffee',
+      'apple-of-my-eye': 'Apple of My Eye',
+      'monthly-special': 'Monthly Special'
+    };
+
+    const toppingNames: Record<string, string> = {
+      'banana': 'Banana',
+      'strawberry': 'Strawberry',
+      'apple': 'Apple',
+      'raspberry': 'Raspberry',
+      'peanut-butter': 'Peanut butter',
+      'almond-butter': 'Almond butter',
+      'nutella': 'Nutella',
+      'cacao-nibs': 'Cacao nibs',
+      'granola': 'Homemade granola',
+      'chia-seeds': 'Chia seeds',
+      'goji-berries': 'Goji berries',
+      'mixed-seeds': 'Mixed seeds',
+      'honey': 'Honey',
+      'cinnamon': 'Cinnamon',
+      'dark-choc-chips': 'Dark Choc Chips',
+      'protein-vanilla': 'Protein powder (vanilla)',
+      'protein-chocolate': 'Protein powder (chocolate)',
+      'matcha-powder': 'Matcha powder'
+    };
+
+    const oatSoakingNames: Record<string, string> = {
+      'dairy-yoghurt': 'Dairy Greek yoghurt',
+      'coconut-yoghurt': 'Plant-based coconut yoghurt'
+    };
+    
+    let bowlNumber = 0;
+    const detailedLineItems: any[] = [];
+    
+    orderData.delivery.dates.forEach((date: string) => {
       const dateFormatted = formatDate(date);
-      const dateCart = orderData.ordersByDate[date];
+      const dateBowls = orderData.ordersByDate[date] || [];
       
-      const items = Object.entries(dateCart)
-        .map(([productId, quantity]: [string, any]) => {
-          const productNames: Record<string, string> = {
-            'banana-bread': 'Banana Bread',
-            'apple-cinnamon': 'Apple & Cinnamon',
-            'blueberry': 'Blueberry',
-            'peanut-butter': 'Peanut Butter',
-            'mixed-berry': 'Mixed Berry',
-            'chocolate': 'Chocolate'
-          };
-          const productName = productNames[productId] || productId;
-          return `${productName} x${quantity}`;
-        })
-        .join(', ');
-      
-      return `${dateFormatted}: ${items}`;
-    }).join(' | ');
+      dateBowls.forEach((bowl: any) => {
+        bowlNumber++;
+        const productName = productNames[bowl.productId] || bowl.productId;
+        const oatSoaking = oatSoakingNames[bowl.oatSoaking] || bowl.oatSoaking;
+        
+        const toppings = bowl.toppings.map((id: string) => toppingNames[id] || id);
+        
+        // Format extra toppings
+        const extraToppings = Object.entries(bowl.extraToppings || {})
+          .map(([id, qty]: [string, any]) => ({
+            name: toppingNames[id] || id,
+            quantity: qty
+          }));
+        
+        detailedLineItems.push({
+          bowlNumber,
+          productId: bowl.productId,
+          productName,
+          oatSoaking,
+          toppings,
+          extraToppings,
+          price: bowl.price,
+          deliveryDate: dateFormatted
+        });
+      });
+    });
     
     const description = [
-        orderSummaryLines,
-        `${orderData.customer.firstName} ${orderData.customer.lastName}`,
-        `${orderData.customer.phone}`,
-        orderData.customer.address.line1,
-        orderData.customer.address.line2,
-        orderData.customer.address.city,
-        `${orderData.customer.address.postcode.toUpperCase()}`,
-       orderData.delivery.notes && 'Notes: ' + orderData.delivery.notes
+      `${orderData.customer.firstName} ${orderData.customer.lastName}`,
+      `${orderData.totalBowls} bowl${orderData.totalBowls > 1 ? 's' : ''}`,
+      `Delivery: ${orderData.delivery.dates.map((d: string) => formatDate(d)).join(', ')}`,
+      orderData.delivery.location,
+      orderData.customer.address.postcode.toUpperCase()
     ].join(' | ');
     
+    const fullOrderData = {
+      checkoutReference,
+      customer: orderData.customer,
+      delivery: orderData.delivery,
+      detailedLineItems,
+      totalBowls: orderData.totalBowls,
+      totalAmount: orderData.amount,
+      createdAt: new Date().toISOString()
+    };
+
     const sumupResponse = await fetch('https://api.sumup.com/v0.1/checkouts', {
       method: 'POST',
       headers: {
@@ -58,7 +110,13 @@ export async function POST(request: NextRequest) {
         amount: amountInPence / 100,
         currency: 'GBP',
         merchant_code: process.env.SUMUP_MERCHANT_CODE,
-        description: 'ONLINE ORDER: ' + description,
+        description: description,
+        merchant_data: {
+          order_details: JSON.stringify(fullOrderData),
+          customer_phone: orderData.customer.phone,
+          customer_address: `${orderData.customer.address.line1}, ${orderData.customer.address.city}, ${orderData.customer.address.postcode}`,
+          delivery_notes: orderData.delivery.notes || ''
+        },
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}`,
         hosted_checkout: { 
           enabled: true
@@ -83,6 +141,7 @@ export async function POST(request: NextRequest) {
       checkoutId: checkout.id,
       amount: orderData.amount,
       hostedCheckoutUrl: checkout.hosted_checkout_url,
+      detailedLineItems: detailedLineItems.length
     });
 
     if (!checkout.hosted_checkout_url) {
@@ -97,9 +156,19 @@ export async function POST(request: NextRequest) {
     // await saveOrderToDatabase({
     //   checkoutReference,
     //   checkoutId: checkout.id,
-    //   orderData,
+    //   fullOrderData,
     //   status: 'pending',
-    //   createdAt: new Date(),
+    // });
+
+    // TODO: Send detailed confirmation email to customer
+    // await sendOrderConfirmationEmail({
+    //   to: orderData.customer.email,
+    //   orderData: fullOrderData
+    // });
+
+    // TODO: Send order notification to merchant/kitchen
+    // await sendMerchantNotification({
+    //   orderData: fullOrderData
     // });
     
     return NextResponse.json({
