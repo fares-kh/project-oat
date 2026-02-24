@@ -115,7 +115,8 @@ export async function POST(request: NextRequest) {
           order_details: JSON.stringify(fullOrderData),
           customer_phone: orderData.customer.phone,
           customer_address: `${orderData.customer.address.line1}, ${orderData.customer.address.city}, ${orderData.customer.address.postcode}`,
-          delivery_notes: orderData.delivery.notes || ''
+          delivery_notes: orderData.delivery.notes || '',
+          need_paper_spoons: orderData.delivery.needPaperSpoons || false
         },
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}`,
         hosted_checkout: { 

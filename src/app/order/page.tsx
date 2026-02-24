@@ -77,6 +77,7 @@ export default function OrderPage() {
   const [city, setCity] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [needPaperSpoons, setNeedPaperSpoons] = useState(false);
   const [addressErrors, setAddressErrors] = useState({
     firstName: '',
     lastName: '',
@@ -393,6 +394,7 @@ export default function OrderPage() {
           location: selectedLocation,
           dates: selectedDates,
           notes: deliveryNotes,
+          needPaperSpoons: needPaperSpoons,
         },
         ordersByDate: ordersByDate,
         totalBowls: totalBowls,
@@ -993,6 +995,19 @@ export default function OrderPage() {
                       <p className="text-brand-error text-sm mt-1">{addressErrors.phoneNumber}</p>
                     )}
                   </div>
+
+                  <div className="flex items-center gap-3 p-4 bg-brand-beige-light rounded-lg border-2 border-brand-beige">
+                    <input
+                      id="needPaperSpoons"
+                      type="checkbox"
+                      checked={needPaperSpoons}
+                      onChange={(e) => setNeedPaperSpoons(e.target.checked)}
+                      className="w-5 h-5 text-brand-green bg-background border-brand-beige rounded focus:ring-brand-green focus:ring-2 cursor-pointer"
+                    />
+                    <label htmlFor="needPaperSpoons" className="text-sm font-medium cursor-pointer select-none">
+                      Need paper spoons?
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex space-x-4 mt-6 justify-between">
@@ -1021,6 +1036,7 @@ export default function OrderPage() {
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
                     {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
                     <div className="flex justify-between"><span>Phone:</span><span className="font-medium">{phoneNumber}</span></div>
+                    {needPaperSpoons && <div className="flex justify-between"><span>Paper Spoons:</span><span className="font-medium"> Yes</span></div>}
                   </div>
                 </div>
 
@@ -1083,7 +1099,7 @@ export default function OrderPage() {
 
                 <p className="text-dark text-sm mb-6">You will be redirected to our secure payment provider to complete your order.</p>
 
-                <div className="flex space-x-4">
+                <div className="flex space-x-4 justify-between">
                   <BackButton onClick={() => setCurrentStep(5)} label="Back to address" />
                   <button 
                     onClick={handleCheckout} 
