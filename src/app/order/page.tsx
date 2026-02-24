@@ -4,6 +4,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { products, type Product, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
+
+interface BowlOrder {
+  productId: string;
+  oatSoaking: string;
+  toppings: string[];
+  extraToppings: Record<string, number>;
+  price: number;
+}
 
 export default function OrderPage() {
   // ============================================
@@ -45,7 +54,7 @@ export default function OrderPage() {
   const [currentDateIndex, setCurrentDateIndex] = useState(0);
   const [postcode, setPostcode] = useState('');
   const [postcodeError, setPostcodeError] = useState('');
-  const [ordersByDate, setOrdersByDate] = useState<Record<string, Record<string, number>>>({});
+  const [ordersByDate, setOrdersByDate] = useState<Record<string, BowlOrder[]>>({});
   const [totalBowls, setTotalBowls] = useState(0);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
   const [isBasketOpen, setIsBasketOpen] = useState(false);
@@ -55,6 +64,11 @@ export default function OrderPage() {
   const [isCustomDateActive, setIsCustomDateActive] = useState(false);
   const [previewLocation, setPreviewLocation] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedOatSoaking, setSelectedOatSoaking] = useState<string>('dairy-yoghurt');
+  const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
+  const [extraToppings, setExtraToppings] = useState<Record<string, number>>({});
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -100,7 +114,7 @@ export default function OrderPage() {
     cutoffDate.setDate(today.getDate() + 2); // 2-day cutoff
     
     // Target days: 1=Monday, 3=Wednesday, 5=Friday
-    const deliveryDays = [1, 3, 5];
+    const deliveryDays = [1, 3];
     
     // Look ahead up to 3 weeks to find delivery days
     for (let daysAhead = 1; daysAhead <= 21; daysAhead++) {
@@ -122,13 +136,6 @@ export default function OrderPage() {
   };
 
   const locations = ['Lancashire', 'Manchester'];
-
-  const products = [
-    { id: 'blueberry-cheesecake', name: 'Blueberry Cheesecake', price: 5.95, description: "Blueberry soaked oats. Topped with a cheesecake drizzle, blueberry compote & biscuit crumble" },
-    { id: 'sticky-toffee', name: 'Sticky Toffee', price: 5.95, description: "Date soaked oats, made with oat milk & Greek yoghurt. Topped with banana, cacao nibs, greek yoghurt & chopped dates." },
-    { id: 'apple-of-my-eye', name: 'Apple of My Eye', price: 5.95, description: "Apple & cinnamon soaked oats made with oat milk & Greek yoghurt. Topped with sliced apple, peanut butter, homemade granola & mixed seeds."},
-    { id: 'jam-dodger', name: 'Jam Dodger', price: 5.95, description: "Raspberry soaked oats. Topped with raspberry jam, shortbread crumble and a mini dodger biscuit.", monthlySpecial: true }
-  ];
 
   const validDates = selectedLocation ? getValidDeliveryDates() : [];
 
@@ -206,10 +213,9 @@ export default function OrderPage() {
     }
     setSelectedDates(previewDates);
     setCurrentDateIndex(0);
-    // Initialize empty carts for each date
-    const initialOrders: Record<string, Record<string, number>> = {};
+    const initialOrders: Record<string, BowlOrder[]> = {};
     previewDates.forEach(date => {
-      initialOrders[date] = {};
+      initialOrders[date] = [];
     });
     setOrdersByDate(initialOrders);
     setCurrentStep(4);
@@ -246,37 +252,60 @@ export default function OrderPage() {
     toggleDateSelection(dateValue);
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
-    const currentDate = selectedDates[currentDateIndex];
-    const newOrders = { ...ordersByDate };
-    
-    if (!newOrders[currentDate]) {
-      newOrders[currentDate] = {};
-    }
-    
-    if (quantity === 0) {
-      delete newOrders[currentDate][productId];
-    } else {
-      newOrders[currentDate][productId] = quantity;
-    }
-    
-    setOrdersByDate(newOrders);
-    
-    // Calculate total bowls across all dates
-    const total = Object.values(newOrders).reduce((sum, dateCart) => {
-      return sum + Object.values(dateCart).reduce((s, q) => s + q, 0);
-    }, 0);
-    setTotalBowls(total);
-  };
-
   const getCurrentDateCart = () => {
     const currentDate = selectedDates[currentDateIndex];
-    return ordersByDate[currentDate] || {};
+    return ordersByDate[currentDate] || [];
   };
 
   const getCurrentDateTotal = () => {
     const cart = getCurrentDateCart();
-    return Object.values(cart).reduce((s, q) => s + q, 0);
+    return cart.length;
+  };
+
+  const openProductModal = (product: Product) => {
+    setSelectedProduct(product);
+    setSelectedOatSoaking('dairy-yoghurt');
+    setSelectedToppings([]);
+    setExtraToppings({});
+  };
+
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    setSelectedOatSoaking('dairy-yoghurt');
+    setSelectedToppings([]);
+    setExtraToppings({});
+  };
+
+  const addToCart = () => {
+    if (selectedProduct) {
+      const currentDate = selectedDates[currentDateIndex];
+      const newOrders = { ...ordersByDate };
+      
+      if (!newOrders[currentDate]) {
+        newOrders[currentDate] = [];
+      }
+      
+      const extraToppingsCost = Object.values(extraToppings).reduce((sum, qty) => sum + qty, 0);
+      const totalPrice = selectedProduct.price + extraToppingsCost;
+      
+      const newBowl: BowlOrder = {
+        productId: selectedProduct.id,
+        oatSoaking: selectedOatSoaking,
+        toppings: [...selectedToppings],
+        extraToppings: { ...extraToppings },
+        price: totalPrice
+      };
+      
+      newOrders[currentDate].push(newBowl);
+      setOrdersByDate(newOrders);
+      
+      const total = Object.values(newOrders).reduce((sum, dateOrders) => {
+        return sum + dateOrders.length;
+      }, 0);
+      setTotalBowls(total);
+      
+      closeProductModal();
+    }
   };
 
   const proceedToNextDate = () => {
@@ -399,11 +428,50 @@ export default function OrderPage() {
     return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
+  const renderIngredientsWithStyling = (ingredients: string) => {
+    const allergens = [
+      'ALMONDS', 'CASHEWS', 'HAZELNUTS', 'WALNUTS', 'OAT', 'OATS', 
+      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR DIOXIDE', 'WHEAT'
+    ];
+    
+    const sections = ingredients.split(/(May contain:|May also contain:|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
+    
+    return sections.map((section, sectionIndex) => {
+      const isHeader = /^(May contain:|May also contain:|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)$/.test(section);
+      
+      if (isHeader) {
+        return (
+          <React.Fragment key={sectionIndex}>
+            <br />
+            <br />
+            <span>{section}</span>
+          </React.Fragment>
+        );
+      }
+      
+      const words = section.split(/(\s+)/);
+      
+      return words.map((word, wordIndex) => {
+        const cleanWord = word.replace(/[.,;:()[\]]/g, '');
+        
+        const isAllergen = allergens.includes(cleanWord);
+        
+        if (isAllergen) {
+          return (
+            <span key={`${sectionIndex}-${wordIndex}`} className="font-bold underline">
+              {word}
+            </span>
+          );
+        }
+        return <span key={`${sectionIndex}-${wordIndex}`}>{word}</span>;
+      });
+    });
+  };
+
   const getTotalPrice = () => {
-    return Object.values(ordersByDate).reduce((total, dateCart) => {
-      return total + Object.entries(dateCart).reduce((dateTotal, [productId, quantity]) => {
-        const product = products.find(p => p.id === productId)!;
-        return dateTotal + (product.price * quantity);
+    return Object.values(ordersByDate).reduce((total, dateOrders) => {
+      return total + dateOrders.reduce((dateTotal, bowl) => {
+        return dateTotal + bowl.price;
       }, 0);
     }, 0);
   };
@@ -493,6 +561,9 @@ export default function OrderPage() {
                       }`}
                     >
                       <div className="font-semibold">{loc}</div>
+                      <div className="text-sm mt-1">
+                        Delivery: {loc === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}
+                      </div>
                       {previewLocation === loc && (
                         <div className="absolute top-6 right-6 text-brand-green text-2xl">✓</div>
                       )}
@@ -667,23 +738,50 @@ export default function OrderPage() {
 
                 <h2 className="text-2xl font-bold mb-4">Choose Your Bowls</h2>
                 <p className="mb-6">Select your favourite oat bowls for this date. Minimum order: 2 bowls per date.</p>
-                <div className="space-y-6">
+                
+                {/* Product Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {products.map((product) => {
                     const currentCart = getCurrentDateCart();
+                    const quantity = currentCart.filter(bowl => bowl.productId === product.id).length;
                     return (
-                      <div key={product.id} className="flex items-center justify-between p-4 border border-brand-beige rounded-xl">
-                        <div>
-                          {product.monthlySpecial && 
-                            <div className="font-semibold italic text-brand-green">MONTHLY SPECIAL</div>
-                          }
-                          <div className="font-semibold">{product.name}</div>
-                          <div className="text-brand-green font-medium">£{product.price.toFixed(2)}</div>
-                          <div>{product.description}</div>
+                      <div 
+                        key={product.id} 
+                        onClick={() => openProductModal(product)}
+                        className="relative cursor-pointer p-6 border-2 border-brand-beige rounded-xl hover:border-brand-green hover:shadow-lg transition-all duration-200 group flex gap-4"
+                      >
+                        {product.monthlySpecial && 
+                          <div className="absolute top-3 right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                            MONTHLY SPECIAL
+                          </div>
+                        }
+                        
+                        {/* Product Image */}
+                        <div className="shrink-0">
+                          <Image 
+                            src={product.image} 
+                            alt={product.name}
+                            width={120}
+                            height={120}
+                            className="rounded-lg object-cover"
+                          />
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <button onClick={() => updateQuantity(product.id, Math.max(0, (currentCart[product.id]||0)-1))} className="cursor-pointer w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center hover:bg-brand-beige">-</button>
-                          <span className="w-8 text-center font-medium">{currentCart[product.id]||0}</span>
-                          <button onClick={() => updateQuantity(product.id, (currentCart[product.id]||0)+1)} className="cursor-pointer w-8 h-8 rounded-full border border-brand-grey flex items-center justify-center hover:bg-brand-beige">+</button>
+                        
+                        {/* Product Details */}
+                        <div className="flex-1">
+                          <div className="font-bold text-lg mb-1">{product.name}</div>
+                          <div className="text-brand-green font-bold text-xl mb-2">£{product.price.toFixed(2)}</div>
+                          <div className="text-sm text-zinc-600 mb-3">{product.description}</div>
+                          
+                          {quantity > 0 && (
+                            <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand-beige">
+                              <span className="text-sm font-medium text-brand-green">Added to cart</span>
+                              <span className="bg-brand-green text-white font-bold px-3 py-1 rounded-full text-sm">{quantity}</span>
+                            </div>
+                          )}
+                          
+                          <div className="mt-3 text-brand-green text-sm font-medium group-hover:underline">
+                          </div>
                         </div>
                       </div>
                     );
@@ -919,6 +1017,7 @@ export default function OrderPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between"><span>Name:</span><span className="font-medium">{firstName} {lastName}</span></div>
                     <div className="flex justify-between"><span>Location:</span><span className="font-medium">{selectedLocation}</span></div>
+                    <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{selectedLocation === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}</span></div>
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
                     {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
                     <div className="flex justify-between"><span>Phone:</span><span className="font-medium">{phoneNumber}</span></div>
@@ -929,26 +1028,45 @@ export default function OrderPage() {
                 <div className="mb-6">
                   <h3 className="font-semibold mb-3">Orders by Delivery Date</h3>
                   {selectedDates.map(date => {
-                    const dateCart = ordersByDate[date];
-                    const dateTotal = Object.entries(dateCart).reduce((sum, [productId, quantity]) => {
-                      const product = products.find(p => p.id === productId)!;
-                      return sum + (product.price * quantity);
-                    }, 0);
+                    const dateOrders = ordersByDate[date];
+                    const dateTotal = dateOrders.reduce((sum, bowl) => sum + bowl.price, 0);
                     
                     return (
                       <div key={date} className="mb-4">
                         <h4 className="font-semibold mb-2">📅 {formatDate(date)}</h4>
-                        <div className="space-y-1">
-                          {Object.entries(dateCart).map(([productId, quantity]) => {
-                            const product = products.find(p => p.id === productId)!;
+                        <div className="space-y-2">
+                          {dateOrders.map((bowl, index) => {
+                            const product = products.find(p => p.id === bowl.productId)!;
+                            const toppingNames = bowl.toppings.map(id => 
+                              toppingOptions.find(t => t.id === id)?.name
+                            ).filter(Boolean);
+                            const extraToppingsList = Object.entries(bowl.extraToppings)
+                              .map(([id, qty]) => `${toppingOptions.find(t => t.id === id)?.name} x${qty}`)
+                              .filter(Boolean);
+                            
                             return (
-                              <div key={productId} className="flex justify-between text-sm">
-                                <span>{product.name} × {quantity}</span>
-                                <span>£{(product.price * quantity).toFixed(2)}</span>
+                              <div key={`${date}-${index}`} className="flex justify-between text-sm border-b border-brand-beige pb-2">
+                                <div className="flex-1">
+                                  <div className="font-medium">{product.name}</div>
+                                  <div className="text-xs text-zinc-600">
+                                    {oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
+                                  </div>
+                                  {toppingNames.length > 0 && (
+                                    <div className="text-xs text-zinc-600">
+                                      Toppings: {toppingNames.join(', ')}
+                                    </div>
+                                  )}
+                                  {extraToppingsList.length > 0 && (
+                                    <div className="text-xs text-zinc-600">
+                                      Extra: {extraToppingsList.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="font-medium">£{bowl.price.toFixed(2)}</span>
                               </div>
                             );
                           })}
-                          <div className="flex justify-between font-medium pt-2 border-t border-brand-beige">
+                          <div className="flex justify-between font-medium pt-2">
                             <span>Date Subtotal:</span>
                             <span>£{dateTotal.toFixed(2)}</span>
                           </div>
@@ -1001,23 +1119,41 @@ export default function OrderPage() {
                   {totalBowls > 0 ? (
                     <div className="space-y-3">
                       {selectedDates.map((date, dateIdx) => {
-                        const dateCart = ordersByDate[date];
-                        if (!dateCart || Object.keys(dateCart).length === 0) return null;
+                        const dateOrders = ordersByDate[date];
+                        if (!dateOrders || dateOrders.length === 0) return null;
                         
                         return (
                           <div key={date} className="pb-3 mb-3 border-b border-brand-beige last:border-0">
                             <div className="text-xs font-medium text-brand-green mb-2">
                               {formatDate(date)}
                             </div>
-                            {Object.entries(dateCart).map(([productId, quantity]) => {
-                              const product = products.find(p => p.id === productId)!;
+                            {dateOrders.map((bowl, bowlIdx) => {
+                              const product = products.find(p => p.id === bowl.productId)!;
+                              const toppingNames = bowl.toppings.map(id => 
+                                toppingOptions.find(t => t.id === id)?.name
+                              ).filter(Boolean);
+                              
                               return (
-                                <div key={`${date}-${productId}`} className="flex justify-between items-center py-1">
-                                  <div>
+                                <div key={`${date}-${bowlIdx}`} className="py-2 border-b border-brand-beige/50 last:border-0">
+                                  <div className="flex justify-between items-start mb-1">
                                     <div className="text-sm font-medium">{product.name}</div>
-                                    <div className="text-xs text-text-dark">Qty: {quantity}</div>
+                                    <div className="font-medium text-sm">£{bowl.price.toFixed(2)}</div>
                                   </div>
-                                  <div className="font-medium text-sm">£{(product.price * quantity).toFixed(2)}</div>
+                                  <div className="text-xs text-zinc-600">
+                                    {oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
+                                  </div>
+                                  {toppingNames.length > 0 && (
+                                    <div className="text-xs text-zinc-600 mt-1">
+                                      {toppingNames.join(', ')}
+                                    </div>
+                                  )}
+                                  {Object.keys(bowl.extraToppings).length > 0 && (
+                                    <div className="text-xs text-brand-green mt-1">
+                                      Extra: {Object.entries(bowl.extraToppings)
+                                        .map(([id, qty]) => `${toppingOptions.find(t => t.id === id)?.name} x${qty}`)
+                                        .join(', ')}
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })}
@@ -1056,6 +1192,228 @@ export default function OrderPage() {
       </main>
 
       <Footer />
+
+      {/* Product Modal */}
+      {selectedProduct && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={closeProductModal}
+        >
+          <div 
+            className="bg-background rounded-2xl shadow-2xl max-w-5xl w-full relative max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={closeProductModal}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-brand-beige flex items-center justify-center transition z-10"
+            >
+              <span className="text-2xl text-zinc-600">×</span>
+            </button>
+
+            {/* Scrollable Content */}
+            <div className="overflow-y-auto p-8">
+              {/* Two-column layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* LEFT COLUMN - Product Info */}
+                <div>
+                  {/* Product Image */}
+                  <div className="mb-6 flex justify-center">
+                    <Image 
+                      src={selectedProduct.image} 
+                      alt={selectedProduct.name}
+                      width={200}
+                      height={200}
+                      className="rounded-xl object-cover"
+                    />
+                  </div>
+
+                  {/* Product details */}
+                  <div className="mb-6">
+                    {selectedProduct.monthlySpecial && 
+                      <div className="inline-block bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+                        MONTHLY SPECIAL
+                      </div>
+                    }
+                    <h3 className="text-2xl font-bold mb-2">{selectedProduct.name}</h3>
+                    <p className="text-brand-green font-bold text-2xl mb-3">£{selectedProduct.price.toFixed(2)}</p>
+                    <p className="mb-4">{selectedProduct.description}</p>
+                    
+                  {/* Ingredients */}
+                  {selectedProduct.ingredients && (
+                    <div className="mt-4 p-4 bg-brand-beige/50 rounded-lg">
+                      <h4 className="text-sm font-semibold mb-2">Ingredients</h4>
+                      <div className="text-sm leading-relaxed">
+                        {renderIngredientsWithStyling(selectedProduct.ingredients)}
+                        <div>For allergens see ingredients in <strong className='underline'>BOLD.</strong></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN - Customization */}
+              <div className="border-l border-brand-beige pl-8">
+                {/* Oat Soaking Selection */}
+                <div className="mb-6">
+                  <h4 className="font-semibold mb-3">Choose your oat soaking</h4>
+                  <div className="space-y-2">
+                    {oatSoakingOptions.map(option => (
+                      <button
+                        key={option.id}
+                        onClick={() => setSelectedOatSoaking(option.id)}
+                        className={`cursor-pointer w-full p-3 text-sm border-2 rounded-lg text-left transition flex items-center justify-between ${
+                          selectedOatSoaking === option.id
+                            ? 'border-brand-green bg-brand-beige/30'
+                            : 'border-brand-beige hover:border-brand-green'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          {option.name}
+                          {option.isGlutenFree && (
+                            <span className="text-xs bg-brand-green text-white px-2 py-0.5 rounded">GF available</span>
+                          )}
+                        </span>
+                        {selectedOatSoaking === option.id && (
+                          <span className="text-brand-green">✓</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Toppings Selection */}
+                <div className="mb-6">
+                  <h4 className="font-semibold mb-2">Pick up to 4 toppings</h4>
+                  <p className="text-sm text-zinc-600 mb-3">
+                    {selectedToppings.length}/4 selected
+                    {selectedToppings.length > 4 && (
+                      <span className="text-brand-error ml-2">Maximum 4 toppings</span>
+                    )}
+                  </p>
+                  
+                  {/* Two-column grid for toppings */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {toppingCategories
+                      .filter(cat => cat.id !== 'extras') // Exclude extras from main grid
+                      .map(category => {
+                        const categoryToppings = toppingOptions.filter(t => t.category === category.id);
+                        return (
+                          <div key={category.id}>
+                            <h5 className="text-md font-medium mb-2">{category.name}</h5>
+                            <div className="space-y-1">
+                              {categoryToppings.map(topping => {
+                                const isSelected = selectedToppings.includes(topping.id);
+                                const canSelect = selectedToppings.length < 4 || isSelected;
+                                
+                                return (
+                                  <button
+                                    key={topping.id}
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        setSelectedToppings(selectedToppings.filter(id => id !== topping.id));
+                                      } else if (canSelect) {
+                                        setSelectedToppings([...selectedToppings, topping.id]);
+                                      }
+                                    }}
+                                    disabled={!canSelect && !isSelected}
+                                    className={`cursor-pointer w-full p-2 text-sm border rounded-lg text-left transition flex items-center justify-between ${
+                                      isSelected
+                                        ? 'border-brand-beige bg-brand-beige/30'
+                                        : canSelect
+                                          ? 'border-brand-beige hover:border-brand-green'
+                                          : 'border-brand-beige opacity-50 cursor-not-allowed'
+                                    }`}
+                                  >
+                                    <span>{topping.name}</span>
+                                    {isSelected && (
+                                      <span className="text-brand-green">✓</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                {/* Extra Toppings Section */}
+                <div className="mb-6">
+                  <h4 className="font-semibold mb-2">Additional toppings - £1 each</h4>
+                  
+                  <div className="space-y-2">
+                    {toppingOptions.map(topping => {
+                      const quantity = extraToppings[topping.id] || 0;
+                      return (
+                        <div
+                          key={topping.id}
+                          className="flex items-center justify-between p-2 border border-brand-beige rounded-lg hover:border-brand-green transition"
+                        >
+                          <span className="text-sm">{topping.name}</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                const newQuantity = Math.max(0, quantity - 1);
+                                if (newQuantity === 0) {
+                                  const newExtras = { ...extraToppings };
+                                  delete newExtras[topping.id];
+                                  setExtraToppings(newExtras);
+                                } else {
+                                  setExtraToppings({ ...extraToppings, [topping.id]: newQuantity });
+                                }
+                              }}
+                              className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                            >
+                              −
+                            </button>
+                            <span className="w-8 text-center font-medium">{quantity}</span>
+                            <button
+                              onClick={() => {
+                                setExtraToppings({ ...extraToppings, [topping.id]: quantity + 1 });
+                              }}
+                              className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+            </div>
+
+            {/* Action Buttons at Bottom */}
+            <div className="border-t border-brand-beige p-6">
+              {selectedToppings.length < 4 && (
+                <p className="text-sm text-brand-error text-center mb-3">
+                  Please select {4 - selectedToppings.length} more topping{4 - selectedToppings.length !== 1 ? 's' : ''} to continue
+                </p>
+              )}
+              <div className="flex space-x-3">
+                <button
+                  onClick={closeProductModal}
+                  className="flex-1 px-6 border-2 border-brand-beige text-zinc-700 rounded-lg font-semibold hover:bg-brand-beige transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addToCart}
+                  disabled={selectedToppings.length < 4}
+                  className="flex-1 px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
+                >
+                  Add for £{(selectedProduct.price + Object.values(extraToppings).reduce((s, q) => s + q, 0)).toFixed(2)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
