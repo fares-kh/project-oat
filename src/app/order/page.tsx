@@ -8,10 +8,11 @@ import { products, type Product, oatSoakingOptions, toppingOptions, toppingCateg
 
 interface BowlOrder {
   productId: string;
-  oatSoaking: string;
-  toppings: string[];
+  oatSoaking: string | null; // null for signature bowls
+  toppings: string[]; // empty for signature bowls
   extraToppings: Record<string, number>;
   price: number;
+  isSignature: boolean;
 }
 
 export default function OrderPage() {
@@ -56,8 +57,6 @@ export default function OrderPage() {
   const [postcodeError, setPostcodeError] = useState('');
   const [ordersByDate, setOrdersByDate] = useState<Record<string, BowlOrder[]>>({});
   const [totalBowls, setTotalBowls] = useState(0);
-  const [isBurgerOpen, setIsBurgerOpen] = useState(false);
-  const [isBasketOpen, setIsBasketOpen] = useState(false);
   const [customDateInput, setCustomDateInput] = useState('');
   const [customDateError, setCustomDateError] = useState('');
   const [previewDates, setPreviewDates] = useState<string[]>([]);
@@ -265,8 +264,14 @@ export default function OrderPage() {
 
   const openProductModal = (product: Product) => {
     setSelectedProduct(product);
-    setSelectedOatSoaking('dairy-yoghurt');
-    setSelectedToppings([]);
+    // Only reset customization for Build Your Own
+    if (!product.isSignature) {
+      setSelectedOatSoaking('dairy-yoghurt');
+      setSelectedToppings([]);
+    } else {
+      setSelectedOatSoaking('');
+      setSelectedToppings([]);
+    }
     setExtraToppings({});
   };
 
@@ -291,10 +296,11 @@ export default function OrderPage() {
       
       const newBowl: BowlOrder = {
         productId: selectedProduct.id,
-        oatSoaking: selectedOatSoaking,
-        toppings: [...selectedToppings],
+        oatSoaking: selectedProduct.isSignature ? null : selectedOatSoaking,
+        toppings: selectedProduct.isSignature ? [] : [...selectedToppings],
         extraToppings: { ...extraToppings },
-        price: totalPrice
+        price: totalPrice,
+        isSignature: selectedProduct.isSignature || false
       };
       
       newOrders[currentDate].push(newBowl);
@@ -1064,17 +1070,19 @@ export default function OrderPage() {
                               <div key={`${date}-${index}`} className="flex justify-between text-sm border-b border-brand-beige pb-2">
                                 <div className="flex-1">
                                   <div className="font-medium">{product.name}</div>
-                                  <div className="text-xs text-zinc-600">
-                                    {oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
-                                  </div>
-                                  {toppingNames.length > 0 && (
-                                    <div className="text-xs text-zinc-600">
+                                  {!bowl.isSignature && 
+                                    <div className="text-xs">
+                                      {bowl.oatSoaking && oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
+                                    </div>
+                                  }
+                                  {!bowl.isSignature && toppingNames.length > 0 && (
+                                    <div className="text-xs">
                                       Toppings: {toppingNames.join(', ')}
                                     </div>
                                   )}
                                   {extraToppingsList.length > 0 && (
                                     <div className="text-xs text-zinc-600">
-                                      Extra: {extraToppingsList.join(', ')}
+                                      {bowl.isSignature ? 'Added' : 'Extra'}: {extraToppingsList.join(', ')}
                                     </div>
                                   )}
                                 </div>
@@ -1155,17 +1163,21 @@ export default function OrderPage() {
                                     <div className="text-sm font-medium">{product.name}</div>
                                     <div className="font-medium text-sm">£{bowl.price.toFixed(2)}</div>
                                   </div>
-                                  <div className="text-xs text-zinc-600">
-                                    {oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
-                                  </div>
-                                  {toppingNames.length > 0 && (
-                                    <div className="text-xs text-zinc-600 mt-1">
-                                      {toppingNames.join(', ')}
-                                    </div>
-                                  )}
+                                  {!bowl.isSignature && 
+                                    <>
+                                      <div className="text-xs text-zinc-600">
+                                        {bowl.oatSoaking && oatSoakingOptions.find(o => o.id === bowl.oatSoaking)?.name}
+                                      </div>
+                                      {toppingNames.length > 0 && (
+                                        <div className="text-xs text-zinc-600 mt-1">
+                                          {toppingNames.join(', ')}
+                                        </div>
+                                      )}
+                                    </>
+                                  }
                                   {Object.keys(bowl.extraToppings).length > 0 && (
                                     <div className="text-xs text-brand-green mt-1">
-                                      Extra: {Object.entries(bowl.extraToppings)
+                                      {bowl.isSignature ? 'Added' : 'Extra'}: {Object.entries(bowl.extraToppings)
                                         .map(([id, qty]) => `${toppingOptions.find(t => t.id === id)?.name} x${qty}`)
                                         .join(', ')}
                                     </div>
@@ -1270,143 +1282,195 @@ export default function OrderPage() {
 
               {/* RIGHT COLUMN - Customization */}
               <div className="border-l border-brand-beige pl-8">
-                {/* Oat Soaking Selection */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-3">Choose your oat soaking</h4>
-                  <div className="space-y-2">
-                    {oatSoakingOptions.map(option => (
-                      <button
-                        key={option.id}
-                        onClick={() => setSelectedOatSoaking(option.id)}
-                        className={`cursor-pointer w-full p-3 text-sm border-2 rounded-lg text-left transition flex items-center justify-between ${
-                          selectedOatSoaking === option.id
-                            ? 'border-brand-green bg-brand-beige/30'
-                            : 'border-brand-beige hover:border-brand-green'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          {option.name}
-                          {option.isGlutenFree && (
-                            <span className="text-xs bg-brand-green text-white px-2 py-0.5 rounded">GF available</span>
-                          )}
-                        </span>
-                        {selectedOatSoaking === option.id && (
-                          <span className="text-brand-green">✓</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Toppings Selection */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-2">Pick up to 4 toppings</h4>
-                  <p className="text-sm text-zinc-600 mb-3">
-                    {selectedToppings.length}/4 selected
-                    {selectedToppings.length > 4 && (
-                      <span className="text-brand-error ml-2">Maximum 4 toppings</span>
-                    )}
-                  </p>
-                  
-                  {/* Two-column grid for toppings */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {toppingCategories
-                      .filter(cat => cat.id !== 'extras') // Exclude extras from main grid
-                      .map(category => {
-                        const categoryToppings = toppingOptions.filter(t => t.category === category.id);
-                        return (
-                          <div key={category.id}>
-                            <h5 className="text-md font-medium mb-2">{category.name}</h5>
-                            <div className="space-y-1">
-                              {categoryToppings.map(topping => {
-                                const isSelected = selectedToppings.includes(topping.id);
-                                const canSelect = selectedToppings.length < 4 || isSelected;
-                                
-                                return (
-                                  <button
-                                    key={topping.id}
-                                    onClick={() => {
-                                      if (isSelected) {
-                                        setSelectedToppings(selectedToppings.filter(id => id !== topping.id));
-                                      } else if (canSelect) {
-                                        setSelectedToppings([...selectedToppings, topping.id]);
-                                      }
-                                    }}
-                                    disabled={!canSelect && !isSelected}
-                                    className={`cursor-pointer w-full p-2 text-sm border rounded-lg text-left transition flex items-center justify-between ${
-                                      isSelected
-                                        ? 'border-brand-beige bg-brand-beige/30'
-                                        : canSelect
-                                          ? 'border-brand-beige hover:border-brand-green'
-                                          : 'border-brand-beige opacity-50 cursor-not-allowed'
-                                    }`}
-                                  >
-                                    <span>{topping.name}</span>
-                                    {isSelected && (
-                                      <span className="text-brand-green">✓</span>
-                                    )}
-                                  </button>
-                                );
-                              })}
+                {selectedProduct.isSignature ? (
+                  /* SIGNATURE BOWL - Only show optional extras */
+                  <>
+                    {/* Extra Toppings Section */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-2">Add Optional Toppings - £1 each</h4>
+                      
+                      <div className="space-y-2">
+                        {toppingOptions.map(topping => {
+                          const quantity = extraToppings[topping.id] || 0;
+                          return (
+                            <div
+                              key={topping.id}
+                              className="flex items-center justify-between p-2 border border-brand-beige rounded-lg hover:border-brand-green transition"
+                            >
+                              <span className="text-sm">{topping.name}</span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => {
+                                    const newQuantity = Math.max(0, quantity - 1);
+                                    if (newQuantity === 0) {
+                                      const newExtras = { ...extraToppings };
+                                      delete newExtras[topping.id];
+                                      setExtraToppings(newExtras);
+                                    } else {
+                                      setExtraToppings({ ...extraToppings, [topping.id]: newQuantity });
+                                    }
+                                  }}
+                                  className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                                >
+                                  −
+                                </button>
+                                <span className="w-8 text-center font-medium">{quantity}</span>
+                                <button
+                                  onClick={() => {
+                                    setExtraToppings({ ...extraToppings, [topping.id]: quantity + 1 });
+                                  }}
+                                  className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /* BUILD YOUR OWN - Show full customization */
+                  <>
+                    {/* Oat Soaking Selection */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-3">Choose your oat soaking</h4>
+                      <div className="space-y-2">
+                        {oatSoakingOptions.map(option => (
+                          <button
+                            key={option.id}
+                            onClick={() => setSelectedOatSoaking(option.id)}
+                            className={`cursor-pointer w-full p-3 text-sm border-2 rounded-lg text-left transition flex items-center justify-between ${
+                              selectedOatSoaking === option.id
+                                ? 'border-brand-green bg-brand-beige/30'
+                                : 'border-brand-beige hover:border-brand-green'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              {option.name}
+                              {option.isGlutenFree && (
+                                <span className="text-xs bg-brand-green text-white px-2 py-0.5 rounded">GF available</span>
+                              )}
+                            </span>
+                            {selectedOatSoaking === option.id && (
+                              <span className="text-brand-green">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                {/* Extra Toppings Section */}
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-2">Additional toppings - £1 each</h4>
-                  
-                  <div className="space-y-2">
-                    {toppingOptions.map(topping => {
-                      const quantity = extraToppings[topping.id] || 0;
-                      return (
-                        <div
-                          key={topping.id}
-                          className="flex items-center justify-between p-2 border border-brand-beige rounded-lg hover:border-brand-green transition"
-                        >
-                          <span className="text-sm">{topping.name}</span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                const newQuantity = Math.max(0, quantity - 1);
-                                if (newQuantity === 0) {
-                                  const newExtras = { ...extraToppings };
-                                  delete newExtras[topping.id];
-                                  setExtraToppings(newExtras);
-                                } else {
-                                  setExtraToppings({ ...extraToppings, [topping.id]: newQuantity });
-                                }
-                              }}
-                              className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                    {/* Toppings Selection */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-2">Pick 4 toppings</h4>
+                      <p className="text-sm text-zinc-600 mb-3">
+                        {selectedToppings.length}/4 selected
+                        {selectedToppings.length > 4 && (
+                          <span className="text-brand-error ml-2">Maximum 4 toppings</span>
+                        )}
+                      </p>
+                      
+                      {/* Two-column grid for toppings */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {toppingCategories
+                          .filter(cat => cat.id !== 'extras') // Exclude extras from main grid
+                          .map(category => {
+                            const categoryToppings = toppingOptions.filter(t => t.category === category.id);
+                            return (
+                              <div key={category.id}>
+                                <h5 className="text-md font-medium mb-2">{category.name}</h5>
+                                <div className="space-y-1">
+                                  {categoryToppings.map(topping => {
+                                    const isSelected = selectedToppings.includes(topping.id);
+                                    const canSelect = selectedToppings.length < 4 || isSelected;
+                                    
+                                    return (
+                                      <button
+                                        key={topping.id}
+                                        onClick={() => {
+                                          if (isSelected) {
+                                            setSelectedToppings(selectedToppings.filter(id => id !== topping.id));
+                                          } else if (canSelect) {
+                                            setSelectedToppings([...selectedToppings, topping.id]);
+                                          }
+                                        }}
+                                        disabled={!canSelect && !isSelected}
+                                        className={`cursor-pointer w-full p-2 text-sm border rounded-lg text-left transition flex items-center justify-between ${
+                                          isSelected
+                                            ? 'border-brand-beige bg-brand-beige/30'
+                                            : canSelect
+                                              ? 'border-brand-beige hover:border-brand-green'
+                                              : 'border-brand-beige opacity-50 cursor-not-allowed'
+                                        }`}
+                                      >
+                                        <span>{topping.name}</span>
+                                        {isSelected && (
+                                          <span className="text-brand-green">✓</span>
+                                        )}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Extra Toppings Section */}
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-2">Additional toppings - £1 each</h4>
+                      
+                      <div className="space-y-2">
+                        {toppingOptions.map(topping => {
+                          const quantity = extraToppings[topping.id] || 0;
+                          return (
+                            <div
+                              key={topping.id}
+                              className="flex items-center justify-between p-2 border border-brand-beige rounded-lg hover:border-brand-green transition"
                             >
-                              −
-                            </button>
-                            <span className="w-8 text-center font-medium">{quantity}</span>
-                            <button
-                              onClick={() => {
-                                setExtraToppings({ ...extraToppings, [topping.id]: quantity + 1 });
-                              }}
-                              className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                </div>
+                              <span className="text-sm">{topping.name}</span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => {
+                                    const newQuantity = Math.max(0, quantity - 1);
+                                    if (newQuantity === 0) {
+                                      const newExtras = { ...extraToppings };
+                                      delete newExtras[topping.id];
+                                      setExtraToppings(newExtras);
+                                    } else {
+                                      setExtraToppings({ ...extraToppings, [topping.id]: newQuantity });
+                                    }
+                                  }}
+                                  className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                                >
+                                  −
+                                </button>
+                                <span className="w-8 text-center font-medium">{quantity}</span>
+                                <button
+                                  onClick={() => {
+                                    setExtraToppings({ ...extraToppings, [topping.id]: quantity + 1 });
+                                  }}
+                                  className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             </div>
 
             {/* Action Buttons at Bottom */}
             <div className="border-t border-brand-beige p-6">
-              {selectedToppings.length < 4 && (
+              {!selectedProduct.isSignature && selectedToppings.length < 4 && (
                 <p className="text-sm text-brand-error text-center mb-3">
                   Please select {4 - selectedToppings.length} more topping{4 - selectedToppings.length !== 1 ? 's' : ''} to continue
                 </p>
@@ -1420,7 +1484,7 @@ export default function OrderPage() {
                 </button>
                 <button
                   onClick={addToCart}
-                  disabled={selectedToppings.length < 4}
+                  disabled={!selectedProduct.isSignature && selectedToppings.length < 4}
                   className="flex-1 px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
                 >
                   Add for £{(selectedProduct.price + Object.values(extraToppings).reduce((s, q) => s + q, 0)).toFixed(2)}

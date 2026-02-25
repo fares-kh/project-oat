@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
       'blueberry-cheesecake': 'Blueberry Cheesecake',
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
-      'monthly-special': 'Monthly Special'
+      'monthly-special': 'Monthly Special',
+      'build-your-own': 'Build Your Own'
     };
 
     const toppingNames: Record<string, string> = {
@@ -57,9 +58,9 @@ export async function POST(request: NextRequest) {
       dateBowls.forEach((bowl: any) => {
         bowlNumber++;
         const productName = productNames[bowl.productId] || bowl.productId;
-        const oatSoaking = oatSoakingNames[bowl.oatSoaking] || bowl.oatSoaking;
+        const oatSoaking = bowl.oatSoaking ? (oatSoakingNames[bowl.oatSoaking] || bowl.oatSoaking) : null;
         
-        const toppings = bowl.toppings.map((id: string) => toppingNames[id] || id);
+        const toppings = bowl.toppings?.map((id: string) => toppingNames[id] || id) || [];
         
         // Format extra toppings
         const extraToppings = Object.entries(bowl.extraToppings || {})
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
           bowlNumber,
           productId: bowl.productId,
           productName,
+          isSignature: bowl.isSignature || false,
           oatSoaking,
           toppings,
           extraToppings,
@@ -99,6 +101,26 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
+    const merchantData = {
+      order_details: JSON.stringify(fullOrderData),
+      customer_phone: orderData.customer.phone,
+      customer_address: `${orderData.customer.address.line1}, ${orderData.customer.address.city}, ${orderData.customer.address.postcode}`,
+      delivery_notes: orderData.delivery.notes || '',
+      need_paper_spoons: orderData.delivery.needPaperSpoons || false
+    };
+
+    console.log('\n=== MERCHANT DATA ===');
+    console.log('Checkout Reference:', checkoutReference);
+    console.log('Description (visible to customer):', description);
+    console.log('Merchant Data Keys:', Object.keys(merchantData));
+    console.log('Order Details Preview:', JSON.stringify(fullOrderData, null, 2));
+    console.log('Customer Phone:', merchantData.customer_phone);
+    console.log('Customer Address:', merchantData.customer_address);
+    console.log('Delivery Notes:', merchantData.delivery_notes);
+    console.log('Need Paper Spoons:', merchantData.need_paper_spoons);
+    console.log('Total Bowls:', detailedLineItems.length);
+    console.log('==================\n');
+
     const sumupResponse = await fetch('https://api.sumup.com/v0.1/checkouts', {
       method: 'POST',
       headers: {
@@ -111,13 +133,7 @@ export async function POST(request: NextRequest) {
         currency: 'GBP',
         merchant_code: process.env.SUMUP_MERCHANT_CODE,
         description: description,
-        merchant_data: {
-          order_details: JSON.stringify(fullOrderData),
-          customer_phone: orderData.customer.phone,
-          customer_address: `${orderData.customer.address.line1}, ${orderData.customer.address.city}, ${orderData.customer.address.postcode}`,
-          delivery_notes: orderData.delivery.notes || '',
-          need_paper_spoons: orderData.delivery.needPaperSpoons || false
-        },
+        merchant_data: merchantData,
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}`,
         hosted_checkout: { 
           enabled: true
@@ -142,7 +158,8 @@ export async function POST(request: NextRequest) {
       checkoutId: checkout.id,
       amount: orderData.amount,
       hostedCheckoutUrl: checkout.hosted_checkout_url,
-      detailedLineItems: detailedLineItems.length
+      detailedLineItems: detailedLineItems.length,
+      merchantData: checkout.merchant_data,
     });
 
     if (!checkout.hosted_checkout_url) {
