@@ -85,6 +85,10 @@ export default function OrderPage() {
     phoneNumber: ''
   });
   
+  // T&Cs modal state
+  const [showTCModal, setShowTCModal] = useState(false);
+  const [hasAcceptedTC, setHasAcceptedTC] = useState(false);
+  
   const datePickerRef = useRef<HTMLInputElement>(null);
 
   // Get delivery dates based on selected location
@@ -326,7 +330,14 @@ export default function OrderPage() {
   const proceedToAddress = () => {
     const currentDateTotal = getCurrentDateTotal();
     if (currentDateTotal >= 2) {
-      proceedToNextDate();
+      // Check if this is the last date
+      if (currentDateIndex < selectedDates.length - 1) {
+        // Move to next date
+        setCurrentDateIndex(currentDateIndex + 1);
+      } else {
+        // All dates completed, show T&Cs modal
+        setShowTCModal(true);
+      }
     }
   };
 
@@ -1490,6 +1501,85 @@ export default function OrderPage() {
                   Add for £{(selectedProduct.price + Object.values(extraToppings).reduce((s, q) => s + q, 0)).toFixed(2)}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Terms & Conditions Modal */}
+      {showTCModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+            }
+          }}
+        >
+          <div 
+            className="bg-background rounded-2xl shadow-2xl max-w-4xl w-full relative max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-6 border-b border-brand-beige">
+              <h2 className="text-2xl font-bold">Terms & Conditions</h2>
+              <p className="text-sm text-zinc-600 mt-1">Please read and accept our terms to continue</p>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="overflow-y-auto p-6 flex-1">
+              <div className="prose prose-sm max-w-none">
+                <h3 className="text-lg font-bold mb-3">Additional Info</h3>
+                <ul className="space-y-3 mb-6">
+                  <li>Including day of delivery, bowls will have a two day shelf life. Keep refrigerated.</li>
+                  <li>Bowls will be delivered before 11am and left on the doorstep, similar to a milk delivery. Customers are responsible for ensuring a safe and suitable drop-off location. If you require the bowl handing to you, this must be specified in the &apos;additional info&apos; box when placing your order. If you would like your bowls delivered before a specific time we will do our best, but this cannot be guaranteed - must be specified in the &apos;additional info&apos; box when placing your order.</li>
+                  <li>Orders must be placed in advance:
+                    <ul className="mt-2 ml-6 space-y-1">
+                      <li>Monday deliveries must be ordered by 10am on the preceding Saturday</li>
+                      <li>Wednesday deliveries must be ordered by 10am on the preceding Monday</li>
+                    </ul>
+                  </li>
+                  <li>A 15-minute delivery time slot between 7:00am and 9:00am will be provided at least 24 hours prior to delivery.</li>
+                  <li>We reserve the right to make minor changes to menus or delivery schedules where necessary, with customers notified in advance where possible.</li>
+                </ul>
+
+                <h3 className="text-lg font-bold mb-3">Allergens</h3>
+                <ul className="space-y-3 mb-6">
+                  <li>All bowls are prepared in a kitchen that handles all 14 major allergens. Therefore, we cannot guarantee any dish is allergen-free. Customers with food allergies or intolerances should contact us before ordering (via Instagram or email) to discuss ingredients and suitability. By placing an order, customers acknowledge and accept this risk.</li>
+                </ul>
+
+                <h3 className="text-lg font-bold mb-3">Refunds & Cancellations</h3>
+                <ul className="space-y-3">
+                  <li>Due to the perishable nature of our food, refunds are not available once an order has been placed.</li>
+                  <li>No refunds will be issued for missed deliveries where access to the delivery location was unavailable.</li>
+                  <li>In the unlikely event that we are unable to fulfil a delivery, customers will be offered a replacement delivery or refund.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer with checkbox and button */}
+            <div className="border-t border-brand-beige p-6">
+              <label className="flex items-start space-x-3 mb-4 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={hasAcceptedTC}
+                  onChange={(e) => setHasAcceptedTC(e.target.checked)}
+                  className="mt-1 w-5 h-5 rounded border-brand-beige checked:bg-brand-green checked:border-brand-green cursor-pointer"
+                />
+                <span className="text-sm group-hover:text-brand-green transition">
+                  I have read and accept the Terms & Conditions, including allergen information and refund policy
+                </span>
+              </label>
+              
+              <button
+                onClick={() => {
+                  setShowTCModal(false);
+                  setCurrentStep(5);
+                }}
+                disabled={!hasAcceptedTC}
+                className="w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
+              >
+                Continue to Address
+              </button>
             </div>
           </div>
         </div>
