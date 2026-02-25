@@ -2,12 +2,11 @@ import "./styles.css";
 
 interface SpecialCardProps {
   title: string;
-  price: string;
   imageSrc: string;
   imageAlt: string;
 }
 
-export default function SpecialCard({ title, price, imageSrc, imageAlt }: SpecialCardProps) {
+export default function SpecialCard({ title, imageSrc, imageAlt }: SpecialCardProps) {
   return (
     <div className="special-card">
       <div className="special-card-image">

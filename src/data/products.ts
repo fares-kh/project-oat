@@ -66,7 +66,7 @@ export const products: Product[] = [
   {
     id: 'blueberry-cheesecake',
     name: 'Blueberry Cheesecake',
-    price: 0.3,
+    price: 5.95,
     description: "Blueberry soaked oats. Topped with a cheesecake drizzle, blueberry compote & biscuit crumble",
     image: '/blueberry.png',
     isSignature: true,
@@ -75,7 +75,7 @@ export const products: Product[] = [
   {
     id: 'sticky-toffee',
     name: 'Sticky Toffee',
-    price: 0.3,
+    price: 5.95,
     description: "Date soaked oats, made with oat milk & Greek yoghurt. Topped with banana, cacao nibs, greek yoghurt & chopped dates.",
     image: '/sticky-toffee.png',
     isSignature: true,

@@ -26,17 +26,15 @@ export default function Home() {
                 <SpecialCard
                   key={product.id}
                   title={product.name}
-                  price={`£${product.price.toFixed(2)}`}
                   imageSrc={product.image}
                   imageAlt={product.name}
                 />
               ))
             }
             <SpecialCard
-              title="Toasted Marshmallow Matcha"
-              price="£5.95"
-              imageSrc="/nov_2.png"
-              imageAlt="Toasted Marshmallow Matcha"
+              title="Mango Coconut Matcha"
+              imageSrc="/monthly-special-matcha.png"
+              imageAlt="Mango Coconut Matcha"
             />
           </div>
         </div>
@@ -62,12 +60,14 @@ export default function Home() {
             <MenuColumn
               title="MATCHA MENU"
               items={[
-                { title: "Banana Cream", description: "Banana, oat milk, vanilla, ceremonial matcha" },
-                { title: "Strawberry", description: "Strawberry purée, oat milk, ceremonial matcha" },
-                { title: "Iced Protein Matcha", description: "Vanilla protein, oat milk, ice, ceremonial matcha" },
-                { title: "Iced Toasted Marshmallow", description: "Toasted marshmallow syrup, oat milk, ice, matcha" },
-                { title: "Cotton Cloud", description: "Vanilla, oat milk, ceremonial matcha, cloud foam" },
-                { title: "White Chocolate", description: "White chocolate, oat milk, ceremonial matcha" },
+                { title: "Classic Ceremonial (vg)", description: "" },
+                { title: "Vanilla (vg)", description: "" },
+                { title: "Strawberry (vg)", description: "" },
+                { title: "Banana Cream (vg)", description: "Banana matcha, banana cold foam" },
+                { title: "Cotton Cloud", description: "White chocolate matcha, raspberry cold foam" },
+                { title: "Vanilla Protein", description: "Vegan protein shake with a serving of matcha" },
+                { title: "(Hot) Toasted Marshmallow", description: "" },
+                { title: "(Hot) White Chocolate", description: "" },
               ]}
             />
           </div>

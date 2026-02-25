@@ -18,7 +18,7 @@ export default function Footer() {
             </h3>
             <div className="flex gap-4 font-brand">
               <a
-                href="https://www.tiktok.com/@yourbrand"
+                href="https://www.tiktok.com/@ellies.oats"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-black hover:text-brand-green transition font-semibold"
@@ -36,7 +36,7 @@ export default function Footer() {
                 TikTok
               </a>
               <a
-                href="https://www.instagram.com/yourbrand"
+                href="https://www.instagram.com/ellies.oats"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-black hover:text-brand-green transition font-semibold"
@@ -53,6 +53,24 @@ export default function Footer() {
                 </svg>
                 Instagram
               </a>
+              <a
+                href="https://m.facebook.com/profile.php?id=61577992477386"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-black hover:text-brand-green transition font-semibold"
+                >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-facebook"
+                    viewBox="0 0 16 16"
+                >
+                    <path d="M8.94 8.116H7.56v4.156H6V8.116H5V6.88h1v-1.06c0-.888.456-2.32 2.26-2.32h1.46v1.236h-1c-.298 0-.714.146-.714.774v.87h1.715l-.224 1.236z"/>
+                </svg>
+                Facebook
+                </a>
             </div>
           </div>
         </div>

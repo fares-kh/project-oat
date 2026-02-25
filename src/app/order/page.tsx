@@ -37,7 +37,7 @@ export default function OrderPage() {
       }
     },
     'Manchester': {
-      useCustomDates: true,
+      useCustomDates: false,
       customDates: [
         '2026-02-26',
       ],
@@ -240,9 +240,9 @@ export default function OrderPage() {
     const cutoffDate = new Date();
     cutoffDate.setDate(today.getDate() + 2);
     
-    // Validate: must be Mon/Wed/Fri and past cutoff
-    if (![1, 3, 5].includes(dayOfWeek)) {
-      setCustomDateError('Please select a Monday, Wednesday, or Friday.');
+    // Validate: must be Mon/Wed and past cutoff
+    if (![1, 3].includes(dayOfWeek)) {
+      setCustomDateError('Please select a Monday or Wednesday.');
       return;
     }
     
@@ -295,7 +295,7 @@ export default function OrderPage() {
         newOrders[currentDate] = [];
       }
       
-      const extraToppingsCost = 0;
+      const extraToppingsCost = Object.values(extraToppings).reduce((sum, qty) => sum + qty, 0);
       const totalPrice = selectedProduct.price + extraToppingsCost;
       
       const newBowl: BowlOrder = {
@@ -454,7 +454,7 @@ export default function OrderPage() {
     
     const allergens = [
       'ALMONDS', 'CASHEWS', 'HAZELNUTS', 'WALNUTS', 'OAT', 'OATS', 
-      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR DIOXIDE', 'WHEAT'
+      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR DIOXIDE', 'WHEAT', 'SOYA', 'SULPHUR DIOXIDE'
     ];
     
     const sections = ingredients.split(/(May contain:|May also contain:|Plant-based coconut \(base only\):|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
@@ -572,6 +572,13 @@ export default function OrderPage() {
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Choose Your Location</h2>
                 <p className="mb-6">Select where you'd like your oat bowls delivered</p>
+                <p className="mb-6">Ordering 12 or more bowls? Give us an email at {' '}
+                    <a href="mailto:elliesoats@hotmail.com" className="text-brand-green hover:underline font-medium">
+                      elliesoats@hotmail.com
+                    </a>{' '} or Instagram message at {' '}
+                    <a href="https://instagram.com/ellies.oats" target="_blank" rel="noopener noreferrer" className="text-brand-green hover:underline font-medium">
+                      @ellies.oats
+                    </a> for our bulk-buy discount</p>
                 <div className="space-y-3">
                   {locations.map((loc) => (
                     <button 
@@ -708,7 +715,7 @@ export default function OrderPage() {
                       }`}
                     >
                       <div className="font-semibold">📅 Choose a custom date</div>
-                      <div className="text-sm text-dark">Select any Monday, Wednesday, or Friday beyond 3 weeks</div>
+                      <div className="text-sm text-dark">Select any Monday or Wednesday beyond 3 weeks</div>
                       {isCustomDateActive && previewDates.includes(customDateInput) && (
                         <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
                       )}
@@ -1535,14 +1542,7 @@ export default function OrderPage() {
                 <h3 className="text-lg font-bold mb-3">Additional Info</h3>
                 <ul className="space-y-3 mb-6">
                   <li>Including day of delivery, bowls will have a two day shelf life. Keep refrigerated.</li>
-                  <li>Bowls will be delivered before 11am and left on the doorstep, similar to a milk delivery. Customers are responsible for ensuring a safe and suitable drop-off location. If you require the bowl handing to you, this must be specified in the &apos;additional info&apos; box when placing your order. If you would like your bowls delivered before a specific time we will do our best, but this cannot be guaranteed - must be specified in the &apos;additional info&apos; box when placing your order.</li>
-                  <li>Orders must be placed in advance:
-                    <ul className="mt-2 ml-6 space-y-1">
-                      <li>Monday deliveries must be ordered by 10am on the preceding Saturday</li>
-                      <li>Wednesday deliveries must be ordered by 10am on the preceding Monday</li>
-                    </ul>
-                  </li>
-                  <li>A 15-minute delivery time slot between 7:00am and 9:00am will be provided at least 24 hours prior to delivery.</li>
+                  <li>Bowls will be left on the doorstep, similar to a milk delivery. Customers are responsible for ensuring a safe and suitable drop-off location. If you require the bowl handing to you, this must be specified in the &apos;additional info&apos; box when placing your order. If you would like your bowls delivered before a specific time we will do our best, but this cannot be guaranteed - must be specified in the &apos;additional info&apos; box when placing your order.</li>
                   <li>We reserve the right to make minor changes to menus or delivery schedules where necessary, with customers notified in advance where possible.</li>
                 </ul>
 
