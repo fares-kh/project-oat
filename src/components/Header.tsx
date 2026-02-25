@@ -15,7 +15,7 @@ export default function Header() {
         <nav className="w-full md:w-auto flex justify-center order-2 md:order-none">
           <ul className="flex gap-6 list-none font-brand">
             <li><a href="#menu" className="font-medium hover:text-brand-green cursor-pointer scroll-smooth">Menu</a></li>
-            <li><a href="#" className="font-medium hover:text-brand-green">About Me</a></li>
+            <li><Link href="/about" className="font-medium hover:text-brand-green">About Me</Link></li>
           </ul>
         </nav>
         {/* Order Online CTA - right */}
