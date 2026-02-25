@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
         merchant_code: process.env.SUMUP_MERCHANT_CODE,
         description: description,
         merchant_data: merchantData,
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}`,
+        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
         hosted_checkout: { 
           enabled: true
         }
@@ -170,24 +171,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Store order in your database here
-    // await saveOrderToDatabase({
-    //   checkoutReference,
-    //   checkoutId: checkout.id,
-    //   fullOrderData,
-    //   status: 'pending',
-    // });
+    // Save order to Supabase
+    const { data: savedOrder, error: dbError } = await supabaseAdmin
+      .from('orders')
+      .insert({
+        checkout_reference: checkoutReference,
+        sumup_checkout_id: checkout.id,
+        status: 'pending',
+        amount: orderData.amount,
+        customer_name: `${orderData.customer.firstName} ${orderData.customer.lastName}`,
+        customer_phone: orderData.customer.phone,
+        address_line1: orderData.customer.address.line1,
+        address_line2: orderData.customer.address.line2 || null,
+        city: orderData.customer.address.city,
+        postcode: orderData.customer.address.postcode,
+        delivery_location: orderData.delivery.location,
+        delivery_notes: orderData.delivery.notes || null,
+        need_paper_spoons: orderData.delivery.needPaperSpoons || false,
+        delivery_dates: orderData.delivery.dates,
+        items: fullOrderData
+      })
+      .select()
+      .single();
 
-    // TODO: Send detailed confirmation email to customer
-    // await sendOrderConfirmationEmail({
-    //   to: orderData.customer.email,
-    //   orderData: fullOrderData
-    // });
-
-    // TODO: Send order notification to merchant/kitchen
-    // await sendMerchantNotification({
-    //   orderData: fullOrderData
-    // });
+    if (dbError) {
+      console.error('Error saving order to database:', dbError);
+      // Don't fail the checkout, just log it
+    } else {
+      console.log('Order saved to database:', savedOrder?.id);
+    }
     
     return NextResponse.json({
       success: true,

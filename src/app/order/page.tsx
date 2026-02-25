@@ -295,7 +295,7 @@ export default function OrderPage() {
         newOrders[currentDate] = [];
       }
       
-      const extraToppingsCost = Object.values(extraToppings).reduce((sum, qty) => sum + qty, 0);
+      const extraToppingsCost = 0;
       const totalPrice = selectedProduct.price + extraToppingsCost;
       
       const newBowl: BowlOrder = {

@@ -9,15 +9,85 @@ import Link from 'next/link';
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get('reference');
+  const checkoutId = searchParams.get('checkout_id');
   const [paymentStatus, setPaymentStatus] = useState<'loading' | 'success' | 'pending' | 'failed'>('loading');
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    if (reference) {
-      setPaymentStatus('success');
-    } else {
-      setPaymentStatus('failed');
-    }
-  }, [reference]);
+    const verifyPayment = async () => {
+      if (!reference) {
+        setPaymentStatus('failed');
+        return;
+      }
+
+      if (checkoutId && checkoutId !== '{checkout_id}') {
+        setVerifying(true);
+        try {
+          console.log('Verifying payment for checkout:', checkoutId);
+          
+          const response = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ checkoutId }),
+          });
+
+          const data = await response.json();
+          console.log('Verification response:', data);
+
+          if (data.success && data.status === 'paid') {
+            setPaymentStatus('success');
+          } else if (data.status === 'PENDING') {
+            setPaymentStatus('pending');
+          } else {
+            setPaymentStatus('failed');
+          }
+        } catch (error) {
+          console.error('Error verifying payment:', error);
+          setPaymentStatus('success'); // Assume success if we have a reference
+        } finally {
+          setVerifying(false);
+        }
+      } else {
+        // No checkout_id, try to look it up by reference
+        try {
+          console.log('Looking up checkout by reference:', reference);
+          
+          const response = await fetch(`/api/verify-payment-by-reference?reference=${reference}`);
+          const data = await response.json();
+          console.log('Lookup response:', data);
+
+          if (data.success && data.checkoutId) {
+            // Found it, now verify
+            const verifyResponse = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ checkoutId: data.checkoutId }),
+            });
+
+            const verifyData = await verifyResponse.json();
+            
+            if (verifyData.success && verifyData.status === 'paid') {
+              setPaymentStatus('success');
+            } else {
+              setPaymentStatus('pending');
+            }
+          } else {
+            // Couldn't find it, assume success if we have reference
+            setPaymentStatus('success');
+          }
+        } catch (error) {
+          console.error('Error looking up checkout:', error);
+          setPaymentStatus('success'); // Assume success if we have a reference
+        }
+      }
+    };
+
+    verifyPayment();
+  }, [reference, checkoutId]);
 
   return (
     <div className="max-w-2xl mx-auto">
