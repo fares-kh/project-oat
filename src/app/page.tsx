@@ -4,6 +4,7 @@ import MenuColumn from "@/components/MenuColumn";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SpecialCard from "@/components/SpecialCard/SpecialCard";
+import { products } from "@/data/products";
 
 export default function Home() {
   return (
@@ -16,15 +17,21 @@ export default function Home() {
   <section className="py-24 relative bg-background overflow-hidden">
         <div className="container mx-auto px-6">
             <h2 className="mb-12">
-              November Specials
+              Monthly Specials
             </h2>
           <div className="flex flex-col md:flex-row gap-4 justify-center specials-grid md:flex-nowrap md:overflow-x-auto" style={{ minWidth: '0' }}>
-            <SpecialCard
-              title="Blueberry Cheesecake Oat Bowl"
-              price="£4.95"
-              imageSrc="/nov_1.png"
-              imageAlt="Blueberry Cheesecake Oat Bowl"
-            />
+            {products
+              .filter(product => product.monthlySpecial)
+              .map(product => (
+                <SpecialCard
+                  key={product.id}
+                  title={product.name}
+                  price={`£${product.price.toFixed(2)}`}
+                  imageSrc={product.image}
+                  imageAlt={product.name}
+                />
+              ))
+            }
             <SpecialCard
               title="Toasted Marshmallow Matcha"
               price="£5.95"
@@ -39,7 +46,7 @@ export default function Home() {
         <img src="/hero2.jpg" alt="Oat & Matcha" className="w-full object-cover" style={{ maxHeight: '420px', width: '100%' }} />
       </div>
 
-      <section className="py-24 menu-section">
+      <section className="py-24 menu-section" id="menu">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 section-title tracking-tighter font-brand-tight">
             Menu
@@ -47,13 +54,10 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 menu-grid">
             <MenuColumn
               title="OAT BOWLS"
-              items={[
-                { title: "Sticky Toffee", description: "Toffee sauce, caramelized banana, oat crumble" },
-                { title: "Apple of my Eye", description: "Stewed apple, cinnamon, almond butter, oat base" },
-                { title: "Blueberry Cheesecake", description: "Blueberry compote, cheesecake crumble, lemon zest" },
-                { title: "Plant based Coconut", description: "Coconut yogurt, mango, chia, oat base" },
-                { title: "Dairy Bowl", description: "Greek yogurt, honey, berries, oat base" },
-              ]}
+              items={products.map(product => ({
+                title: product.name,
+                description: product.description
+              }))}
             />
             <MenuColumn
               title="MATCHA MENU"

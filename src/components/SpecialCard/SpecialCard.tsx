@@ -15,7 +15,6 @@ export default function SpecialCard({ title, price, imageSrc, imageAlt }: Specia
       </div>
       <div className="special-card-content">
         <h3 className="special-card-title">{title}</h3>
-        <div className="special-card-price">{price}</div>
       </div>
     </div>
   );

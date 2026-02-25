@@ -24,20 +24,20 @@ function ConfirmationContent() {
       {paymentStatus === 'loading' && (
         <div className="bg-background rounded-2xl shadow-xl p-8 text-center">
           <div className="text-4xl mb-4">⏳</div>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-2">Processing Payment...</h2>
+          <h2 className="text-2xl font-bold mb-2">Processing Payment...</h2>
           <p className="text-zinc-700">Please wait while we confirm your payment.</p>
         </div>
       )}
 
       {paymentStatus === 'success' && (
         <div className="bg-background rounded-2xl shadow-xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-zinc-900 mb-2">Order Confirmed!</h2>
+          <h2 className="text-3xl font-bold mb-2">Order Confirmed!</h2>
           <p className="text-zinc-700 mb-4">
             Thank you for your order! Your payment has been processed successfully.
           </p>
           
           <div className="bg-brand-beige-light rounded-lg p-4 mb-6 text-left">
-            <h3 className="font-semibold text-zinc-900 mb-2">Order Reference:</h3>
+            <h3 className="font-semibold mb-2">Order Reference:</h3>
             <p className="font-mono text-brand-green text-lg">{reference}</p>
           </div>
 

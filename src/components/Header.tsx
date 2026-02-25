@@ -14,10 +14,8 @@ export default function Header() {
         {/* Nav Links - center */}
         <nav className="w-full md:w-auto flex justify-center order-2 md:order-none">
           <ul className="flex gap-6 list-none font-brand">
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-brand-green">Bowls</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-brand-green">Matcha</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-brand-green">Contact</a></li>
-            <li><a href="#" className="text-zinc-900 font-medium hover:text-brand-green">Pop-ups</a></li>
+            <li><a href="#menu" className="font-medium hover:text-brand-green cursor-pointer scroll-smooth">Menu</a></li>
+            <li><a href="#" className="font-medium hover:text-brand-green">About Me</a></li>
           </ul>
         </nav>
         {/* Order Online CTA - right */}

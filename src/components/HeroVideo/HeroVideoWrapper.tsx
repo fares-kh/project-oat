@@ -14,7 +14,7 @@ export default function HeroVideoWrapper() {
         <h1 className="text-text-white">
           The UK's only b.y.o oat bowl & iced matcha
         </h1>
-        <a href="#" className="bg-brand-green text-text-white px-8 py-3 rounded-full font-semibold text-lg shadow hover:bg-brand-green-hover transition">Create Your Bowl</a>
+        <a href="/order" className="bg-brand-green text-text-white px-8 py-3 rounded-full font-semibold text-lg shadow hover:bg-brand-green-hover transition">Create Your Bowl</a>
       </div>
     </>
   );

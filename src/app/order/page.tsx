@@ -448,15 +448,19 @@ export default function OrderPage() {
   };
 
   const renderIngredientsWithStyling = (ingredients: string) => {
+    if (!ingredients) {
+      return null;
+    }
+    
     const allergens = [
       'ALMONDS', 'CASHEWS', 'HAZELNUTS', 'WALNUTS', 'OAT', 'OATS', 
       'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR DIOXIDE', 'WHEAT'
     ];
     
-    const sections = ingredients.split(/(May contain:|May also contain:|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
+    const sections = ingredients.split(/(May contain:|May also contain:|Plant-based coconut \(base only\):|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
     
     return sections.map((section, sectionIndex) => {
-      const isHeader = /^(May contain:|May also contain:|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)$/.test(section);
+      const isHeader = /^(May contain:|May also contain:|Plant-based coconut \(base only\):|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)$/.test(section);
       
       if (isHeader) {
         return (
