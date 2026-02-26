@@ -644,7 +644,7 @@ export default function OrderPage() {
                 <h2 className="text-2xl font-bold mb-4">Verify Your Postcode</h2>
                 <p className="mb-6">Please enter your postcode to confirm we deliver to your area in {selectedLocation}.</p>
                 {selectedLocation == 'Lancashire' ?
-                      <p className="font-semibold mb-6">Please note we only deliver to Blackburn, except Colne (BB18) or Barnoldswick (BB18)</p>
+                      <p className="font-semibold mb-6">Please note we deliver to most places in east Lancashire, excluding Colne & Barnoldswick</p>
                     : <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>}
                 
                 <div className="space-y-4">
