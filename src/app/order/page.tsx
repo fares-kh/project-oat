@@ -199,8 +199,7 @@ export default function OrderPage() {
     );
 
     if (!isValid) {
-      const prefixList = locationConfig.postcodeValidation.validPrefixes.join(', ');
-      setPostcodeError(`Sorry, we don't deliver to this postcode. We deliver to: ${prefixList} areas in ${selectedLocation}.`);
+      setPostcodeError(`Sorry, we don't deliver to this postcode.`);
       return false;
     }
 
@@ -468,7 +467,7 @@ export default function OrderPage() {
     
     const allergens = [
       'ALMONDS', 'CASHEWS', 'HAZELNUTS', 'WALNUTS', 'OAT', 'OATS', 
-      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR DIOXIDE', 'WHEAT', 'SOYA', 'SULPHUR DIOXIDE'
+      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR', 'DIOXIDE', 'WHEAT', 'SOYA',
     ];
     
     const sections = ingredients.split(/(May contain:|May also contain:|Plant-based coconut \(base only\):|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
@@ -632,7 +631,7 @@ export default function OrderPage() {
                 <h2 className="text-2xl font-bold mb-4">Verify Your Postcode</h2>
                 <p className="mb-6">Please enter your postcode to confirm we deliver to your area in {selectedLocation}.</p>
                 {selectedLocation == 'Lancashire' ?
-                      <p className="font-semibold mb-6">Please note we do not deliver to Colne (BB18) or Barnoldswick (BB18)</p>
+                      <p className="font-semibold mb-6">Please note we only deliver to Blackburn, except Colne (BB18) or Barnoldswick (BB18)</p>
                     : <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>}
                 
                 <div className="space-y-4">
