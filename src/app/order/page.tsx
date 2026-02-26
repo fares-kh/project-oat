@@ -26,6 +26,7 @@ export default function OrderPage() {
     postcodeValidation: {
       enabled: boolean;
       validPrefixes: string[];
+      excludedPrefixes?: string[];
     };
   }> = {
     'Lancashire': {
@@ -33,7 +34,8 @@ export default function OrderPage() {
       customDates: [],
       postcodeValidation: {
         enabled: true,
-        validPrefixes: ['PR', 'BD', 'LA', 'HX', 'BB1', 'BB2', 'BB3', 'BB4', 'BB5', 'BB6', 'BB7', 'BB9', 'BB10', 'BB11', 'BB12']
+        validPrefixes: ['BB1', 'BB2', 'BB3', 'BB4', 'BB5', 'BB6', 'BB7', 'BB9', 'BB10', 'BB11', 'BB12'],
+        excludedPrefixes: ['BB8', 'BB18']
       }
     },
     'Manchester': {
@@ -43,7 +45,8 @@ export default function OrderPage() {
       ],
       postcodeValidation: {
         enabled: true,
-        validPrefixes: ['M']
+        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL12', 'OL15', 'OL16', 'OL11', 'OL10'],
+        excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46']
       }
     }
   };
@@ -175,15 +178,26 @@ export default function OrderPage() {
     const cleanPostcode = postcodeInput.replace(/\s/g, '').toUpperCase();
     
     if (cleanPostcode.length < 5 || cleanPostcode.length > 7) {
-      setPostcodeError('Please enter a valid UK postcode (e.g., M1 4BT or PR1 2HE).');
+      setPostcodeError('Please enter a valid UK postcode.');
       return false;
     }
     
+    // Check if postcode matches excluded prefixes first
+    const excludedPrefixes = locationConfig.postcodeValidation.excludedPrefixes || [];
+    const isExcluded = excludedPrefixes.some(prefix => 
+      cleanPostcode.startsWith(prefix.toUpperCase())
+    );
+
+    if (isExcluded) {
+      setPostcodeError(`Sorry, we don't deliver to ${cleanPostcode.substring(0, 4)} postcodes in ${selectedLocation}.`);
+      return false;
+    }
+    
+    // Check if postcode matches valid prefixes
     const isValid = locationConfig.postcodeValidation.validPrefixes.some(prefix => 
       cleanPostcode.startsWith(prefix.toUpperCase())
     );
 
-    // to fix error
     if (!isValid) {
       const prefixList = locationConfig.postcodeValidation.validPrefixes.join(', ');
       setPostcodeError(`Sorry, we don't deliver to this postcode. We deliver to: ${prefixList} areas in ${selectedLocation}.`);
@@ -617,6 +631,9 @@ export default function OrderPage() {
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Verify Your Postcode</h2>
                 <p className="mb-6">Please enter your postcode to confirm we deliver to your area in {selectedLocation}.</p>
+                {selectedLocation == 'Lancashire' ?
+                      <p className="font-semibold mb-6">Please note we do not deliver to Colne (BB18) or Barnoldswick (BB18)</p>
+                    : <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>}
                 
                 <div className="space-y-4">
                   <div>
@@ -646,13 +663,6 @@ export default function OrderPage() {
                       {postcodeError}
                     </div>
                   )}
-
-                  <div className="p-4 bg-brand-beige-light rounded-lg text-sm">
-                    <p className="font-semibold mb-2">📍 We deliver to these areas in {selectedLocation}:</p>
-                    <p className="text-text-dark">
-                      {deliveryConfig[selectedLocation].postcodeValidation.validPrefixes.join(', ')}
-                    </p>
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between mt-6">
