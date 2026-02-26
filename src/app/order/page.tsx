@@ -48,7 +48,7 @@ export default function OrderPage() {
       excludedDates: ['2026-04-06'],
       postcodeValidation: {
         enabled: true,
-        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL12', 'OL15', 'OL16', 'OL11', 'OL10'],
+        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL12', 'OL15', 'OL16', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15'],
         excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46']
       }
     }
@@ -188,16 +188,20 @@ export default function OrderPage() {
       return false;
     }
     
-    // Check if postcode matches excluded prefixes first
-    const excludedPrefixes = locationConfig.postcodeValidation.excludedPrefixes || [];
-    const isExcluded = excludedPrefixes.some(prefix => 
-      cleanPostcode.startsWith(prefix.toUpperCase())
-    );
+      const excludedPrefixes = locationConfig.postcodeValidation.excludedPrefixes || [];
+      const isExcluded = excludedPrefixes.some(prefix => {
+        const upperPrefix = prefix.toUpperCase();
+        if (cleanPostcode.startsWith(upperPrefix)) {
+          const nextChar = cleanPostcode.slice(upperPrefix.length, upperPrefix.length + 1);
+          return nextChar === '' || /\d/.test(nextChar);
+        }
+        return false;
+      });
 
-    if (isExcluded) {
-      setPostcodeError(`Sorry, we don't deliver to ${cleanPostcode.substring(0, 4)} postcodes in ${selectedLocation}.`);
-      return false;
-    }
+      if (isExcluded) {
+        setPostcodeError(`Sorry, we don't deliver to this postcode.`);
+        return false;
+      }
     
     // Check if postcode matches valid prefixes
     const isValid = locationConfig.postcodeValidation.validPrefixes.some(prefix => 
