@@ -94,7 +94,7 @@ export const products: Product[] = [
     id: 'monthly-special',
     name: 'Fruit & Nut',
     price: 5.95,
-    description: "Our monthly special.",
+    description: "Oats soaked in chocolate oat milk & Greek yoghurt, mixed with nuts & dried fruit. Topped with extra fibre along with a drizzle of chocolate sauce.",
     image: '/monthly-special.png',
     monthlySpecial: true,
     isSignature: true,
