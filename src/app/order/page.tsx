@@ -125,6 +125,7 @@ export default function OrderPage() {
     const validDates: string[] = [];
     const cutoffDate = new Date();
     cutoffDate.setDate(today.getDate() + 2); // 2-day cutoff
+    cutoffDate.setHours(14, 0, 0, 0); // Set cutoff to 2pm (14:00)
     
     // Target days: 1=Monday, 3=Wednesday, 5=Friday
     const deliveryDays = [1, 3];
@@ -262,6 +263,7 @@ export default function OrderPage() {
     const today = new Date();
     const cutoffDate = new Date();
     cutoffDate.setDate(today.getDate() + 2);
+    cutoffDate.setHours(14, 0, 0, 0); // Set cutoff to 2pm (14:00)
     
     // Validate: must be Mon/Wed and past cutoff
     if (![1, 3].includes(dayOfWeek)) {
