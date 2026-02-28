@@ -604,7 +604,7 @@ export default function OrderPage() {
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Choose Your Location</h2>
                 <p className="mb-6">Select where you'd like your oat bowls delivered</p>
-                <p className="mb-6">Ordering 12 or more bowls? Give us an email at {' '}
+                <p className="mb-6">Ordering 12 or more bowls for one delivery date? Give us an email at {' '}
                     <a href="mailto:elliesoats@hotmail.com" className="text-brand-green hover:underline font-medium">
                       elliesoats@hotmail.com
                     </a>{' '} or Instagram message at {' '}
@@ -731,33 +731,33 @@ export default function OrderPage() {
                   
                   {/* Custom date option */}
                   {!deliveryConfig[selectedLocation].useCustomDates &&
-                    <button 
-                      onClick={() => { 
-                        setIsCustomDateActive(true); 
-                        datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
-                      }} 
-                      className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige ${
-                        isCustomDateActive && previewDates.includes(customDateInput)
-                          ? 'border-brand-green bg-brand-beige-light' 
-                          : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
-                      }`}
-                    >
-                      <div className="font-semibold">📅 Choose a custom date</div>
-                      <div className="text-sm text-dark">Select any Monday or Wednesday beyond 3 weeks</div>
-                      {isCustomDateActive && previewDates.includes(customDateInput) && (
-                        <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
-                      )}
-                    </button>
+                    <div className="relative">
+                      <label 
+                        htmlFor="custom-date-picker"
+                        className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige flex flex-col ${
+                          isCustomDateActive && previewDates.includes(customDateInput)
+                            ? 'border-brand-green bg-brand-beige-light' 
+                            : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
+                        }`}
+                      >
+                        <div className="font-semibold">📅 Choose a custom date</div>
+                        <div className="text-sm text-dark">Select any Monday or Wednesday beyond 3 weeks</div>
+                        {isCustomDateActive && previewDates.includes(customDateInput) && (
+                          <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
+                        )}
+                      </label>
+                      
+                      {/* Date picker input - positioned over the button */}
+                      <input 
+                        id="custom-date-picker"
+                        ref={datePickerRef}
+                        type="date" 
+                        value={customDateInput}
+                        onChange={(e) => handleCustomDateChange(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+                    </div>
                   }
-                  
-                  {/* Hidden date picker that triggers on button click */}
-                  <input 
-                    ref={datePickerRef}
-                    type="date" 
-                    value={customDateInput}
-                    onChange={(e) => handleCustomDateChange(e.target.value)}
-                    className="sr-only"
-                  />
                   
                   {/* Error message for custom date */}
                   {isCustomDateActive && customDateError && (
@@ -1016,7 +1016,7 @@ export default function OrderPage() {
 
                   <div>
                     <label htmlFor="deliveryNotes" className="block text-sm font-medium mb-2">
-                      Delivery Notes <span className="text-text-dark text-xs">(optional)</span>
+                      Delivery Notes & Dietary Requirements <span className="text-text-dark text-xs">(optional)</span>
                     </label>
                     <textarea
                       id="deliveryNotes"
@@ -1090,7 +1090,7 @@ export default function OrderPage() {
                     <div className="flex justify-between"><span>Location:</span><span className="font-medium">{selectedLocation}</span></div>
                     <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{selectedLocation === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}</span></div>
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
-                    {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
+                    {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes & Dietary Requirements:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
                     <div className="flex justify-between"><span>Phone:</span><span className="font-medium">{phoneNumber}</span></div>
                     {needPaperSpoons && <div className="flex justify-between"><span>Paper Spoons:</span><span className="font-medium"> Yes</span></div>}
                   </div>
@@ -1400,7 +1400,7 @@ export default function OrderPage() {
                             <span className="flex items-center gap-2">
                               {option.name}
                               {option.isGlutenFree && (
-                                <span className="text-xs bg-brand-green text-white px-2 py-0.5 rounded">GF available</span>
+                                <span className="text-xs bg-brand-green text-white px-2 py-0.5 rounded">GF available upon request</span>
                               )}
                             </span>
                             {selectedOatSoaking === option.id && (
