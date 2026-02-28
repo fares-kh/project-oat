@@ -5,6 +5,12 @@ import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { products, type Product, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { ThemeProvider } from '@mui/material/styles';
+import { muiTheme } from '@/theme/muiTheme';
 
 interface BowlOrder {
   productId: string;
@@ -96,6 +102,7 @@ export default function OrderPage() {
   const [hasAcceptedTC, setHasAcceptedTC] = useState(false);
   
   const datePickerRef = useRef<HTMLInputElement>(null);
+  const [customDateValue, setCustomDateValue] = useState<Dayjs | null>(null);
 
   // Get delivery dates based on selected location
   const getValidDeliveryDates = () => {
@@ -286,6 +293,46 @@ export default function OrderPage() {
     // Valid date - add to selection
     setCustomDateError('');
     toggleDateSelection(dateValue);
+  };
+
+  const handleMuiDateChange = (newValue: Dayjs | null) => {
+    setCustomDateValue(newValue);
+    setIsCustomDateActive(true);
+    
+    if (!newValue) {
+      setCustomDateError('');
+      setCustomDateInput('');
+      return;
+    }
+    
+    const dateValue = newValue.format('YYYY-MM-DD');
+    handleCustomDateChange(dateValue);
+  };
+
+  // Function to disable dates that aren't Monday or Wednesday, or are within cutoff
+  const shouldDisableDate = (date: Dayjs) => {
+    const dayOfWeek = date.day();
+    const today = dayjs();
+    const cutoffDate = today.add(2, 'day').hour(14).minute(0).second(0);
+    
+    // Disable if not Monday (1) or Wednesday (3)
+    if (![1, 3].includes(dayOfWeek)) {
+      return true;
+    }
+    
+    // Disable if within cutoff period
+    if (date.isBefore(cutoffDate) || date.isSame(cutoffDate)) {
+      return true;
+    }
+    
+    // Disable if in excluded dates
+    const locationConfig = deliveryConfig[selectedLocation];
+    const excludedDates = locationConfig?.excludedDates || [];
+    if (excludedDates.includes(date.format('YYYY-MM-DD'))) {
+      return true;
+    }
+    
+    return false;
   };
 
   const getCurrentDateCart = () => {
@@ -730,65 +777,62 @@ export default function OrderPage() {
                   )}
                   
                   {/* Custom date option */}
-                  {!deliveryConfig[selectedLocation].useCustomDates &&
+                  {!deliveryConfig[selectedLocation].useCustomDates && (
                     <>
-                      <button 
-                        onClick={() => { 
-                          if (datePickerRef.current) {
-                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                            if (isMobile) {
-                              datePickerRef.current.click();
-                            } else {
-                              datePickerRef.current.showPicker?.();
-                            }
-                          }
-                        }} 
-                        className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige ${
-                          isCustomDateActive && previewDates.includes(customDateInput)
-                            ? 'border-brand-green bg-brand-beige-light' 
-                            : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
-                        }`}
-                      >
-                        <div className="font-semibold">📅 Choose a custom date</div>
-                        <div className="text-sm text-dark">Select any Monday or Wednesday beyond 3 weeks</div>
+                      <div className={`w-full p-4 border-2 rounded-xl transition ${
+                        isCustomDateActive && previewDates.includes(customDateInput)
+                          ? 'border-brand-green bg-brand-beige-light' 
+                          : 'border-brand-beige'
+                      }`}>
+                        <div className="font-semibold mb-2">📅 Choose a custom date</div>
+                        <div className="text-sm text-dark mb-3">Select any Monday or Wednesday beyond 3 weeks</div>
+                        
+                        <ThemeProvider theme={muiTheme}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              value={customDateValue}
+                              onChange={handleMuiDateChange}
+                              shouldDisableDate={shouldDisableDate}
+                              slotProps={{
+                                textField: {
+                                  placeholder: 'Select a date',
+                                  fullWidth: true,
+                                  size: 'small',
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </ThemeProvider>
+                        
                         {isCustomDateActive && previewDates.includes(customDateInput) && (
                           <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
                         )}
-                      </button>
-                      
-                      {/* Date picker input */}
-                      <input 
-                        ref={datePickerRef}
-                        type="date" 
-                        value={customDateInput}
-                        onChange={(e) => handleCustomDateChange(e.target.value)}
-                        className="sr-only"
-                        tabIndex={-1}
-                      />
+                      </div>
+
+                      {/* Error message for custom date */}
+                      {customDateError && (
+                        <div className="p-3 bg-brand-error border border-brand-error text-text-white rounded-lg font-bold text-sm">
+                          {customDateError}
+                        </div>
+                      )}
                     </>
-                  }
-                  
-                  {/* Error message for custom date */}
-                  {isCustomDateActive && customDateError && (
-                    <div className="p-3 bg-brand-error border border-brand-error text-text-white rounded-lg font-bold text-sm">
-                      {customDateError}
+                  )}
+                </div>
+
+
+                    {/* Proceed button - only shown when dates are selected */}
+                    <div className="mt-6 flex items-center justify-between">
+                      <BackButton onClick={() => setCurrentStep(2)}/>
+                      {previewDates.length > 0 && (
+                        <button
+                          onClick={handleDatesConfirm}
+                          className="cursor-pointer px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
+                        >
+                          Continue with {previewDates.length} date{previewDates.length > 1 ? 's' : ''}
+                        </button>
+                      )}
                     </div>
-                  )}
                 </div>
-                
-                {/* Proceed button - only shown when dates are selected */}
-                <div className="mt-6 flex items-center justify-between">
-                  <BackButton onClick={() => setCurrentStep(2)}/>
-                  {previewDates.length > 0 && (
-                    <button
-                      onClick={handleDatesConfirm}
-                      className="cursor-pointer px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
-                    >
-                      Continue with {previewDates.length} date{previewDates.length > 1 ? 's' : ''}
-                    </button>
-                  )}
-                </div>
-              </div>
             )}
 
             {currentStep === 4 && (
