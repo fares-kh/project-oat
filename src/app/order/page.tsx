@@ -141,12 +141,14 @@ export default function OrderPage() {
     for (let daysAhead = 1; daysAhead <= 21; daysAhead++) {
       const checkDate = new Date();
       checkDate.setDate(today.getDate() + daysAhead);
+      checkDate.setHours(23, 59, 59, 999); // Set to end of day for comparison
       
       const dayOfWeek = checkDate.getDay();
       
-      // If it's a delivery day and past the cutoff
       if (deliveryDays.includes(dayOfWeek) && checkDate > cutoffDate) {
-        validDates.push(checkDate.toISOString().split('T')[0]);
+        const dateStr = new Date(checkDate);
+        dateStr.setHours(0, 0, 0, 0);
+        validDates.push(dateStr.toISOString().split('T')[0]);
         
         // Stop after finding 6 valid dates (2 weeks worth)
         if (validDates.length >= 6) break;
@@ -266,6 +268,7 @@ export default function OrderPage() {
     }
     
     const selectedDay = new Date(dateValue);
+    selectedDay.setHours(23, 59, 59, 999); // Set to end of day for comparison
     const dayOfWeek = selectedDay.getDay();
     const today = new Date();
     const cutoffDate = new Date();
@@ -313,15 +316,15 @@ export default function OrderPage() {
   const shouldDisableDate = (date: Dayjs) => {
     const dayOfWeek = date.day();
     const today = dayjs();
-    const cutoffDate = today.add(2, 'day').hour(14).minute(0).second(0);
+    const cutoffDate = today.add(2, 'day').hour(14).minute(0).second(0).millisecond(0);
     
     // Disable if not Monday (1) or Wednesday (3)
     if (![1, 3].includes(dayOfWeek)) {
       return true;
     }
     
-    // Disable if within cutoff period
-    if (date.isBefore(cutoffDate) || date.isSame(cutoffDate)) {
+    const endOfSelectedDate = date.hour(23).minute(59).second(59).millisecond(999);
+    if (endOfSelectedDate.isBefore(cutoffDate) || endOfSelectedDate.isSame(cutoffDate)) {
       return true;
     }
     
