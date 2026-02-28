@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 interface OrderItem {
   bowlNumber: number;
@@ -132,17 +130,10 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow bg-gradient-to-b from-pink-50 to-white py-12">
-        <div className="container mx-auto px-4">
+    <div className="min-h-screen flex flex-col bg-brand-beige">
+      <main className="flex-1 py-8">
+        <div className="container mx-auto px-6">
           <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Order Dashboard</h1>
-            </div>
-
             {/* Stats */}
             {!loading && !error && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -374,8 +365,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
