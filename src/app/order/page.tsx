@@ -130,25 +130,32 @@ export default function OrderPage() {
   const getAutomaticDeliveryDates = () => {
     const today = new Date();
     const validDates: string[] = [];
-    const cutoffDate = new Date();
-    cutoffDate.setDate(today.getDate() + 2); // 2-day cutoff
-    cutoffDate.setHours(14, 0, 0, 0); // Set cutoff to 2pm (14:00)
     
-    // Target days: 1=Monday, 3=Wednesday, 5=Friday
+    const currentHour = today.getHours();
+    const daysToAdd = currentHour >= 14 ? 3 : 2;
+    
+    const cutoffDate = new Date(today);
+    cutoffDate.setDate(today.getDate() + daysToAdd);
+    cutoffDate.setHours(0, 0, 0, 0);
+
+    // Target days: 1=Monday, 3=Wednesday
     const deliveryDays = [1, 3];
     
     // Look ahead up to 3 weeks to find delivery days
     for (let daysAhead = 1; daysAhead <= 21; daysAhead++) {
-      const checkDate = new Date();
+      const checkDate = new Date(today);
       checkDate.setDate(today.getDate() + daysAhead);
-      checkDate.setHours(23, 59, 59, 999); // Set to end of day for comparison
+      checkDate.setHours(0, 0, 0, 0);
       
       const dayOfWeek = checkDate.getDay();
       
-      if (deliveryDays.includes(dayOfWeek) && checkDate > cutoffDate) {
-        const dateStr = new Date(checkDate);
-        dateStr.setHours(0, 0, 0, 0);
-        validDates.push(dateStr.toISOString().split('T')[0]);
+      if (deliveryDays.includes(dayOfWeek) && checkDate >= cutoffDate) {
+        const year = checkDate.getFullYear();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        validDates.push(dateStr);
         
         // Stop after finding 6 valid dates (2 weeks worth)
         if (validDates.length >= 6) break;
@@ -268,12 +275,16 @@ export default function OrderPage() {
     }
     
     const selectedDay = new Date(dateValue);
-    selectedDay.setHours(23, 59, 59, 999); // Set to end of day for comparison
+    selectedDay.setHours(0, 0, 0, 0); // Set to start of day for comparison
     const dayOfWeek = selectedDay.getDay();
     const today = new Date();
-    const cutoffDate = new Date();
-    cutoffDate.setDate(today.getDate() + 2);
-    cutoffDate.setHours(14, 0, 0, 0); // Set cutoff to 2pm (14:00)
+    
+    const currentHour = today.getHours();
+    const daysToAdd = currentHour >= 14 ? 3 : 2;
+    
+    const cutoffDate = new Date(today);
+    cutoffDate.setDate(today.getDate() + daysToAdd);
+    cutoffDate.setHours(0, 0, 0, 0); // Set to start of the cutoff day
     
     // Validate: must be Mon/Wed and past cutoff
     if (![1, 3].includes(dayOfWeek)) {
@@ -281,7 +292,7 @@ export default function OrderPage() {
       return;
     }
     
-    if (selectedDay <= cutoffDate) {
+    if (selectedDay < cutoffDate) {
       setCustomDateError('Date must be more than 2 days in advance.');
       return;
     }
@@ -316,15 +327,19 @@ export default function OrderPage() {
   const shouldDisableDate = (date: Dayjs) => {
     const dayOfWeek = date.day();
     const today = dayjs();
-    const cutoffDate = today.add(2, 'day').hour(14).minute(0).second(0).millisecond(0);
+    
+    const currentHour = today.hour();
+    const daysToAdd = currentHour >= 14 ? 3 : 2;
+    
+    const cutoffDate = today.add(daysToAdd, 'day').startOf('day');
     
     // Disable if not Monday (1) or Wednesday (3)
     if (![1, 3].includes(dayOfWeek)) {
       return true;
     }
     
-    const endOfSelectedDate = date.hour(23).minute(59).second(59).millisecond(999);
-    if (endOfSelectedDate.isBefore(cutoffDate) || endOfSelectedDate.isSame(cutoffDate)) {
+    const selectedDateStart = date.startOf('day');
+    if (selectedDateStart.isBefore(cutoffDate)) {
       return true;
     }
     
