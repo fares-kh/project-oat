@@ -731,10 +731,12 @@ export default function OrderPage() {
                   
                   {/* Custom date option */}
                   {!deliveryConfig[selectedLocation].useCustomDates &&
-                    <div className="relative">
-                      <label 
-                        htmlFor="custom-date-picker"
-                        className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige flex flex-col ${
+                    <>
+                      <button 
+                        onClick={() => { 
+                          datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
+                        }} 
+                        className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige ${
                           isCustomDateActive && previewDates.includes(customDateInput)
                             ? 'border-brand-green bg-brand-beige-light' 
                             : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
@@ -745,18 +747,18 @@ export default function OrderPage() {
                         {isCustomDateActive && previewDates.includes(customDateInput) && (
                           <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
                         )}
-                      </label>
+                      </button>
                       
-                      {/* Date picker input - positioned over the button */}
+                      {/* Date picker input */}
                       <input 
-                        id="custom-date-picker"
                         ref={datePickerRef}
                         type="date" 
                         value={customDateInput}
                         onChange={(e) => handleCustomDateChange(e.target.value)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        className="absolute w-px h-px opacity-0 pointer-events-none"
+                        tabIndex={-1}
                       />
-                    </div>
+                    </>
                   }
                   
                   {/* Error message for custom date */}
