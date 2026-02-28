@@ -734,7 +734,14 @@ export default function OrderPage() {
                     <>
                       <button 
                         onClick={() => { 
-                          datePickerRef.current?.showPicker?.() || datePickerRef.current?.click();
+                          if (datePickerRef.current) {
+                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                            if (isMobile) {
+                              datePickerRef.current.click();
+                            } else {
+                              datePickerRef.current.showPicker?.();
+                            }
+                          }
                         }} 
                         className={`cursor-pointer w-full p-4 border-2 rounded-xl transition text-left relative hover:bg-brand-beige ${
                           isCustomDateActive && previewDates.includes(customDateInput)
@@ -755,7 +762,7 @@ export default function OrderPage() {
                         type="date" 
                         value={customDateInput}
                         onChange={(e) => handleCustomDateChange(e.target.value)}
-                        className="absolute w-px h-px opacity-0 pointer-events-none"
+                        className="sr-only"
                         tabIndex={-1}
                       />
                     </>
