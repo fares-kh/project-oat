@@ -8,7 +8,20 @@ export default function Footer() {
           <div className="footer-section flex flex-col items-start">
             <Image src="/logo.png" alt="OAT & MATCHA Logo" width={120} height={40} priority />
           </div>
-          <div className="footer-section"></div>
+          <div className="footer-section flex flex-col items-start">
+            <h3
+              className="mb-4 text-xl font-bold font-brand"
+              style={{ color: 'var(--brand-green)' }}
+            >
+              Legal
+            </h3>
+            <a
+              href="/privacy"
+              className="text-black hover:text-brand-green transition font-semibold font-brand"
+            >
+              Privacy Notice
+            </a>
+          </div>
           <div className="footer-section flex flex-col items-start">
             <h3
               className="mb-4 text-xl font-bold font-brand"
