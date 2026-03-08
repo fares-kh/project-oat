@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [selectedDate, setSelectedDate] = useState<string | 'all'>('all');
 
   useEffect(() => {
     fetchOrders();
@@ -84,6 +85,10 @@ export default function AdminDashboard() {
           created_at: orderDetails.createdAt,
           paid_at: t.date
         };
+      });
+
+      transformedOrders.sort((a: any, b: any) => {
+        return new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime();
       });
 
       setOrders(transformedOrders);
@@ -129,6 +134,71 @@ export default function AdminDashboard() {
     });
   };
 
+  const generateDateSummary = (date: string) => {
+    const bowls: Array<{
+      productName: string;
+      oatSoaking: string | null;
+      toppings: string[];
+      extraToppings: Array<{ name: string; quantity: number }>;
+      customerName: string;
+      orderRef: string;
+    }> = [];
+
+    orders.forEach(order => {
+      order.items.detailedLineItems
+        .filter(item => item.deliveryDate === date)
+        .forEach(item => {
+          bowls.push({
+            productName: item.productName,
+            oatSoaking: item.oatSoaking,
+            toppings: item.toppings,
+            extraToppings: item.extraToppings,
+            customerName: `${order.items.customer.firstName} ${order.items.customer.lastName}`,
+            orderRef: order.checkout_reference
+          });
+        });
+    });
+
+    const productGroups: Record<string, typeof bowls> = {};
+    bowls.forEach(bowl => {
+      if (!productGroups[bowl.productName]) {
+        productGroups[bowl.productName] = [];
+      }
+      productGroups[bowl.productName].push(bowl);
+    });
+
+    return { bowls, productGroups, totalBowls: bowls.length };
+  };
+
+  const allDeliveryDates = Array.from(
+    new Set(
+      orders.flatMap(order => 
+        order.items.detailedLineItems.map(item => item.deliveryDate)
+      )
+    )
+  ).sort((a, b) => {
+    return new Date(a.split('/').reverse().join('-')).getTime() - 
+           new Date(b.split('/').reverse().join('-')).getTime();
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const upcomingDeliveryDates = allDeliveryDates.filter(dateStr => {
+    const [day, month, year] = dateStr.split('/');
+    const deliveryDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    deliveryDate.setHours(0, 0, 0, 0);
+    return deliveryDate >= today;
+  });
+
+  const filteredOrders = selectedDate === 'all' 
+    ? orders 
+    : orders.filter(order => 
+        order.items.detailedLineItems.some(item => item.deliveryDate === selectedDate)
+      );
+
+  const dateSummary = selectedDate !== 'all' ? generateDateSummary(selectedDate) : null;
+
   return (
     <div className="min-h-screen flex flex-col bg-brand-beige">
       <main className="flex-1 py-8">
@@ -136,18 +206,20 @@ export default function AdminDashboard() {
           <div className="max-w-7xl mx-auto">
             {/* Stats */}
             {!loading && !error && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-sm text-gray-600 mb-1">Total Orders</div>
-                  <div className="text-3xl font-bold text-pink-600">{orders.length}</div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-sm text-gray-600 mb-1">Total Bowls</div>
-                  <div className="text-3xl font-bold text-purple-600">
-                    {orders.reduce((sum, order) => sum + order.items.totalBowls, 0)}
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="text-sm text-gray-600 mb-1">Total Orders</div>
+                    <div className="text-3xl font-bold text-pink-600">{orders.length}</div>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    <div className="text-sm text-gray-600 mb-1">Total Bowls</div>
+                    <div className="text-3xl font-bold text-purple-600">
+                      {orders.reduce((sum, order) => sum + order.items.totalBowls, 0)}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
 
             {/* Loading State */}
@@ -182,8 +254,110 @@ export default function AdminDashboard() {
 
             {/* Orders List */}
             {!loading && !error && orders.length > 0 && (
-              <div className="space-y-4">
-                {orders.map((order) => {
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <svg className="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  All Orders
+                </h2>
+
+                {/* Date Filter Tabs */}
+                <div className="mb-6 bg-white rounded-lg shadow-md p-4">
+                  <div className="flex items-center space-x-2 overflow-x-auto">
+                    <button
+                      onClick={() => setSelectedDate('all')}
+                      className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap ${
+                        selectedDate === 'all'
+                          ? 'bg-pink-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      All Dates ({orders.length})
+                    </button>
+                    {upcomingDeliveryDates.map(date => {
+                      const ordersForDate = orders.filter(order => 
+                        order.items.detailedLineItems.some(item => item.deliveryDate === date)
+                      ).length;
+                      
+                      return (
+                        <button
+                          key={date}
+                          onClick={() => setSelectedDate(date)}
+                          className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap ${
+                            selectedDate === date
+                              ? 'bg-pink-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {date} ({ordersForDate})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Filtered Orders Count */}
+                {selectedDate !== 'all' && (
+                  <>
+                    <div className="mb-4 text-sm text-gray-600">
+                      Showing {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''} for <span className="font-semibold text-gray-900">{selectedDate}</span>
+                    </div>
+
+                    {/* Concise Date Summary */}
+                    {dateSummary && (
+                      <div className="mb-6 bg-white rounded-lg shadow-md p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4"> {selectedDate} ({dateSummary.totalBowls} bowl{dateSummary.totalBowls !== 1 ? 's' : ''})
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          {Object.entries(dateSummary.productGroups).map(([productName, bowls]) => (
+                            <div key={productName} className="border-l-4 border-pink-400 pl-4">
+                              <div className="font-semibold text-lg text-gray-900 mb-3">
+                                {productName} ({bowls.length} bowl{bowls.length !== 1 ? 's' : ''})
+                              </div>
+                              
+                              <div className="space-y-2 text-sm">
+                                {bowls.map((bowl, idx) => (
+                                  <div key={idx} className="bg-gray-50 rounded p-3">
+                                    <div className="flex justify-between items-start mb-2">
+                                      <span className="font-medium text-gray-900">Bowl {idx + 1}</span>
+                                      <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{bowl.customerName}</span>
+                                    </div>
+                                    
+                                    {bowl.oatSoaking && (
+                                      <div className="mb-1 text-gray-700">
+                                        <span className="text-gray-600">Base:</span> {bowl.oatSoaking}
+                                      </div>
+                                    )}
+                                    
+                                    {bowl.toppings.length > 0 && (
+                                      <div className="mb-1 text-gray-700">
+                                        <span className="text-gray-600">Toppings:</span> {bowl.toppings.join(', ')}
+                                      </div>
+                                    )}
+                                    
+                                    {bowl.extraToppings.length > 0 && (
+                                      <div className="rounded px-2 py-1 mt-2">
+                                        <span className="text-gray-600">Extra:</span>{' '}
+                                        <span className="text-pink-700 font-semibold">
+                                          {bowl.extraToppings.map(e => `${e.name} ×${e.quantity}`).join(', ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="space-y-4">
+                  {filteredOrders.map((order) => {
                   const isExpanded = expandedOrders.has(order.id);
                   
                   return (
@@ -302,22 +476,23 @@ export default function AdminDashboard() {
                               Order Items ({order.items.detailedLineItems.length} bowls)
                             </h3>
                             <div className="space-y-4">
-                              {order.items.detailedLineItems.map((item, idx) => (
-                                <div key={idx} className="bg-white rounded-lg p-4 border border-gray-200">
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                      <div className="font-semibold text-gray-900">
-                                        Bowl #{item.bowlNumber} - {item.productName}
-                                        {item.isSignature && (
-                                          <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">Signature</span>
-                                        )}
+                              {order.items.detailedLineItems.map((item, idx) => {
+                                return (
+                                  <div 
+                                    key={idx} 
+                                    className={"rounded-lg p-4 border-2"}
+                                  >
+                                    <div className="flex justify-between items-start mb-3">
+                                      <div>
+                                        <div className="font-semibold text-gray-900">
+                                          Bowl #{item.bowlNumber} - {item.productName}
+                                        </div>
+                                        <div className="text-sm text-gray-600 mt-1">
+                                          Delivery: {item.deliveryDate}
+                                        </div>
                                       </div>
-                                      <div className="text-sm text-gray-600 mt-1">
-                                        Delivery: {item.deliveryDate}
-                                      </div>
+                                      <div className="font-semibold text-gray-900">£{item.price.toFixed(2)}</div>
                                     </div>
-                                    <div className="font-semibold text-gray-900">£{item.price.toFixed(2)}</div>
-                                  </div>
                                   
                                   {item.oatSoaking && (
                                     <div className="text-sm mb-2">
@@ -352,7 +527,8 @@ export default function AdminDashboard() {
                                     </div>
                                   )}
                                 </div>
-                              ))}
+                              );
+                              })}
                             </div>
                           </div>
                         </div>
@@ -360,7 +536,8 @@ export default function AdminDashboard() {
                     </div>
                   );
                 })}
-              </div>
+                </div>
+              </>
             )}
           </div>
         </div>
