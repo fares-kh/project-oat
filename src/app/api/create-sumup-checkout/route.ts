@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
         description: description,
         merchant_data: merchantData,
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/sumup`,
         hosted_checkout: { 
           enabled: true
         }

@@ -7,22 +7,33 @@ export async function POST(request: NextRequest) {
     
     console.log('SumUp webhook received:', JSON.stringify(payload, null, 2));
 
-    // SumUp webhook payload typically includes:
-    // - event_type: e.g., "CHECKOUT_COMPLETED"
-    // - resource_type: "CHECKOUT"
-    // - resource: { id: "checkout_id", status: "PAID", ... }
-    
-    const { event_type, resource } = payload;
+    const { event_type, id: checkoutId } = payload;
 
-    if (event_type !== 'CHECKOUT_COMPLETED' || resource?.type !== 'CHECKOUT') {
+    if (event_type !== 'CHECKOUT_STATUS_CHANGED') {
       console.log('Ignoring webhook event type:', event_type);
       return NextResponse.json({ received: true });
     }
 
-    const checkoutId = resource.id;
-    const status = resource.status;
+    console.log(`Webhook: Checkout status changed for ID: ${checkoutId}`);
 
-    console.log(`Webhook: Checkout ${checkoutId} has status: ${status}`);
+    const sumupResponse = await fetch(`https://api.sumup.com/v0.1/checkouts/${checkoutId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.SUMUP_API_KEY}`,
+      },
+    });
+
+    if (!sumupResponse.ok) {
+      console.error('Webhook: Failed to verify checkout with SumUp API');
+      return NextResponse.json({ 
+        received: true, 
+        error: 'Failed to verify checkout' 
+      }, { status: 500 });
+    }
+
+    const checkout = await sumupResponse.json();
+    const status = checkout.status; // e.g., "PAID", "PENDING", "FAILED"
+
+    console.log(`Webhook: Verified checkout ${checkoutId} has status: ${status}`);
 
 
     if (status === 'PAID') {
