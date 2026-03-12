@@ -19,6 +19,7 @@ interface BowlOrder {
   extraToppings: Record<string, number>;
   price: number;
   isSignature: boolean;
+  exclusiveDelivery?: boolean;
 }
 
 export default function OrderPage() {
@@ -401,7 +402,8 @@ export default function OrderPage() {
         toppings: selectedProduct.isSignature ? [] : [...selectedToppings],
         extraToppings: { ...extraToppings },
         price: totalPrice,
-        isSignature: selectedProduct.isSignature || false
+        isSignature: selectedProduct.isSignature || false,
+        exclusiveDelivery: selectedProduct.exclusiveDelivery || false
       };
       
       newOrders[currentDate].push(newBowl);
@@ -870,7 +872,19 @@ export default function OrderPage() {
                 
                 {/* Product Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {products.map((product) => {
+                  {products.filter(product => {
+                    if (product.monthlySpecial || product.exclusiveDelivery) {
+                      const currentDate = selectedDates[currentDateIndex];
+                      const deliveryDate = new Date(currentDate);
+                      const today = new Date();
+                      
+                      if (deliveryDate.getMonth() > today.getMonth() || 
+                          deliveryDate.getFullYear() > today.getFullYear()) {
+                        return false;
+                      }
+                    }
+                    return true;
+                  }).map((product) => {
                     const currentCart = getCurrentDateCart();
                     const quantity = currentCart.filter(bowl => bowl.productId === product.id).length;
                     return (
@@ -882,6 +896,12 @@ export default function OrderPage() {
                         {product.monthlySpecial && 
                           <div className="absolute top-3 right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                             MONTHLY SPECIAL
+                          </div>
+                        }
+
+                        {product.exclusiveDelivery && 
+                          <div className="absolute top-3 right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                            LIMITED TIME
                           </div>
                         }
                         

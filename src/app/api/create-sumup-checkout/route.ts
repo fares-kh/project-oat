@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
       'monthly-special': 'Monthly Special',
+      'exclusive-delivery': 'Exclusive Delivery',
       'build-your-own': 'Build Your Own'
     };
 
@@ -75,6 +76,7 @@ export async function POST(request: NextRequest) {
           productId: bowl.productId,
           productName,
           isSignature: bowl.isSignature || false,
+          exclusiveDelivery: bowl.exclusiveDelivery || false,
           oatSoaking,
           toppings,
           extraToppings,

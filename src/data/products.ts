@@ -5,6 +5,7 @@ export interface Product {
   description: string;
   image: string;
   monthlySpecial?: boolean;
+  exclusiveDelivery?: boolean;
   isSignature?: boolean; // If true, pre-made bowl with optional extras only
   ingredients: string;
 }
@@ -99,6 +100,16 @@ export const products: Product[] = [
     monthlySpecial: true,
     isSignature: true,
     ingredients: 'Chocolate OAT milk (46%) (water, wholegrain OAT, sugar, fat reduced cocoa powder, stabiliser: glean gum; sea salt, acidity regulator: calcium citrates), OATS (18%), Greek yoghurt (18%) (MILK), Trial mix (13%) (Raisins, Sunflower Oil, ALMONDS, Apricot, Rice Flour, Preservative (SULPHUR DIOXIDE), Banana, Coconut Oil, Sucrose, Flavouring, Papaya, Sugar, Preservative (Sodium METABISULPHITE), Desiccated Coconut), mixed nuts (4%) (ALMONDS, CASHEWS, HAZELNUTS, WALNUTS), chocolate sauce (Sweet Freedom® Natural Fruit Extracts (Carob & Apple), Water, Cocoa, Rapeseed Oil, Natural Flavour) May contain: Brazil nuts, macadamia nuts, pecan nuts, pistachio nuts, peanuts, sesame, barley, rye, soya, spelt, wheat & other nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+  },
+  {
+    id: 'exclusive-delivery',
+    name: 'Jam Dodger',
+    price: 5.95,
+    description: "Raspberry-soaked oats. Topped with raspberry jam, shortbread crumble and a min jam dodger biscuit",
+    image: '/exclusive.png',
+    isSignature: true,
+    exclusiveDelivery: true,
+    ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). '
   },
   {
     id: 'build-your-own',
