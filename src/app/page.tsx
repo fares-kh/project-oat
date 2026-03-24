@@ -32,9 +32,9 @@ export default function Home() {
               ))
             }
             <SpecialCard
-              title="Mango Coconut Matcha"
+              title="Mini Egg Matcha"
               imageSrc="/monthly-special-matcha.png"
-              imageAlt="Mango Coconut Matcha"
+              imageAlt="Mini Egg Matcha"
             />
           </div>
         </div>
@@ -60,6 +60,7 @@ export default function Home() {
             <MenuColumn
               title="MATCHA MENU"
               items={[
+                { title: "Mini Egg Matcha", description: "White chocolate base with ceremonial matcha. Topped with a white chocolate cold foam and mini egg" },
                 { title: "Classic Ceremonial (vg)", description: "" },
                 { title: "Vanilla (vg)", description: "" },
                 { title: "Strawberry (vg)", description: "" },

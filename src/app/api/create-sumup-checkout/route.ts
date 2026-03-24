@@ -19,8 +19,10 @@ export async function POST(request: NextRequest) {
       'blueberry-cheesecake': 'Blueberry Cheesecake',
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
-      'monthly-special': 'Monthly Special',
-      'exclusive-delivery': 'Exclusive Delivery',
+      'monthly-special-april': 'Mini Egg Protein Bowl',
+      'exclusive-delivery-april': 'Raspberry Cheesecake',
+      'monthly-special': 'Fruit & Nut',
+      'exclusive-delivery': 'Jam Dodger',
       'build-your-own': 'Build Your Own'
     };
 
