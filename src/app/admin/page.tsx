@@ -417,6 +417,10 @@ export default function AdminDashboard() {
                                   <span className="ml-2 text-gray-900">{order.items.customer.firstName} {order.items.customer.lastName}</span>
                                 </div>
                                 <div>
+                                  <span className="text-gray-600">Email:</span>
+                                  <span className="ml-2 text-gray-900">{order.items.customer.email}</span>
+                                </div>
+                                <div>
                                   <span className="text-gray-600">Phone:</span>
                                   <span className="ml-2 text-gray-900">{order.customer_phone}</span>
                                 </div>

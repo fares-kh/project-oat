@@ -84,6 +84,7 @@ export default function OrderPage() {
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [addressLine1, setAddressLine1] = useState('');
   const [addressLine2, setAddressLine2] = useState('');
   const [city, setCity] = useState('');
@@ -93,6 +94,7 @@ export default function OrderPage() {
   const [addressErrors, setAddressErrors] = useState({
     firstName: '',
     lastName: '',
+    email: '',
     addressLine1: '',
     city: '',
     phoneNumber: ''
@@ -444,6 +446,7 @@ export default function OrderPage() {
     const errors = {
       firstName: '',
       lastName: '',
+      email: '',
       addressLine1: '',
       city: '',
       phoneNumber: ''
@@ -458,6 +461,12 @@ export default function OrderPage() {
 
     if (!lastName.trim()) {
       errors.lastName = 'Last name is required.';
+      isValid = false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email.trim() && !emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address.';
       isValid = false;
     }
 
@@ -498,6 +507,7 @@ export default function OrderPage() {
         customer: {
           firstName: firstName,
           lastName: lastName,
+          email: email,
           phone: phoneNumber,
           address: {
             line1: addressLine1,
@@ -1041,6 +1051,30 @@ export default function OrderPage() {
                   </div>
 
                   <div>
+                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                      Interested in our events packages? Enter your email below to receive more information <span className="text-text-dark text-xs">(optional)</span>
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setAddressErrors({...addressErrors, email: ''});
+                      }}
+                      placeholder="your.email@example.com"
+                      className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition ${
+                        addressErrors.email 
+                          ? 'border-brand-error focus:border-brand-error' 
+                          : 'border-brand-beige focus:border-brand-green'
+                      }`}
+                    />
+                    {addressErrors.email && (
+                      <p className="text-brand-error text-sm mt-1">{addressErrors.email}</p>
+                    )}
+                  </div>
+
+                  <div>
                     <label htmlFor="addressLine1" className="block text-sm font-medium mb-2">
                       Address Line 1 <span className="text-brand-error">*</span>
                     </label>
@@ -1191,6 +1225,7 @@ export default function OrderPage() {
                   <h3 className="font-semibold mb-3">Delivery Information</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between"><span>Name:</span><span className="font-medium">{firstName} {lastName}</span></div>
+                    {email && <div className="flex justify-between"><span>Email:</span><span className="font-medium">{email}</span></div>}
                     <div className="flex justify-between"><span>Location:</span><span className="font-medium">{selectedLocation}</span></div>
                     <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{selectedLocation === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}</span></div>
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
