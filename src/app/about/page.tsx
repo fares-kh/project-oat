@@ -1,16 +1,53 @@
+"use client"
+
 import Image from "next/image";
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import HeroVideoWrapper from "@/components/HeroVideo/HeroVideoWrapper";
 
 export default function AboutPage() {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMessage({ type: 'error', text: 'Please enter a valid email address' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/subscribe-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'Thank you! We\'ll be in touch soon.' });
+        setEmail('');
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to submit. Please try again later.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-brand-beige font-sans flex flex-col">
-      <Header />
-        <section className="w-full py-0 relative min-h-[400px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
-            <HeroVideoWrapper />
-        </section>
-      
+      <Header />      
       <main className="flex-1 py-16">
         <div className="container mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-12 font-brand-tight">
@@ -147,6 +184,56 @@ export default function AboutPage() {
                       @ellies.oats
                     </a>.
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Events Package Email Collection */}
+          <div className="max-w-6xl mx-auto mt-16">
+            <div className="bg-brand-green rounded-2xl shadow-xl p-8 md:p-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                {/* Left Column - Text */}
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+                    Interested in our events packages?
+                  </h2>
+                  <p className="text-white/90 text-lg">
+                    Enter your email to receive more information about our catering services for events, corporate gatherings, and special occasions.
+                  </p>
+                </div>
+
+                {/* Right Column - Form */}
+                <div>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your.email@example.com"
+                        className="flex-1 px-4 py-3 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/20 transition"
+                        disabled={isSubmitting}
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="px-8 py-3 bg-white text-brand-green font-semibold rounded-lg hover:bg-brand-beige-light transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      >
+                        {isSubmitting ? 'Submitting...' : 'Subscribe'}
+                      </button>
+                    </div>
+                    
+                    {message && (
+                      <div className={`p-3 rounded-lg text-sm font-medium ${
+                        message.type === 'success' 
+                          ? 'bg-white/20 text-white border border-white/30' 
+                          : 'bg-red-500/20 text-white border border-red-300/30'
+                      }`}>
+                        {message.text}
+                      </div>
+                    )}
+                  </form>
                 </div>
               </div>
             </div>

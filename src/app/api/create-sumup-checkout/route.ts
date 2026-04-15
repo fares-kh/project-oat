@@ -1,9 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
+  const now = new Date();
+  const currentHour = now.getHours();
+  const daysToAdd = currentHour >= 14 ? 3 : 2;
+  
+  const cutoffDate = new Date(now);
+  cutoffDate.setDate(now.getDate() + daysToAdd);
+  cutoffDate.setHours(0, 0, 0, 0);
+  
+  for (const dateStr of dates) {
+    const deliveryDate = new Date(dateStr);
+    deliveryDate.setHours(0, 0, 0, 0);
+    const dayOfWeek = deliveryDate.getDay();
+    
+    if (![1, 3].includes(dayOfWeek)) {
+      return { 
+        valid: false, 
+        error: `${dateStr} is not a Monday or Wednesday` 
+      };
+    }
+    
+    if (deliveryDate < cutoffDate) {
+      return { 
+        valid: false, 
+        error: `${dateStr} does not meet the minimum ${daysToAdd}-day advance requirement` 
+      };
+    }
+  }
+  
+  return { valid: true };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const orderData = await request.json();
+    
+    const dateValidation = validateDeliveryDates(orderData.delivery.dates);
+    if (!dateValidation.valid) {
+      console.error('Date validation failed:', dateValidation.error);
+      return NextResponse.json(
+        { error: 'Invalid delivery date', details: dateValidation.error },
+        { status: 400 }
+      );
+    }
     const checkoutReference = `OAT-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const amountInPence = Math.round(orderData.amount * 100);
     

@@ -465,7 +465,10 @@ export default function OrderPage() {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (email.trim() && !emailRegex.test(email)) {
+    if (!email.trim()) {
+      errors.email = 'Email is required.';
+      isValid = false;
+    } else if (!emailRegex.test(email)) {
       errors.email = 'Please enter a valid email address.';
       isValid = false;
     }
@@ -1052,7 +1055,7 @@ export default function OrderPage() {
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium mb-2">
-                      Interested in our events packages? Enter your email below to receive more information <span className="text-text-dark text-xs">(optional)</span>
+                      Email <span className="text-brand-error">*</span>
                     </label>
                     <input
                       id="email"

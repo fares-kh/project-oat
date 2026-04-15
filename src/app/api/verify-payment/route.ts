@@ -12,67 +12,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.SUMUP_API_KEY;
-    if (!apiKey) {
+    // Just check what the webhook has done in the database
+    const { data: order, error } = await supabaseAdmin
+      .from('orders')
+      .select('status, paid_at, checkout_reference')
+      .eq('sumup_checkout_id', checkoutId)
+      .single();
+
+    if (error || !order) {
+      console.error('Order not found for checkout:', checkoutId, error);
       return NextResponse.json(
-        { error: 'SumUp API key not configured' },
-        { status: 500 }
+        { success: false, status: 'not_found' },
+        { status: 404 }
       );
     }
 
-    // Fetch checkout status from SumUp
-    const response = await fetch(`https://api.sumup.com/v0.1/checkouts/${checkoutId}`, {
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
+    console.log('Order status check:', order.checkout_reference, order.status);
+
+    return NextResponse.json({
+      success: true,
+      status: order.status, // 'pending' or 'paid' (set by webhook)
+      order
     });
-
-    if (!response.ok) {
-      console.error('SumUp API Error:', response.status);
-      return NextResponse.json(
-        { error: 'Failed to verify payment with SumUp' },
-        { status: response.status }
-      );
-    }
-
-    const checkout = await response.json();
-    console.log('Checkout status:', checkout.status);
-
-    // Update order status in Supabase
-    if (checkout.status === 'PAID') {
-      const { data: updatedOrder, error: updateError } = await supabaseAdmin
-        .from('orders')
-        .update({
-          status: 'paid',
-          paid_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('sumup_checkout_id', checkoutId)
-        .select()
-        .single();
-
-      if (updateError) {
-        console.error('Error updating order status:', updateError);
-        return NextResponse.json(
-          { error: 'Failed to update order status' },
-          { status: 500 }
-        );
-      }
-
-      console.log('Order marked as paid:', updatedOrder?.checkout_reference);
-
-      return NextResponse.json({
-        success: true,
-        status: 'paid',
-        order: updatedOrder
-      });
-    } else {
-      return NextResponse.json({
-        success: true,
-        status: checkout.status
-      });
-    }
 
   } catch (error) {
     console.error('Error verifying payment:', error);

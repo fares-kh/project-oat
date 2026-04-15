@@ -1,8 +1,28 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const sessionCookie = request.cookies.get('admin_session');
+    const authHeader = request.headers.get('authorization');
+    const adminToken = process.env.ADMIN_API_SECRET;
+    
+    let isAuthenticated = false;
+    
+    if (sessionCookie?.value) {
+      isAuthenticated = true;
+    }
+    else if (adminToken && authHeader === `Bearer ${adminToken}`) {
+      isAuthenticated = true;
+    }
+    
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     // Fetch all paid orders from Supabase
     const { data: orders, error } = await supabaseAdmin
       .from('orders')

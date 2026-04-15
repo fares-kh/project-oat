@@ -50,7 +50,13 @@ export default function AdminLayout({
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth', { method: 'DELETE' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
     sessionStorage.removeItem('admin_auth');
     setIsAuthenticated(false);
     setPassword('');

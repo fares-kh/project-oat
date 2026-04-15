@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,18 @@ export async function POST(request: NextRequest) {
 
     // Check if password matches
     if (password === adminPassword) {
-      return NextResponse.json({ success: true });
+      const sessionToken = crypto.randomBytes(32).toString('hex');
+      
+      const response = NextResponse.json({ success: true });
+      
+      response.cookies.set('admin_session', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 // 24 hours
+      });
+      
+      return response;
     } else {
       // Add delay to prevent brute force
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -32,4 +44,12 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE() {
+  const response = NextResponse.json({ success: true });
+  
+  response.cookies.delete('admin_session');
+  
+  return response;
 }
