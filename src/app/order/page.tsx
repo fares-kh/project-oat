@@ -40,7 +40,7 @@ export default function OrderPage() {
     'Lancashire': {
       useCustomDates: false,
       customDates: [],
-      excludedDates: ['2026-04-06'],
+      excludedDates: ['2026-05-27'],
       postcodeValidation: {
         enabled: true,
         validPrefixes: ['BB1', 'BB2', 'BB3', 'BB4', 'BB5', 'BB6', 'BB7', 'BB9', 'BB10', 'BB11', 'BB12'],
@@ -49,10 +49,8 @@ export default function OrderPage() {
     },
     'Manchester': {
       useCustomDates: false,
-      customDates: [
-        '2026-02-26',
-      ],
-      excludedDates: ['2026-04-06'],
+      customDates: [],
+      excludedDates: ['2026-05-27'],
       postcodeValidation: {
         enabled: true,
         validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL12', 'OL15', 'OL16', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15'],
