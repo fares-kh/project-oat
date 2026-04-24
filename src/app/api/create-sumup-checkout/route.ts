@@ -60,10 +60,11 @@ export async function POST(request: NextRequest) {
       'blueberry-cheesecake': 'Blueberry Cheesecake',
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
-      'monthly-special-april': 'Mini Egg Protein Bowl',
+      'monthly-special-may': 'Biscoff Protein Oat Bowl',
       'exclusive-delivery-april': 'Raspberry Cheesecake',
-      'monthly-special': 'Fruit & Nut',
-      'exclusive-delivery': 'Jam Dodger',
+      'monthly-special': 'Mini Egg Protein Bowl',
+      'exclusive-delivery': 'Raspberry Cheesecake',
+      'exclusive-delivery-may': 'Raspberry & White Chocolate Cheesecake',
       'build-your-own': 'Build Your Own'
     };
 

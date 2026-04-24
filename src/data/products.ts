@@ -95,32 +95,10 @@ export const products: Product[] = [
   },
   {
     id: 'monthly-special',
-    name: 'Fruit & Nut',
-    price: 5.95,
-    description: "Oats soaked in chocolate oat milk & Greek yoghurt, mixed with nuts & dried fruit. Topped with extra fibre along with a drizzle of chocolate sauce.",
-    image: '/monthly-special.png',
-    monthlySpecial: true,
-    availableUntil: '2026-03-30',
-    isSignature: true,
-    ingredients: 'Chocolate OAT milk (46%) (water, wholegrain OAT, sugar, fat reduced cocoa powder, stabiliser: glean gum; sea salt, acidity regulator: calcium citrates), OATS (18%), Greek yoghurt (18%) (MILK), Trial mix (13%) (Raisins, Sunflower Oil, ALMONDS, Apricot, Rice Flour, Preservative (SULPHUR DIOXIDE), Banana, Coconut Oil, Sucrose, Flavouring, Papaya, Sugar, Preservative (Sodium METABISULPHITE), Desiccated Coconut), mixed nuts (4%) (ALMONDS, CASHEWS, HAZELNUTS, WALNUTS), chocolate sauce (Sweet Freedom® Natural Fruit Extracts (Carob & Apple), Water, Cocoa, Rapeseed Oil, Natural Flavour) May contain: Brazil nuts, macadamia nuts, pecan nuts, pistachio nuts, peanuts, sesame, barley, rye, soya, spelt, wheat & other nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
-  },
-  {
-    id: 'exclusive-delivery',
-    name: 'Jam Dodger',
-    price: 5.95,
-    description: "Raspberry-soaked oats. Topped with raspberry jam, shortbread crumble and a min jam dodger biscuit",
-    image: '/exclusive.png',
-    isSignature: true,
-    availableUntil: '2026-03-30',
-    exclusiveDelivery: true,
-    ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). '
-  },
-  {
-    id: 'monthly-special-april',
     name: 'Mini Egg Protein Bowl',
     price: 5.95,
     description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
-    image: '/monthly-special-april.png',
+    image: '/monthly-special.png',
     monthlySpecial: true,
     availableFrom: '2026-04-01',
     availableUntil: '2026-04-30',
@@ -128,7 +106,19 @@ export const products: Product[] = [
     ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   },
   {
-    id: 'exclusive-delivery-april',
+    id: 'monthly-special-may',
+    name: 'Biscoff Protein Oat Bowl',
+    price: 5.95,
+    description: "Packed with 24g of protein - Biscoff soaked oats topped with yoghurt, a Biscoff drizzle & crumbled caramelised biscuit.",
+    image: '/monthly-special-may.png',
+    monthlySpecial: true,
+    availableFrom: '2026-05-01',
+    availableUntil: '2026-05-31',
+    isSignature: true,
+    ingredients: 'Greek yoghurt (30.82%) (MILK), reduced fat soft cheese (23.97%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), OAT milk (20.55%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (15.41%), caramelised biscuit spread (5.14%) (Caramelised Biscuit (58%) [WHEAT Flour, Sugar, Palm Oil, Sugar Syrup, Rapeseed Oil, Raising Agent (Sodium Bicarbonate), Salt, Cinnamon], Emulsifier (Sunflower Lecithins), WHEAT Protein, OAT Flour, Acidity Regulator (Citric Acid), Antioxidant (Tocopherol-Rich Extract)), caramelised biscuit protein powder (1.71%) (Protein Blend (Whey Protein Concentrate (MILK) (contains Emulsifiers (SOYA Lecithin, Sunflower Lecithin)), Micellar Casein (MILK)), Creatine Monohydrate, Flavourings, Thickener (Xanthan Gum), Sweeteners (Sucralose, Acesulfame K)), caramelised biscuit (WHEAT Flour, Sugar, Palm Oil, Icing Sugar, Rapeseed Oil, Caramelised Sugar Syrup, Salt, Raising Agent (Sodium Bicarbonate), Emulsifier (Lecithins), Potato Starch, Caramelised Sugar, Cinnamon), caramelised biscuit sugar-free syrup (Water, Flavouring, Salt, Acid (Lactic Acid), Colour (Caramel), Sweetener (Sucralose), Preservatives (Potassium Sorbate, Sodium benzoate). May contain: egg, peanuts & nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+  },
+  {
+    id: 'exclusive-delivery',
     name: 'Raspberry Cheesecake',
     price: 5.95,
     description: "Raspberry soaked oats. Topped with a cheesecake drizzle, raspberries & biscuit crumble.",
@@ -138,6 +128,18 @@ export const products: Product[] = [
     availableFrom: '2026-04-01',
     availableUntil: '2026-04-30',
     ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), Frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+  },
+  {
+    id: 'exclusive-delivery-may',
+    name: 'Raspberry & White Chocolate Cheesecake',
+    price: 5.95,
+    description: "Fuelling your day with 24g of protein - oats soaked in Greek yoghurt, raspberries, white chocolate flavouring & low-fat soft cheese. Topped with a biscuit crumble.",
+    image: '/exclusive-april.png',
+    isSignature: true,
+    exclusiveDelivery: true,
+    availableFrom: '2026-05-01',
+    availableUntil: '2026-05-31',
+    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
   },
   {
     id: 'build-your-own',
