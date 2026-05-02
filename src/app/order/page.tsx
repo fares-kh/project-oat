@@ -918,13 +918,13 @@ export default function OrderPage() {
                         className="relative cursor-pointer p-6 border-2 border-brand-beige rounded-xl hover:border-brand-green hover:shadow-lg transition-all duration-200 group flex gap-4"
                       >
                         {product.monthlySpecial && 
-                          <div className="absolute top-3 right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                          <div className="absolute top-3 left-3 md:left-auto md:right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                             MONTHLY SPECIAL
                           </div>
                         }
 
                         {product.exclusiveDelivery && 
-                          <div className="absolute top-3 right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                          <div className="absolute top-3 left-3 md:left-auto md:right-3 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                             LIMITED TIME
                           </div>
                         }

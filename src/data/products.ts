@@ -94,6 +94,16 @@ export const products: Product[] = [
     ingredients: 'Greek yoghurt (24%) (MILK), Apple (22%), Apple juice (18%), OAT milk (14%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), OATS (9%), Granola (4%) (OAT Flakes, ALMONDS, CASHEWS, HAZELNUTS, WALNUTS, pumpkin seeds, sunflower seeds, golden linseeds, hemp seeds, pumpkin seeds, partially inverted sugar syrup, pink rock salt crystals & ground cinnamon (cassia)), PEANUT butter (5%) (roasted PEANUTS), honey, cinnamon (cassia), salt, chia [salvia hispanica] seeds, lemon juice (lemon Juice from Concentrate [Water, Concentrated Lemon Juice], Lemon Oil, Preservative (Potassium METABISULPHITE)). May contain: Brazil nuts, macadamia nuts, pecan nuts, pistachio nuts & sesame. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   },
   {
+    id: 'jam-dodger',
+    name: 'Jam Dodger',
+    price: 5.95,
+    description: "Raspberry-soaked oats. Topped with raspberry jam, shortbread crumble and a min jam dodger biscuit",
+    image: '/jam-dodger.png',
+    availableFrom: '2026-05-08',
+    isSignature: true,
+    ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). '
+  },
+  {
     id: 'monthly-special',
     name: 'Mini Egg Protein Bowl',
     price: 5.95,

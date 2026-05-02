@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
       'blueberry-cheesecake': 'Blueberry Cheesecake',
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
+      'jam-dodger': 'Jam Dodger',
       'monthly-special-may': 'Biscoff Protein Oat Bowl',
       'exclusive-delivery-april': 'Raspberry Cheesecake',
       'monthly-special': 'Mini Egg Protein Bowl',
