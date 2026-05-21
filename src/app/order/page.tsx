@@ -53,8 +53,8 @@ export default function OrderPage() {
       excludedDates: ['2026-05-27'],
       postcodeValidation: {
         enabled: true,
-        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL12', 'OL15', 'OL16', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15'],
-        excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46']
+        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15'],
+        excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46', 'OL12', 'OL15', 'OL16']
       }
     }
   };
