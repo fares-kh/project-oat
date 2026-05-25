@@ -104,16 +104,16 @@ export const products: Product[] = [
     ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). '
   },
   {
-    id: 'monthly-special',
-    name: 'Mini Egg Protein Bowl',
+    id: 'monthly-special-june',
+    name: 'Lemon & White Chocolate Oat Bowl',
     price: 5.95,
-    description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
-    image: '/monthly-special.png',
+    description: "Lemon & white chocolate soaked oats mixed with chia seeds. Topped with protein yoghurt, white chocolate drops, crumbled biscuit & lemon drizzle.",
+    image: '/monthly-special-june.png',
     monthlySpecial: true,
-    availableFrom: '2026-04-01',
-    availableUntil: '2026-04-30',
+    availableFrom: '2026-06-01',
+    availableUntil: '2026-06-30',
     isSignature: true,
-    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'Greek yogurt (28.4%) (0% Fat natural Greek yogurt (MILK)), Soft cheese (25.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (22.1%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS (14.2%), Lemon sauce (2.5%) (Sugar, Reconstituted Skimmed MILK, Water, Humectant (Glycerol), Glucose Syrup, Reconstituted EGG Yolk, Modified Starch, Sicilian Lemon Juice from Concentrate (1.5%), Acidity Regulator (Citric Acid), Stabilisers (Guar Gum, Xanthan Gum), Salt, Sicilian Lemon Oil, Preservative (Sorbic Acid), Colour (Lutein)), White chocolate chips (2.2%) (Sugar, Cocoa Butter, Dried Whole MILK, Whey Powder (MILK), Emulsifier (SOYA Lecithins), Digestive biscuit (2.2%) (WHEAT Flour (WHEAT Flour, Calcium Carbonate, Folic Acid, Iron, Niacin, Thiamin), Palm Oil, Sugar, Wholemeal WHEAT Flour, Partially Inverted Sugar Syrup, Salt, Raising Agents: Sodium Carbonates, Ammonium Carbonates; Cane Molasses), Chia seeds (1.6%) [salvia hispanica], protein powder (1.6%) (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), White chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), Lemon natural extract (Vegetable Oil (Rapeseed), Lemon Extract). May contain: peanuts, nuts & sesame Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   },
   {
     id: 'monthly-special-may',

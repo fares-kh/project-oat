@@ -105,6 +105,11 @@ export default function OrderPage() {
   const datePickerRef = useRef<HTMLInputElement>(null);
   const [customDateValue, setCustomDateValue] = useState<Dayjs | null>(null);
 
+  // Subscription service state
+  const [subscriptionEmail, setSubscriptionEmail] = useState('');
+  const [isSubscriptionSubmitting, setIsSubscriptionSubmitting] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
   // Get delivery dates based on selected location
   const getValidDeliveryDates = () => {
     const locationConfig = deliveryConfig[selectedLocation];
@@ -186,6 +191,41 @@ export default function OrderPage() {
     setPostcode('');
     setPostcodeError('');
     setCurrentStep(2);
+  };
+
+  const handleSubscriptionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!subscriptionEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(subscriptionEmail)) {
+      setSubscriptionMessage({ type: 'error', text: 'Please enter a valid email address' });
+      return;
+    }
+
+    setIsSubscriptionSubmitting(true);
+    setSubscriptionMessage(null);
+
+    try {
+      const response = await fetch('/api/subscribe-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: subscriptionEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubscriptionMessage({ type: 'success', text: 'Thank you! We\'ll be in touch soon.' });
+        setSubscriptionEmail('');
+      } else {
+        setSubscriptionMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' });
+      }
+    } catch (error) {
+      setSubscriptionMessage({ type: 'error', text: 'Failed to submit. Please try again later.' });
+    } finally {
+      setIsSubscriptionSubmitting(false);
+    }
   };
 
   const validatePostcode = (postcodeInput: string): boolean => {
@@ -720,6 +760,54 @@ export default function OrderPage() {
                     />
                   </div>
                 )}
+
+                {/* Subscription Service Section */}
+                <div className="mt-12 bg-brand-green rounded-2xl shadow-xl p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    {/* Left Column - Text */}
+                    <div>
+                      <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+                        Interested in our subscription service?
+                      </h3>
+                      <p className="text-white/90 text-lg">
+                        You can start any time, with a four-week supply of 16 nutritious bowls delivered straight to your door. Fuel your fitness & lifestyle goals without having to remember to place your order. Add your email below and we'll be in touch.
+                      </p>
+                    </div>
+
+                    {/* Right Column - Form */}
+                    <div>
+                      <form onSubmit={handleSubscriptionSubmit} className="space-y-4">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <input
+                            type="email"
+                            value={subscriptionEmail}
+                            onChange={(e) => setSubscriptionEmail(e.target.value)}
+                            placeholder="your.email@example.com"
+                            className="flex-1 px-4 py-3 rounded-lg border-2 border-white/20 bg-white/10 text-white placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/20 transition"
+                            disabled={isSubscriptionSubmitting}
+                          />
+                          <button
+                            type="submit"
+                            disabled={isSubscriptionSubmitting}
+                            className="px-8 py-3 bg-white text-brand-green font-semibold rounded-lg hover:bg-brand-beige-light transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                          >
+                            {isSubscriptionSubmitting ? 'Submitting...' : 'Subscribe'}
+                          </button>
+                        </div>
+                        
+                        {subscriptionMessage && (
+                          <div className={`p-3 rounded-lg text-sm font-medium ${
+                            subscriptionMessage.type === 'success' 
+                              ? 'bg-white/20 text-white border border-white/30' 
+                              : 'bg-red-500/20 text-white border border-red-300/30'
+                          }`}>
+                            {subscriptionMessage.text}
+                          </div>
+                        )}
+                      </form>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
