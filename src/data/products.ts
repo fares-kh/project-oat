@@ -148,7 +148,6 @@ export const products: Product[] = [
     isSignature: true,
     exclusiveDelivery: true,
     availableFrom: '2026-05-01',
-    availableUntil: '2026-05-31',
     ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
   },
   {
