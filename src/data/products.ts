@@ -129,15 +129,14 @@ export const products: Product[] = [
   },
   {
     id: 'exclusive-delivery',
-    name: 'Raspberry Cheesecake',
+    name: 'Mini Egg Protein Bowl',
     price: 5.95,
-    description: "Raspberry soaked oats. Topped with a cheesecake drizzle, raspberries & biscuit crumble.",
-    image: '/exclusive-april.png',
+    description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
+    image: '/exclusive-june.png',
     isSignature: true,
     exclusiveDelivery: true,
-    availableFrom: '2026-04-01',
-    availableUntil: '2026-04-30',
-    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), Frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    availableFrom: '2026-06-17',
+    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts. '
   },
   {
     id: 'exclusive-delivery-may',
