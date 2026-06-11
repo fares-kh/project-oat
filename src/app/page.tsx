@@ -67,8 +67,6 @@ export default function Home() {
                 { title: "Banana Cream (vg)", description: "Banana matcha, banana cold foam" },
                 { title: "Cotton Cloud", description: "White chocolate matcha, raspberry cold foam" },
                 { title: "Vanilla Protein", description: "Vegan protein shake with a serving of matcha" },
-                { title: "(Hot) Toasted Marshmallow", description: "" },
-                { title: "(Hot) White Chocolate", description: "" },
               ]}
             />
           </div>

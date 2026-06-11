@@ -116,18 +116,6 @@ export const products: Product[] = [
     ingredients: 'Greek yogurt (28.4%) (0% Fat natural Greek yogurt (MILK)), Soft cheese (25.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (22.1%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS (14.2%), Lemon sauce (2.5%) (Sugar, Reconstituted Skimmed MILK, Water, Humectant (Glycerol), Glucose Syrup, Reconstituted EGG Yolk, Modified Starch, Sicilian Lemon Juice from Concentrate (1.5%), Acidity Regulator (Citric Acid), Stabilisers (Guar Gum, Xanthan Gum), Salt, Sicilian Lemon Oil, Preservative (Sorbic Acid), Colour (Lutein)), White chocolate chips (2.2%) (Sugar, Cocoa Butter, Dried Whole MILK, Whey Powder (MILK), Emulsifier (SOYA Lecithins), Digestive biscuit (2.2%) (WHEAT Flour (WHEAT Flour, Calcium Carbonate, Folic Acid, Iron, Niacin, Thiamin), Palm Oil, Sugar, Wholemeal WHEAT Flour, Partially Inverted Sugar Syrup, Salt, Raising Agents: Sodium Carbonates, Ammonium Carbonates; Cane Molasses), Chia seeds (1.6%) [salvia hispanica], protein powder (1.6%) (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), White chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), Lemon natural extract (Vegetable Oil (Rapeseed), Lemon Extract). May contain: peanuts, nuts & sesame Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   },
   {
-    id: 'monthly-special-may',
-    name: 'Biscoff Protein Oat Bowl',
-    price: 5.95,
-    description: "Packed with 24g of protein - Biscoff soaked oats topped with yoghurt, a Biscoff drizzle & crumbled caramelised biscuit.",
-    image: '/monthly-special-may.png',
-    monthlySpecial: true,
-    availableFrom: '2026-05-01',
-    availableUntil: '2026-05-31',
-    isSignature: true,
-    ingredients: 'Greek yoghurt (30.82%) (MILK), reduced fat soft cheese (23.97%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), OAT milk (20.55%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (15.41%), caramelised biscuit spread (5.14%) (Caramelised Biscuit (58%) [WHEAT Flour, Sugar, Palm Oil, Sugar Syrup, Rapeseed Oil, Raising Agent (Sodium Bicarbonate), Salt, Cinnamon], Emulsifier (Sunflower Lecithins), WHEAT Protein, OAT Flour, Acidity Regulator (Citric Acid), Antioxidant (Tocopherol-Rich Extract)), caramelised biscuit protein powder (1.71%) (Protein Blend (Whey Protein Concentrate (MILK) (contains Emulsifiers (SOYA Lecithin, Sunflower Lecithin)), Micellar Casein (MILK)), Creatine Monohydrate, Flavourings, Thickener (Xanthan Gum), Sweeteners (Sucralose, Acesulfame K)), caramelised biscuit (WHEAT Flour, Sugar, Palm Oil, Icing Sugar, Rapeseed Oil, Caramelised Sugar Syrup, Salt, Raising Agent (Sodium Bicarbonate), Emulsifier (Lecithins), Potato Starch, Caramelised Sugar, Cinnamon), caramelised biscuit sugar-free syrup (Water, Flavouring, Salt, Acid (Lactic Acid), Colour (Caramel), Sweetener (Sucralose), Preservatives (Potassium Sorbate, Sodium benzoate). May contain: egg, peanuts & nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
-  },
-  {
     id: 'exclusive-delivery',
     name: 'Mini Egg Protein Bowl',
     price: 5.95,
