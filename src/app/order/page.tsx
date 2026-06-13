@@ -47,13 +47,13 @@ export default function OrderPage() {
         excludedPrefixes: ['BB8', 'BB18']
       }
     },
-    'Manchester': {
+    'Manchester/Cheshire East': {
       useCustomDates: false,
       customDates: [],
       excludedDates: ['2026-07-29'],
       postcodeValidation: {
         enabled: true,
-        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15'],
+        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15', 'SK9', 'SK8', 'SK10', '⁠SK11'],
         excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46', 'OL12', 'OL15', 'OL16']
       }
     }
@@ -171,7 +171,7 @@ export default function OrderPage() {
     return validDates;
   };
 
-  const locations = ['Lancashire', 'Manchester'];
+  const locations = ['Lancashire', 'Manchester/Cheshire East'];
 
   const validDates = selectedLocation ? getValidDeliveryDates() : [];
 
