@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       'apple-of-my-eye': 'Apple of My Eye',
       'jam-dodger': 'Jam Dodger',
       'monthly-special-june': 'Lemon & White Chocolate Oat Bowl',
+      'monthly-special-july': 'Sticky Mango',
       'exclusive-delivery': 'Mini Egg Protein Bowl',
       'exclusive-delivery-may': 'Raspberry & White Chocolate Cheesecake',
       'build-your-own': 'Build Your Own'

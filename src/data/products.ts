@@ -116,6 +116,18 @@ export const products: Product[] = [
     ingredients: 'Greek yogurt (28.4%) (0% Fat natural Greek yogurt (MILK)), Soft cheese (25.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (22.1%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS (14.2%), Lemon sauce (2.5%) (Sugar, Reconstituted Skimmed MILK, Water, Humectant (Glycerol), Glucose Syrup, Reconstituted EGG Yolk, Modified Starch, Sicilian Lemon Juice from Concentrate (1.5%), Acidity Regulator (Citric Acid), Stabilisers (Guar Gum, Xanthan Gum), Salt, Sicilian Lemon Oil, Preservative (Sorbic Acid), Colour (Lutein)), White chocolate chips (2.2%) (Sugar, Cocoa Butter, Dried Whole MILK, Whey Powder (MILK), Emulsifier (SOYA Lecithins), Digestive biscuit (2.2%) (WHEAT Flour (WHEAT Flour, Calcium Carbonate, Folic Acid, Iron, Niacin, Thiamin), Palm Oil, Sugar, Wholemeal WHEAT Flour, Partially Inverted Sugar Syrup, Salt, Raising Agents: Sodium Carbonates, Ammonium Carbonates; Cane Molasses), Chia seeds (1.6%) [salvia hispanica], protein powder (1.6%) (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), White chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), Lemon natural extract (Vegetable Oil (Rapeseed), Lemon Extract). May contain: peanuts, nuts & sesame Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   },
   {
+    id: 'monthly-special-july',
+    name: 'Sticky Mango',
+    price: 5.95,
+    description: "Mango & coconut soaked oats mixed with chia seeds. Topped with coconut yoghurt, mango pieces & sesame seeds.",
+    image: '/monthly-special-july.png',
+    monthlySpecial: true,
+    availableFrom: '2026-07-01',
+    availableUntil: '2026-07-31',
+    isSignature: true,
+    ingredients: 'Greek yogurt (26.1%) (0% Fat natural Greek yogurt (MILK)), Mango (19.2%), Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (13.7%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS(12.4%), Condensed milk (3.3%) (whole MILK, Sugar, Skimmed MILK), Chia [salvia hispanica] seeds, SESAME seeds, Coconut flavouring (Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid)), Mango flavouring (Flavouring, Natural Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid), Concentrates (Lemon, Safflower, Radish, Carrot, Blackcurrant)). May also contain: nuts & peanuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
+  },
+  {
     id: 'exclusive-delivery',
     name: 'Mini Egg Protein Bowl',
     price: 5.95,
