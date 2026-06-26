@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products, type Product, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
+import { products, oatBites, type Product, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -74,6 +74,9 @@ export default function OrderPage() {
   const [isCustomDateActive, setIsCustomDateActive] = useState(false);
   const [previewLocation, setPreviewLocation] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [oatBitesByDate, setOatBitesByDate] = useState<Record<string, number>>({});
+  const [oatBitesModalDate, setOatBitesModalDate] = useState<string | null>(null);
+  const [oatBitesModalQuantity, setOatBitesModalQuantity] = useState(1);
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedOatSoaking, setSelectedOatSoaking] = useState<string>('dairy-yoghurt');
@@ -564,6 +567,11 @@ export default function OrderPage() {
           needPaperSpoons: needPaperSpoons,
         },
         ordersByDate: ordersByDate,
+        oatBitesByDate: Object.fromEntries(
+          getEligibleOatBitesDates()
+            .filter(date => (oatBitesByDate[date] || 0) > 0)
+            .map(date => [date, oatBitesByDate[date]])
+        ),
         totalBowls: totalBowls,
         amount: getTotalPrice(),
       };
@@ -597,6 +605,17 @@ export default function OrderPage() {
     return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
+  const formatOatBitesSummaryLabel = (dateString: string) => {
+    const date = new Date(dateString);
+    const weekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+    const day = date.getDate();
+    const ordinalSuffix =
+      day >= 11 && day <= 13 ? 'th' : ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'][day % 10];
+    const month = date.toLocaleDateString('en-GB', { month: 'long' });
+
+    return `${oatBites.name} – for ${weekday} ${day}${ordinalSuffix} ${month}`;
+  };
+
   const renderIngredientsWithStyling = (ingredients: string) => {
     if (!ingredients) {
       return null;
@@ -604,7 +623,7 @@ export default function OrderPage() {
     
     const allergens = [
       'ALMONDS', 'CASHEWS', 'HAZELNUTS', 'WALNUTS', 'OAT', 'OATS', 
-      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR', 'DIOXIDE', 'WHEAT', 'SOYA',
+      'MILK', 'METABISULPHITE', 'PEANUT', 'PEANUTS', 'SULPHUR', 'DIOXIDE', 'WHEAT', 'SOY', 'SOYA',
     ];
     
     const sections = ingredients.split(/(May contain:|May also contain:|Plant-based coconut \(base only\):|Made in a kitchen that also handles:|For allergens see ingredients in BOLD\.)/);
@@ -641,12 +660,53 @@ export default function OrderPage() {
     });
   };
 
+  const getEligibleOatBitesDates = () =>
+    selectedDates.filter(date => (ordersByDate[date]?.length ?? 0) >= 2);
+
+  const openOatBitesModal = (date: string) => {
+    setOatBitesModalDate(date);
+    setOatBitesModalQuantity(oatBitesByDate[date] || 1);
+  };
+
+  const closeOatBitesModal = () => {
+    setOatBitesModalDate(null);
+    setOatBitesModalQuantity(1);
+  };
+
+  const saveOatBitesToOrder = () => {
+    if (!oatBitesModalDate) return;
+
+    setOatBitesByDate(prev => {
+      const next = { ...prev };
+      if (oatBitesModalQuantity <= 0) {
+        delete next[oatBitesModalDate];
+      } else {
+        next[oatBitesModalDate] = oatBitesModalQuantity;
+      }
+      return next;
+    });
+    closeOatBitesModal();
+  };
+
+  const getOatBitesQuantity = (date: string) => oatBitesByDate[date] || 0;
+
+  const getTotalOatBitesCount = () =>
+    Object.values(oatBitesByDate).reduce((total, quantity) => total + quantity, 0);
+
+  const getOatBitesTotal = () =>
+    Object.entries(oatBitesByDate).reduce(
+      (total, [, quantity]) => total + quantity * oatBites.price,
+      0
+    );
+
   const getTotalPrice = () => {
-    return Object.values(ordersByDate).reduce((total, dateOrders) => {
+    const bowlsTotal = Object.values(ordersByDate).reduce((total, dateOrders) => {
       return total + dateOrders.reduce((dateTotal, bowl) => {
         return dateTotal + bowl.price;
       }, 0);
     }, 0);
+
+    return bowlsTotal + getOatBitesTotal();
   };
 
   const StepIndicator = ({ step, title, isActive, isCompleted }: any) => (
@@ -1329,7 +1389,8 @@ export default function OrderPage() {
                   <h3 className="font-semibold mb-3">Orders by Delivery Date</h3>
                   {selectedDates.map(date => {
                     const dateOrders = ordersByDate[date];
-                    const dateTotal = dateOrders.reduce((sum, bowl) => sum + bowl.price, 0);
+                    const dateTotal = dateOrders.reduce((sum, bowl) => sum + bowl.price, 0)
+                      + getOatBitesQuantity(date) * oatBites.price;
                     
                     return (
                       <div key={date} className="mb-4">
@@ -1368,6 +1429,15 @@ export default function OrderPage() {
                               </div>
                             );
                           })}
+                          {getOatBitesQuantity(date) > 0 && (
+                            <div className="flex justify-between text-sm border-b border-brand-beige pb-2">
+                              <div className="font-semibold text-base">
+                                {formatOatBitesSummaryLabel(date)}
+                                {getOatBitesQuantity(date) > 1 && ` × ${getOatBitesQuantity(date)}`}
+                              </div>
+                              <span className="font-medium">£{(getOatBitesQuantity(date) * oatBites.price).toFixed(2)}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between font-medium pt-2">
                             <span>Date Subtotal:</span>
                             <span>£{dateTotal.toFixed(2)}</span>
@@ -1376,6 +1446,55 @@ export default function OrderPage() {
                       </div>
                     );
                   })}
+
+                  {getEligibleOatBitesDates().length > 0 && (
+                    <div className="mb-6 pt-4 border-t border-brand-beige">
+                      <h3 className="font-semibold mb-2">Add Oat Bites</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {getEligibleOatBitesDates().map(date => {
+                          const quantity = getOatBitesQuantity(date);
+                          return (
+                          <div
+                            key={`oat-bites-${date}`}
+                            onClick={() => openOatBitesModal(date)}
+                            className={`relative cursor-pointer p-6 border-2 rounded-xl hover:shadow-lg transition-all duration-200 flex gap-4 ${
+                              quantity > 0
+                                ? 'border-brand-green bg-brand-beige-light shadow-lg'
+                                : 'border-brand-beige hover:border-brand-green'
+                            }`}
+                          >
+                            <div className="shrink-0">
+                              <Image
+                                src={oatBites.image}
+                                alt={oatBites.name}
+                                width={120}
+                                height={120}
+                                className="rounded-lg object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-bold text-lg mb-2">{formatOatBitesSummaryLabel(date)}</div>
+                              <div className="text-brand-green font-bold text-xl mb-2">
+                                £{oatBites.price.toFixed(2)}
+                              </div>
+                              <div className="text-sm text-zinc-600 mb-3">{oatBites.description}</div>
+                              {quantity > 0 ? (
+                                <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand-beige">
+                                  <span className="text-sm font-medium text-brand-green">Added to order</span>
+                                  <span className="bg-brand-green text-white font-bold px-3 py-1 rounded-full text-sm">{quantity}</span>
+                                </div>
+                              ) : (
+                                <div className="mt-3 text-brand-green text-sm font-medium">
+                                  Tap to view & add
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between font-bold text-lg pt-3 border-t-2 border-brand-green">
                     <span>Total ({selectedDates.length} delivery date{selectedDates.length > 1 ? 's' : ''}):</span>
@@ -1463,12 +1582,26 @@ export default function OrderPage() {
                                 </div>
                               );
                             })}
+                            {getOatBitesQuantity(date) > 0 && (
+                              <div className="py-2 border-b border-brand-beige/50 last:border-0">
+                                <div className="flex justify-between items-start mb-1">
+                                  <div className="text-sm font-semibold">
+                                    {formatOatBitesSummaryLabel(date)}
+                                    {getOatBitesQuantity(date) > 1 && ` × ${getOatBitesQuantity(date)}`}
+                                  </div>
+                                  <div className="font-medium text-sm">£{(getOatBitesQuantity(date) * oatBites.price).toFixed(2)}</div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
 
                       <div className="pt-3 border-t-2 border-brand-green">
-                        <div className="flex justify-between font-semibold"><span>Total Items:</span><span>{totalBowls}</span></div>
+                        <div className="flex justify-between font-semibold">
+                          <span>Total Items:</span>
+                          <span>{totalBowls + getTotalOatBitesCount()}</span>
+                        </div>
                         <div className="flex justify-between font-bold text-lg mt-2"><span>Total:</span><span>£{getTotalPrice().toFixed(2)}</span></div>
                       </div>
                     </div>
@@ -1486,7 +1619,9 @@ export default function OrderPage() {
                   <div className="flex justify-between items-center">
                     <span className="font-medium">View basket</span>
                     <div className="flex items-center space-x-2">
-                      <span className="bg-brand-green text-text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">{totalBowls}</span>
+                      <span className="bg-brand-green text-text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                        {totalBowls + getTotalOatBitesCount()}
+                      </span>
                       <span className="font-bold text-brand-green">£{getTotalPrice().toFixed(2)}</span>
                     </div>
                   </div>
@@ -1766,6 +1901,109 @@ export default function OrderPage() {
                   className="flex-1 px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
                 >
                   Add for £{(selectedProduct.price + Object.values(extraToppings).reduce((s, q) => s + q, 0)).toFixed(2)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Oat Bites Modal */}
+      {oatBitesModalDate && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={closeOatBitesModal}
+        >
+          <div
+            className="bg-background rounded-2xl shadow-2xl max-w-2xl w-full relative max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeOatBitesModal}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-brand-beige flex items-center justify-center transition z-10"
+            >
+              <span className="text-2xl text-zinc-600">×</span>
+            </button>
+
+            <div className="overflow-y-auto p-8">
+              <div className="mb-6 flex justify-center">
+                <Image
+                  src={oatBites.image}
+                  alt={oatBites.name}
+                  width={200}
+                  height={200}
+                  className="rounded-xl object-cover"
+                />
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2">{oatBites.name}</h3>
+                {selectedDates.length > 1 && (
+                  <p className="text-sm font-medium text-brand-green mb-2">
+                    For delivery on {formatDate(oatBitesModalDate)}
+                  </p>
+                )}
+                <p className="text-brand-green font-bold text-2xl mb-3">£{oatBites.price.toFixed(2)}</p>
+                <p className="mb-4">{oatBites.description}</p>
+
+                {oatBites.ingredients && (
+                  <div className="mt-4 p-4 bg-brand-beige/50 rounded-lg">
+                    <h4 className="text-sm font-semibold mb-2">Ingredients</h4>
+                    <div className="text-sm leading-relaxed">
+                      {renderIngredientsWithStyling(oatBites.ingredients)}
+                      <div>For allergens see ingredients in <strong className="underline">BOLD.</strong></div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6">
+                  <h4 className="font-semibold mb-3">Quantity</h4>
+                  <div className="flex items-center justify-between p-3 border-2 border-brand-beige rounded-lg">
+                    <span className="text-sm font-medium">{formatOatBitesSummaryLabel(oatBitesModalDate)}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setOatBitesModalQuantity(Math.max(0, oatBitesModalQuantity - 1))}
+                        className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center font-medium">{oatBitesModalQuantity}</span>
+                      <button
+                        onClick={() => setOatBitesModalQuantity(oatBitesModalQuantity + 1)}
+                        className="cursor-pointer w-7 h-7 rounded-full border border-brand-green text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center text-lg font-bold transition"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-brand-beige p-6">
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={saveOatBitesToOrder}
+                  disabled={oatBitesModalQuantity <= 0}
+                  className="w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"
+                >
+                  {oatBitesModalQuantity > 0
+                    ? `Add ${oatBitesModalQuantity} for £${(oatBitesModalQuantity * oatBites.price).toFixed(2)}`
+                    : 'Add to order'}
+                </button>
+                {(oatBitesByDate[oatBitesModalDate] || 0) > 0 && oatBitesModalQuantity <= 0 && (
+                  <button
+                    onClick={saveOatBitesToOrder}
+                    className="w-full px-6 py-3 border-2 border-brand-beige text-zinc-700 rounded-lg font-semibold hover:bg-brand-beige transition"
+                  >
+                    Remove from order
+                  </button>
+                )}
+                <button
+                  onClick={closeOatBitesModal}
+                  className="w-full px-6 py-3 border-2 border-brand-beige text-zinc-700 rounded-lg font-semibold hover:bg-brand-beige transition"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
