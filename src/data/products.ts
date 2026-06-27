@@ -159,3 +159,12 @@ export const products: Product[] = [
     ingredients: 'Dairy (base only): OAT milk (42%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), Greek yoghurt (38%) (MILK), OATS (19%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Plant-based coconut (base only): OAT milk (40%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), coconut yoghurt (40%) (Water, Hulled SOYA beans, Coconut milk (Water, Coconut cream) Sugar Calcium (Tri-calcium citrate) Stabiliser (Pectins) Acidity regulators (Sodium citrates, Citric acid) Natural flavourings Sea salt Antioxidants (Tocopherol-rich extract, Fatty acid esters of ascorbic acid) Vitamins B6 B12 D2 Live cultures (S. thermophilus, L. bulgaricus), OATS (20%). May contain traces of nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
   }
 ];
+
+export const oatBites = {
+  id: 'oat-bites',
+  name: 'Oat Bites',
+  price: 3.50,
+  description: 'Oats mixed with peanut butter, chia seeds, dates and honey. Topped with dark chocolate.',
+  image: '/oat-bites.png',
+  ingredients: 'PEANUT butter (18%) (Roasted PEANUTS), protein powder (15%) (Protein Bend [SOY Protein Isolate, Pea Protein Isolate, Pumpkin Seed Protein, Sunflower Protein, Brown Rice Protein], Flavouring. Sweetener (Sucalose), DigeZyme (Amylase, Protease, Cellulase, Beta-D-Galaciosidase, Lipase), honey (15%), OATS (15%), dark chocolate (15%) (Cocoa Mass, Sugar, Cocoa Butter, Fat Reduced Cocoa Powder, Emulsifier (SOYA Lecithins), water (11%), dates (4%), chia [salvia hispanica] seeds (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), salt, cinnamon (cassia). May also contain: milk, almonds, brazil nuts, cashews, hazelnuts, macadamia nuts, pecan nuts, pistachio nuts, sesame & walnuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
+};

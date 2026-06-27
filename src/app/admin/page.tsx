@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 
 interface OrderItem {
-  bowlNumber: number;
+  bowlNumber?: number;
   productName: string;
   isSignature: boolean;
+  isOatBites?: boolean;
   oatSoaking: string | null;
   toppings: string[];
   extraToppings: Array<{ name: string; quantity: number }>;
@@ -477,7 +478,7 @@ export default function AdminDashboard() {
                               <svg className="w-5 h-5 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                               </svg>
-                              Order Items ({order.items.detailedLineItems.length} bowls)
+                              Order Items ({order.items.detailedLineItems.length} item{order.items.detailedLineItems.length !== 1 ? 's' : ''})
                             </h3>
                             <div className="space-y-4">
                               {order.items.detailedLineItems.map((item, idx) => {
@@ -489,7 +490,9 @@ export default function AdminDashboard() {
                                     <div className="flex justify-between items-start mb-3">
                                       <div>
                                         <div className="font-semibold text-gray-900">
-                                          Bowl #{item.bowlNumber} - {item.productName}
+                                          {item.isOatBites
+                                            ? item.productName
+                                            : `Bowl #${item.bowlNumber} - ${item.productName}`}
                                         </div>
                                         <div className="text-sm text-gray-600 mt-1">
                                           Delivery: {item.deliveryDate}

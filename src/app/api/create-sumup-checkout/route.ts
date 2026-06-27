@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { oatBites } from '@/data/products';
 
 function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
   const now = new Date();
@@ -65,7 +66,8 @@ export async function POST(request: NextRequest) {
       'monthly-special-july': 'Sticky Mango',
       'exclusive-delivery': 'Mini Egg Protein Bowl',
       'exclusive-delivery-may': 'Raspberry & White Chocolate Cheesecake',
-      'build-your-own': 'Build Your Own'
+      'build-your-own': 'Build Your Own',
+      'oat-bites': 'Oat Bites'
     };
 
     const toppingNames: Record<string, string> = {
@@ -130,9 +132,61 @@ export async function POST(request: NextRequest) {
       });
     });
     
+    const validatedOatBitesByDate: Record<string, number> = {};
+    if (orderData.oatBitesByDate && typeof orderData.oatBitesByDate === 'object') {
+      for (const [date, quantity] of Object.entries(orderData.oatBitesByDate)) {
+        const qty = Number(quantity);
+        if (!Number.isInteger(qty) || qty < 1) continue;
+
+        const dateBowls = orderData.ordersByDate?.[date] || [];
+        if (dateBowls.length < 2) {
+          return NextResponse.json(
+            { error: 'Oat Bites require at least 2 bowls for the delivery date', details: date },
+            { status: 400 }
+          );
+        }
+
+        if (!orderData.delivery.dates.includes(date)) {
+          return NextResponse.json(
+            { error: 'Invalid Oat Bites delivery date', details: date },
+            { status: 400 }
+          );
+        }
+
+        validatedOatBitesByDate[date] = qty;
+      }
+    }
+
+    Object.entries(validatedOatBitesByDate).forEach(([date, quantity]) => {
+      const dateFormatted = formatDate(date);
+
+      for (let i = 0; i < quantity; i++) {
+        detailedLineItems.push({
+          productId: oatBites.id,
+          productName: oatBites.name,
+          isSignature: true,
+          isOatBites: true,
+          oatSoaking: null,
+          toppings: [],
+          extraToppings: [],
+          price: oatBites.price,
+          deliveryDate: dateFormatted
+        });
+      }
+    });
+
+    const oatBitesCount = Object.values(validatedOatBitesByDate).reduce((sum, qty) => sum + qty, 0);
+    const expectedAmount = detailedLineItems.reduce((sum, item) => sum + item.price, 0);
+    if (Math.abs(expectedAmount - orderData.amount) > 0.01) {
+      return NextResponse.json(
+        { error: 'Order amount mismatch', details: { expected: expectedAmount, received: orderData.amount } },
+        { status: 400 }
+      );
+    }
+    
     const description = [
       `${orderData.customer.firstName} ${orderData.customer.lastName}`,
-      `${orderData.totalBowls} bowl${orderData.totalBowls > 1 ? 's' : ''}`,
+      `${orderData.totalBowls} bowl${orderData.totalBowls > 1 ? 's' : ''}${oatBitesCount > 0 ? ` + ${oatBitesCount} Oat Bites` : ''}`,
       `Delivery: ${orderData.delivery.dates.map((d: string) => formatDate(d)).join(', ')}`,
       orderData.delivery.location,
       orderData.customer.address.postcode.toUpperCase()
@@ -143,7 +197,9 @@ export async function POST(request: NextRequest) {
       customer: orderData.customer,
       delivery: orderData.delivery,
       detailedLineItems,
+      oatBitesByDate: validatedOatBitesByDate,
       totalBowls: orderData.totalBowls,
+      totalOatBites: oatBitesCount,
       totalAmount: orderData.amount,
       createdAt: new Date().toISOString()
     };
