@@ -1,3 +1,15 @@
+export interface NutritionInfo {
+  energy_kcal: number;
+  energy_kj: number;
+  fat_g: number;
+  saturates_g: number;
+  carbs_g: number;
+  sugars_g: number;
+  fibre_g: number;
+  protein_g: number;
+  salt_g: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -10,6 +22,8 @@ export interface Product {
   availableUntil?: string;
   isSignature?: boolean; // If true, pre-made bowl with optional extras only
   ingredients: string;
+  nutrition?: NutritionInfo;
+  nutritionVariants?: { label: string; nutrition: NutritionInfo }[];
 }
 
 export interface OatSoaking {
@@ -73,7 +87,8 @@ export const products: Product[] = [
     description: "Blueberry soaked oats. Topped with a cheesecake drizzle, blueberry compote & biscuit crumble",
     image: '/blueberry.png',
     isSignature: true,
-    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), Frozen blueberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), Frozen blueberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
+    nutrition: { energy_kcal: 508, energy_kj: 2126, fat_g: 18, saturates_g: 9, carbs_g: 60, sugars_g: 27, fibre_g: 6, protein_g: 24, salt_g: 1.1 },
   },
   {
     id: 'sticky-toffee',
@@ -82,7 +97,8 @@ export const products: Product[] = [
     description: "Date soaked oats, made with oat milk & Greek yoghurt. Topped with banana, cacao nibs, greek yoghurt & chopped dates.",
     image: '/sticky-toffee.png',
     isSignature: true,
-    ingredients: 'OAT milk (37%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), Greek yoghurt (19%) (MILK), OATS (16%), Pitted dogleg nour dates (12%), Banana (11%), chia [salvia hispanica] seeds, cocoa nibs [theobroma cacao], lemon juice (lemon Juice from Concentrate [Water, Concentrated Lemon Juice], Lemon Oil, Preservative (Potassium METABISULPHITE)). May contain: Almonds, Brazil nuts, cashews, hazelnuts, macadamia nuts, pecan nuts, pistachio nuts, walnuts, peanuts & sesame. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'OAT milk (37%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), Greek yoghurt (19%) (MILK), OATS (16%), Pitted dogleg nour dates (12%), Banana (11%), chia [salvia hispanica] seeds, cocoa nibs [theobroma cacao], lemon juice (lemon Juice from Concentrate [Water, Concentrated Lemon Juice], Lemon Oil, Preservative (Potassium METABISULPHITE)). May contain: Almonds, Brazil nuts, cashews, hazelnuts, macadamia nuts, pecan nuts, pistachio nuts, walnuts, peanuts & sesame. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
+    nutrition: { energy_kcal: 464, energy_kj: 1941, fat_g: 7, saturates_g: 2, carbs_g: 76, sugars_g: 35, fibre_g: 11, protein_g: 17, salt_g: 0.31 },
   },
   {
     id: 'apple-of-my-eye',
@@ -91,7 +107,8 @@ export const products: Product[] = [
     description: "Apple & cinnamon soaked oats made with oat milk & Greek yoghurt. Topped with sliced apple, peanut butter, homemade granola & mixed seeds.",
     image: '/apple-of-my-eye.png',
     isSignature: true,
-    ingredients: 'Greek yoghurt (24%) (MILK), Apple (22%), Apple juice (18%), OAT milk (14%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), OATS (9%), Granola (4%) (OAT Flakes, ALMONDS, CASHEWS, HAZELNUTS, WALNUTS, pumpkin seeds, sunflower seeds, golden linseeds, hemp seeds, pumpkin seeds, partially inverted sugar syrup, pink rock salt crystals & ground cinnamon (cassia)), PEANUT butter (5%) (roasted PEANUTS), honey, cinnamon (cassia), salt, chia [salvia hispanica] seeds, lemon juice (lemon Juice from Concentrate [Water, Concentrated Lemon Juice], Lemon Oil, Preservative (Potassium METABISULPHITE)). May contain: Brazil nuts, macadamia nuts, pecan nuts, pistachio nuts & sesame. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'Greek yoghurt (24%) (MILK), Apple (22%), Apple juice (18%), OAT milk (14%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), OATS (9%), Granola (4%) (OAT Flakes, ALMONDS, CASHEWS, HAZELNUTS, WALNUTS, pumpkin seeds, sunflower seeds, golden linseeds, hemp seeds, pumpkin seeds, partially inverted sugar syrup, pink rock salt crystals & ground cinnamon (cassia)), PEANUT butter (5%) (roasted PEANUTS), honey, cinnamon (cassia), salt, chia [salvia hispanica] seeds, lemon juice (lemon Juice from Concentrate [Water, Concentrated Lemon Juice], Lemon Oil, Preservative (Potassium METABISULPHITE)). May contain: Brazil nuts, macadamia nuts, pecan nuts, pistachio nuts & sesame. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
+    nutrition: { energy_kcal: 550, energy_kj: 2301, fat_g: 20, saturates_g: 2, carbs_g: 67, sugars_g: 33, fibre_g: 10, protein_g: 23, salt_g: 0.42 },
   },
   {
     id: 'jam-dodger',
@@ -101,7 +118,8 @@ export const products: Product[] = [
     image: '/jam-dodger.png',
     availableFrom: '2026-05-08',
     isSignature: true,
-    ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). '
+    ingredients: 'Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (17.4%) (Water, fermented wholegrain OAT flakes, sunflower oil, calcium citrates, sea salt, riboflavin, vitamin D, vitamin B12, calcium carbonate, vitamin B2, rapeseed oil, acidity regulators: potassium phosphates, diphosphates, triphosphates), Greek yoghurt (17.4%) (Natural yoghurt (MILK), yoghurt cultures (l. bulgarians, s. thermophiles)), OATS (15.7%), Raspberry jam (17.4%) (Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), Frozen raspberries (7%), shortbread (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, butter (MILK), Sugar, Confour, Salt), jam biscuit (WHEAT Flour, Calcium Carbonate, Iron. Niacin, Thiamin, Glucose-Fructose Syrup, Apple Extract (contains SULPHITES), Sugar, Concentrated Apple Puree, Humectant: Glycerol; gelling Agent: Pectins; Acidity Regulator: Sodium Citrates; Flavouring, Colour: Anthocyanins; Acid: Citric Acid, Sugar, Palm Oil, Rapseed Oil, Partially Inverted Sugar Syrup, Raising Agents: Ammonium Carbonates, Sodium Carbonates; Salt, Flavouring), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). ',
+    nutrition: { energy_kcal: 548, energy_kj: 2293, fat_g: 15, saturates_g: 7, carbs_g: 81, sugars_g: 37, fibre_g: 7, protein_g: 17, salt_g: 0.69 },
   },
   {
     id: 'monthly-special-june',
@@ -110,7 +128,8 @@ export const products: Product[] = [
     description: "Lemon & white chocolate soaked oats mixed with chia seeds. Topped with protein yoghurt, white chocolate drops, crumbled biscuit & lemon drizzle.",
     image: '/monthly-special-june.png',
     isSignature: true,
-    ingredients: 'Greek yogurt (28.4%) (0% Fat natural Greek yogurt (MILK)), Soft cheese (25.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (22.1%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS (14.2%), Lemon sauce (2.5%) (Sugar, Reconstituted Skimmed MILK, Water, Humectant (Glycerol), Glucose Syrup, Reconstituted EGG Yolk, Modified Starch, Sicilian Lemon Juice from Concentrate (1.5%), Acidity Regulator (Citric Acid), Stabilisers (Guar Gum, Xanthan Gum), Salt, Sicilian Lemon Oil, Preservative (Sorbic Acid), Colour (Lutein)), White chocolate chips (2.2%) (Sugar, Cocoa Butter, Dried Whole MILK, Whey Powder (MILK), Emulsifier (SOYA Lecithins), Digestive biscuit (2.2%) (WHEAT Flour (WHEAT Flour, Calcium Carbonate, Folic Acid, Iron, Niacin, Thiamin), Palm Oil, Sugar, Wholemeal WHEAT Flour, Partially Inverted Sugar Syrup, Salt, Raising Agents: Sodium Carbonates, Ammonium Carbonates; Cane Molasses), Chia seeds (1.6%) [salvia hispanica], protein powder (1.6%) (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), White chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), Lemon natural extract (Vegetable Oil (Rapeseed), Lemon Extract). May contain: peanuts, nuts & sesame Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'Greek yogurt (28.4%) (0% Fat natural Greek yogurt (MILK)), Soft cheese (25.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (22.1%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS (14.2%), Lemon sauce (2.5%) (Sugar, Reconstituted Skimmed MILK, Water, Humectant (Glycerol), Glucose Syrup, Reconstituted EGG Yolk, Modified Starch, Sicilian Lemon Juice from Concentrate (1.5%), Acidity Regulator (Citric Acid), Stabilisers (Guar Gum, Xanthan Gum), Salt, Sicilian Lemon Oil, Preservative (Sorbic Acid), Colour (Lutein)), White chocolate chips (2.2%) (Sugar, Cocoa Butter, Dried Whole MILK, Whey Powder (MILK), Emulsifier (SOYA Lecithins), Digestive biscuit (2.2%) (WHEAT Flour (WHEAT Flour, Calcium Carbonate, Folic Acid, Iron, Niacin, Thiamin), Palm Oil, Sugar, Wholemeal WHEAT Flour, Partially Inverted Sugar Syrup, Salt, Raising Agents: Sodium Carbonates, Ammonium Carbonates; Cane Molasses), Chia seeds (1.6%) [salvia hispanica], protein powder (1.6%) (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), White chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), Lemon natural extract (Vegetable Oil (Rapeseed), Lemon Extract). May contain: peanuts, nuts & sesame Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
+    nutrition: { energy_kcal: 524, energy_kj: 2192, fat_g: 19, saturates_g: 9, carbs_g: 57, sugars_g: 20, fibre_g: 7, protein_g: 27, salt_g: 0.98 },
   },
   {
     id: 'monthly-special-july',
@@ -122,7 +141,8 @@ export const products: Product[] = [
     availableFrom: '2026-07-01',
     availableUntil: '2026-07-31',
     isSignature: true,
-    ingredients: 'Greek yogurt (26.1%) (0% Fat natural Greek yogurt (MILK)), Mango (19.2%), Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (13.7%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS(12.4%), Condensed milk (3.3%) (whole MILK, Sugar, Skimmed MILK), Chia [salvia hispanica] seeds, SESAME seeds, Coconut flavouring (Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid)), Mango flavouring (Flavouring, Natural Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid), Concentrates (Lemon, Safflower, Radish, Carrot, Blackcurrant)). May also contain: nuts & peanuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
+    ingredients: 'Greek yogurt (26.1%) (0% Fat natural Greek yogurt (MILK)), Mango (19.2%), Soft cheese (19.2%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OAT milk (13.7%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS(12.4%), Condensed milk (3.3%) (whole MILK, Sugar, Skimmed MILK), Chia [salvia hispanica] seeds, SESAME seeds, Coconut flavouring (Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid)), Mango flavouring (Flavouring, Natural Flavouring, Sweetener (Sucralose), Acidity Regulator (Citric Acid), Concentrates (Lemon, Safflower, Radish, Carrot, Blackcurrant)). May also contain: nuts & peanuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.',
+    nutrition: { energy_kcal: 476, energy_kj: 1992, fat_g: 15, saturates_g: 7, carbs_g: 58, sugars_g: 26, fibre_g: 8, protein_g: 24, salt_g: 0.79 },
   },
   {
     id: 'exclusive-delivery',
@@ -133,7 +153,8 @@ export const products: Product[] = [
     isSignature: true,
     exclusiveDelivery: true,
     availableFrom: '2026-06-17',
-    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts. '
+    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts. ',
+    nutrition: { energy_kcal: 563, energy_kj: 2356, fat_g: 20, saturates_g: 10, carbs_g: 67, sugars_g: 35, fibre_g: 6, protein_g: 27, salt_g: 0.94 },
   },
   {
     id: 'exclusive-delivery-may',
@@ -144,7 +165,8 @@ export const products: Product[] = [
     isSignature: true,
     exclusiveDelivery: true,
     availableFrom: '2026-05-01',
-    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
+    ingredients: 'Reduced fat soft cheese (26%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre.), frozen raspberries (22%), Greek yoghurt (18%) (MILK), OAT milk (13%) (water, organic OATS, organic rapeseed oil, potassium carbonate, salt), OATS (12%), digestive biscuit (4%) (WHEAT Flour, Calcium Carbonate, Iron, Niacin, Thiamin, Palm Oil, Wholemeal WHEAT Four, Sugar, Raising Agents: Sodium Carbonates, Ammonium Carbonates, Partially Inverted Sugar Syrup, Salt), honey (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.',
+    nutrition: { energy_kcal: 501, energy_kj: 2096, fat_g: 18, saturates_g: 9, carbs_g: 57, sugars_g: 25, fibre_g: 7, protein_g: 24, salt_g: 1.1 },
   },
   {
     id: 'build-your-own',
@@ -153,7 +175,11 @@ export const products: Product[] = [
     description: "Create your perfect bowl! Choose your base and pick 4 toppings. Extra toppings available for £1 each.",
     image: '/byob.png',
     isSignature: false,
-    ingredients: 'Dairy (base only): OAT milk (42%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), Greek yoghurt (38%) (MILK), OATS (19%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Plant-based coconut (base only): OAT milk (40%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), coconut yoghurt (40%) (Water, Hulled SOYA beans, Coconut milk (Water, Coconut cream) Sugar Calcium (Tri-calcium citrate) Stabiliser (Pectins) Acidity regulators (Sodium citrates, Citric acid) Natural flavourings Sea salt Antioxidants (Tocopherol-rich extract, Fatty acid esters of ascorbic acid) Vitamins B6 B12 D2 Live cultures (S. thermophilus, L. bulgaricus), OATS (20%). May contain traces of nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.'
+    ingredients: 'Dairy (base only): OAT milk (42%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), Greek yoghurt (38%) (MILK), OATS (19%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). Plant-based coconut (base only): OAT milk (40%) (Water, wholegrain OAT flakes, Sunflower Oil, Calcium Carbonate, Sea Salt, Ribofavin (Vitamin B2), Vitamin B12, Vitamin D), coconut yoghurt (40%) (Water, Hulled SOYA beans, Coconut milk (Water, Coconut cream) Sugar Calcium (Tri-calcium citrate) Stabiliser (Pectins) Acidity regulators (Sodium citrates, Citric acid) Natural flavourings Sea salt Antioxidants (Tocopherol-rich extract, Fatty acid esters of ascorbic acid) Vitamins B6 B12 D2 Live cultures (S. thermophilus, L. bulgaricus), OATS (20%). May contain traces of nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
+    nutritionVariants: [
+      { label: 'Greek Yoghurt base', nutrition: { energy_kcal: 309, energy_kj: 1293, fat_g: 6, saturates_g: 1, carbs_g: 44, sugars_g: 8, fibre_g: 5, protein_g: 17, salt_g: 0.31 } },
+      { label: 'Plant-based base', nutrition: { energy_kcal: 292, energy_kj: 1222, fat_g: 8, saturates_g: 1, carbs_g: 41, sugars_g: 6, fibre_g: 6, protein_g: 11, salt_g: 0.32 } },
+    ],
   }
 ];
 
@@ -163,5 +189,6 @@ export const oatBites = {
   price: 3.50,
   description: 'Oats mixed with peanut butter, chia seeds, dates and honey. Topped with dark chocolate.',
   image: '/oat-bites.png',
-  ingredients: 'PEANUT butter (18%) (Roasted PEANUTS), protein powder (15%) (Protein Bend [SOY Protein Isolate, Pea Protein Isolate, Pumpkin Seed Protein, Sunflower Protein, Brown Rice Protein], Flavouring. Sweetener (Sucalose), DigeZyme (Amylase, Protease, Cellulase, Beta-D-Galaciosidase, Lipase), honey (15%), OATS (15%), dark chocolate (15%) (Cocoa Mass, Sugar, Cocoa Butter, Fat Reduced Cocoa Powder, Emulsifier (SOYA Lecithins), water (11%), dates (4%), chia [salvia hispanica] seeds (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), salt, cinnamon (cassia). May also contain: milk, almonds, brazil nuts, cashews, hazelnuts, macadamia nuts, pecan nuts, pistachio nuts, sesame & walnuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.'
+  ingredients: 'PEANUT butter (18%) (Roasted PEANUTS), protein powder (15%) (Protein Bend [SOY Protein Isolate, Pea Protein Isolate, Pumpkin Seed Protein, Sunflower Protein, Brown Rice Protein], Flavouring. Sweetener (Sucalose), DigeZyme (Amylase, Protease, Cellulase, Beta-D-Galaciosidase, Lipase), honey (15%), OATS (15%), dark chocolate (15%) (Cocoa Mass, Sugar, Cocoa Butter, Fat Reduced Cocoa Powder, Emulsifier (SOYA Lecithins), water (11%), dates (4%), chia [salvia hispanica] seeds (3%), vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup), salt, cinnamon (cassia). May also contain: milk, almonds, brazil nuts, cashews, hazelnuts, macadamia nuts, pecan nuts, pistachio nuts, sesame & walnuts. Allergy advice: For allergens, see ingredients in BOLD CAPITALS. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.',
+  nutrition: { energy_kcal: 223, energy_kj: 933, fat_g: 8, saturates_g: 2, carbs_g: 19, sugars_g: 12, fibre_g: 3, protein_g: 16, salt_g: 0.83 },
 };

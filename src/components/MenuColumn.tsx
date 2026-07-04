@@ -3,6 +3,8 @@ import MenuItem from './MenuItem';
 interface MenuItemData {
   title: string;
   description: string;
+  image?: string;
+  nutrition?: { energy_kcal: number; protein_g: number; carbs_g: number; fat_g: number };
 }
 
 interface MenuColumnProps {
@@ -19,7 +21,7 @@ export default function MenuColumn({ title, items }: MenuColumnProps) {
         {title}
       </h3>
       {items.map((item, index) => (
-        <MenuItem key={index} title={item.title} description={item.description} />
+        <MenuItem key={index} title={item.title} description={item.description} image={item.image} nutrition={item.nutrition} />
       ))}
     </div>
   );
