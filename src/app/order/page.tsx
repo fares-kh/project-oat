@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products, oatBites, type Product, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
+import { products, oatBites, type Product, type NutritionInfo, oatSoakingOptions, toppingOptions, toppingCategories } from '@/data/products';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -659,6 +659,37 @@ export default function OrderPage() {
       });
     });
   };
+
+  const renderNutritionTable = (nutrition: NutritionInfo, label?: string) => (
+    <div key={label}>
+      {label && <p className="text-xs font-semibold text-zinc-500 mb-1">{label}</p>}
+      <table className="w-full text-xs border-collapse">
+        <thead>
+          <tr className="bg-brand-green/10">
+            <th className="text-left py-1 px-2 font-semibold">Nutrient</th>
+            <th className="text-right py-1 px-2 font-semibold">Per serving</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            { label: 'Energy', value: `${nutrition.energy_kcal} kcal / ${nutrition.energy_kj} kJ` },
+            { label: 'Fat', value: `${nutrition.fat_g}g` },
+            { label: 'of which saturates', value: `${nutrition.saturates_g}g`, indent: true },
+            { label: 'Carbohydrate', value: `${nutrition.carbs_g}g` },
+            { label: 'of which sugars', value: `${nutrition.sugars_g}g`, indent: true },
+            { label: 'Fibre', value: `${nutrition.fibre_g}g` },
+            { label: 'Protein', value: `${nutrition.protein_g}g` },
+            { label: 'Salt', value: `${nutrition.salt_g}g` },
+          ].map((row, i) => (
+            <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-brand-beige/30'}>
+              <td className={`py-1 px-2 ${(row as { indent?: boolean }).indent ? 'pl-5 text-zinc-500' : ''}`}>{row.label}</td>
+              <td className="text-right py-1 px-2 tabular-nums">{row.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   const getEligibleOatBitesDates = () =>
     selectedDates.filter(date => (ordersByDate[date]?.length ?? 0) >= 2);
@@ -1690,6 +1721,18 @@ export default function OrderPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Nutrition */}
+                  {(selectedProduct.nutrition || selectedProduct.nutritionVariants) && (
+                    <div className="mt-4 p-4 bg-brand-beige/50 rounded-lg">
+                      <h4 className="text-sm font-semibold mb-3">Nutritional Information</h4>
+                      <div className="space-y-4">
+                        {selectedProduct.nutritionVariants
+                          ? selectedProduct.nutritionVariants.map(v => renderNutritionTable(v.nutrition, v.label))
+                          : renderNutritionTable(selectedProduct.nutrition!)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1953,6 +1996,13 @@ export default function OrderPage() {
                       {renderIngredientsWithStyling(oatBites.ingredients)}
                       <div>For allergens see ingredients in <strong className="underline">BOLD.</strong></div>
                     </div>
+                  </div>
+                )}
+
+                {oatBites.nutrition && (
+                  <div className="mt-4 p-4 bg-brand-beige/50 rounded-lg">
+                    <h4 className="text-sm font-semibold mb-3">Nutritional Information</h4>
+                    {renderNutritionTable(oatBites.nutrition)}
                   </div>
                 )}
 

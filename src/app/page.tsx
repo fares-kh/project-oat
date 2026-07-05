@@ -4,7 +4,7 @@ import MenuColumn from "@/components/MenuColumn";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SpecialCard from "@/components/SpecialCard/SpecialCard";
-import { products } from "@/data/products";
+import { products, oatBites, type NutritionInfo } from "@/data/products";
 
 export default function Home() {
   return (
@@ -47,15 +47,21 @@ export default function Home() {
       <section className="py-24 menu-section" id="menu">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 section-title tracking-tighter font-brand-tight">
-            Menu
+            Menu & Nutrition
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 menu-grid">
             <MenuColumn
               title="OAT BOWLS"
-              items={products.map(product => ({
-                title: product.name,
-                description: product.description
-              }))}
+              items={[...products, oatBites].map(product => {
+                const p = product as { nutrition?: NutritionInfo; nutritionVariants?: { nutrition: NutritionInfo }[] };
+                const nutrition = p.nutrition ?? p.nutritionVariants?.[0]?.nutrition;
+                return {
+                  title: product.name,
+                  description: product.description,
+                  image: product.image,
+                  nutrition,
+                };
+              })}
             />
             <MenuColumn
               title="MATCHA MENU"
