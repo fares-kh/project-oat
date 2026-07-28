@@ -51,7 +51,7 @@ export default function AboutPage() {
       <main className="flex-1 py-16">
         <div className="container mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-12 font-brand-tight">
-            About Me
+            About Us
           </h1>
           
           {/* First Section - Why Ellie's Oats was founded */}

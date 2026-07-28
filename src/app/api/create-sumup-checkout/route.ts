@@ -62,10 +62,11 @@ export async function POST(request: NextRequest) {
       'sticky-toffee': 'Sticky Toffee',
       'apple-of-my-eye': 'Apple of My Eye',
       'jam-dodger': 'Jam Dodger',
-      'monthly-special-june': 'Lemon & White Chocolate Oat Bowl',
-      'monthly-special-july': 'Sticky Mango',
-      'exclusive-delivery': 'Mini Egg Protein Bowl',
-      'exclusive-delivery-may': 'Raspberry & White Chocolate Cheesecake',
+      'lemon-and-white-chocolate': 'Lemon & White Chocolate Oat Bowl',
+      'monthly-special-august': 'Tiramisu Oat Bowl',
+      'sticky-mango': 'Sticky Mango',
+      'mini-egg': 'Mini Egg Protein Bowl',
+      'raspberry-white-chocolate': 'Raspberry & White Chocolate Cheesecake',
       'build-your-own': 'Build Your Own',
       'oat-bites': 'Oat Bites'
     };
