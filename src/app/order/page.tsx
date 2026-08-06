@@ -2085,7 +2085,7 @@ export default function OrderPage() {
               <div className="prose prose-sm max-w-none">
                 <h3 className="text-lg font-bold mb-3">Additional Info</h3>
                 <ul className="space-y-3 mb-6">
-                  <li>Including day of delivery, bowls will have a 3 day shelf life. Keep refrigerated.</li>
+                  <li>Including day of delivery, bowls will have a 4-5 day shelf life. Keep refrigerated.</li>
                   <li>Bowls will be left on the doorstep, similar to a milk delivery. Customers are responsible for ensuring a safe and suitable drop-off location. If you require the bowl handing to you, this must be specified in the &apos;additional info&apos; box when placing your order. If you would like your bowls delivered before a specific time we will do our best, but this cannot be guaranteed - must be specified in the &apos;additional info&apos; box when placing your order.</li>
                   <li>We reserve the right to make minor changes to menus or delivery schedules where necessary, with customers notified in advance where possible.</li>
                 </ul>
