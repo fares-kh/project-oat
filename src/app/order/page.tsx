@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,6 +11,15 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { ThemeProvider } from '@mui/material/styles';
 import { muiTheme } from '@/theme/muiTheme';
+import {
+  deliveryConfig,
+  getDateRestrictionForPostcode,
+  getDeliveryAreaFromPostcode,
+  getDeliveryTimeForPostcode,
+  getRestrictedDeliveryDates,
+  isDateAllowedForPostcode,
+  validatePostcode,
+} from '@/lib/delivery-config';
 
 interface BowlOrder {
   productId: string;
@@ -23,45 +32,7 @@ interface BowlOrder {
 }
 
 export default function OrderPage() {
-  // ============================================
-  // DELIVERY CONFIGURATION BY LOCATION
-  // ============================================
-  // Configure delivery dates per location
-  const deliveryConfig: Record<string, {
-    useCustomDates: boolean;
-    customDates: string[];
-    excludedDates?: string[]; // Dates to exclude from delivery
-    postcodeValidation: {
-      enabled: boolean;
-      validPrefixes: string[];
-      excludedPrefixes?: string[];
-    };
-  }> = {
-    'Lancashire': {
-      useCustomDates: false,
-      customDates: [],
-      excludedDates: ['2026-07-29'],
-      postcodeValidation: {
-        enabled: true,
-        validPrefixes: ['BB1', 'BB2', 'BB3', 'BB4', 'BB5', 'BB6', 'BB7', 'BB9', 'BB10', 'BB11', 'BB12'],
-        excludedPrefixes: ['BB8', 'BB18']
-      }
-    },
-    'Manchester/Cheshire East': {
-      useCustomDates: false,
-      customDates: [],
-      excludedDates: ['2026-07-29'],
-      postcodeValidation: {
-        enabled: true,
-        validPrefixes: ['M', 'BL9', 'BL8', 'BL0', 'OL11', 'OL10', 'WA13', 'WA14', 'WA15', 'SK9', 'SK8', 'SK10', '⁠SK11'],
-        excludedPrefixes: ['M35', 'M43', 'M34', 'M29', 'M38', 'M46', 'OL12', 'OL15', 'OL16']
-      }
-    }
-  };
-  // ============================================
-
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [currentDateIndex, setCurrentDateIndex] = useState(0);
   const [postcode, setPostcode] = useState('');
@@ -72,7 +43,6 @@ export default function OrderPage() {
   const [customDateError, setCustomDateError] = useState('');
   const [previewDates, setPreviewDates] = useState<string[]>([]);
   const [isCustomDateActive, setIsCustomDateActive] = useState(false);
-  const [previewLocation, setPreviewLocation] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [oatBitesByDate, setOatBitesByDate] = useState<Record<string, number>>({});
   const [oatBitesModalDate, setOatBitesModalDate] = useState<string | null>(null);
@@ -113,19 +83,17 @@ export default function OrderPage() {
   const [isSubscriptionSubmitting, setIsSubscriptionSubmitting] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  // Get delivery dates based on selected location
   const getValidDeliveryDates = () => {
-    const locationConfig = deliveryConfig[selectedLocation];
-    
-    if (!locationConfig) {
-      return getAutomaticDeliveryDates();
+    const excludedDates = deliveryConfig.excludedDates || [];
+
+    // OL12/13/16: only the fortnightly Wednesday schedule (from 26 Aug 2026)
+    if (postcode && getDateRestrictionForPostcode(postcode)) {
+      return getRestrictedDeliveryDates(postcode, { excludedDates });
     }
 
-    const excludedDates = locationConfig.excludedDates || [];
-
-    if (locationConfig.useCustomDates) {
+    if (deliveryConfig.useCustomDates) {
       const today = new Date();
-      return locationConfig.customDates.filter(dateStr => {
+      return deliveryConfig.customDates.filter(dateStr => {
         const date = new Date(dateStr);
         return date > today && !excludedDates.includes(dateStr);
       });
@@ -174,27 +142,13 @@ export default function OrderPage() {
     return validDates;
   };
 
-  const locations = ['Lancashire', 'Manchester/Cheshire East'];
-
-  const validDates = selectedLocation ? getValidDeliveryDates() : [];
-
-  useEffect(() => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-  }, []);
-
-  const handleLocationPreview = (location: string) => {
-    setPreviewLocation(location);
-  };
-
-  const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
-    setPreviewDates([]);
-    setPreviewLocation('');
-    setPostcode('');
-    setPostcodeError('');
-    setCurrentStep(2);
-  };
+  const dateRestriction = postcode ? getDateRestrictionForPostcode(postcode) : null;
+  const validDates = postcode ? getValidDeliveryDates() : [];
+  // Safety net: never offer off-schedule dates for restricted postcodes
+  const availableDates = dateRestriction
+    ? validDates.filter((d) => isDateAllowedForPostcode(postcode, d))
+    : validDates;
+  const deliveryArea = postcode ? getDeliveryAreaFromPostcode(postcode) : null;
 
   const handleSubscriptionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,46 +185,10 @@ export default function OrderPage() {
     }
   };
 
-  const validatePostcode = (postcodeInput: string): boolean => {
-    if (!postcodeInput.trim()) {
-      setPostcodeError('Please enter a postcode.');
-      return false;
-    }
-
-    const locationConfig = deliveryConfig[selectedLocation];
-    if (!locationConfig || !locationConfig.postcodeValidation.enabled) {
-      return true;
-    }
-
-    const cleanPostcode = postcodeInput.replace(/\s/g, '').toUpperCase();
-    
-    if (cleanPostcode.length < 5 || cleanPostcode.length > 7) {
-      setPostcodeError('Please enter a valid UK postcode.');
-      return false;
-    }
-    
-      const excludedPrefixes = locationConfig.postcodeValidation.excludedPrefixes || [];
-      const isExcluded = excludedPrefixes.some(prefix => {
-        const upperPrefix = prefix.toUpperCase();
-        if (cleanPostcode.startsWith(upperPrefix)) {
-          const nextChar = cleanPostcode.slice(upperPrefix.length, upperPrefix.length + 1);
-          return nextChar === '' || /\d/.test(nextChar);
-        }
-        return false;
-      });
-
-      if (isExcluded) {
-        setPostcodeError(`Sorry, we don't deliver to this postcode.`);
-        return false;
-      }
-    
-    // Check if postcode matches valid prefixes
-    const isValid = locationConfig.postcodeValidation.validPrefixes.some(prefix => 
-      cleanPostcode.startsWith(prefix.toUpperCase())
-    );
-
-    if (!isValid) {
-      setPostcodeError(`Sorry, we don't deliver to this postcode.`);
+  const checkPostcode = (postcodeInput: string): boolean => {
+    const result = validatePostcode(postcodeInput);
+    if (!result.valid) {
+      setPostcodeError(result.error || "Sorry, we don't deliver to this postcode.");
       return false;
     }
 
@@ -279,8 +197,10 @@ export default function OrderPage() {
   };
 
   const handlePostcodeSubmit = () => {
-    if (validatePostcode(postcode)) {
-      setCurrentStep(3);
+    if (checkPostcode(postcode)) {
+      setPreviewDates([]);
+      setSelectedDates([]);
+      setCurrentStep(2);
     }
   };
 
@@ -299,6 +219,17 @@ export default function OrderPage() {
     if (previewDates.length === 0) {
       return;
     }
+
+    const invalidDate = previewDates.find(
+      (date) => !isDateAllowedForPostcode(postcode, date)
+    );
+    if (invalidDate) {
+      setCustomDateError(
+        dateRestriction?.message || `Delivery is not available on ${formatDate(invalidDate)} for your postcode.`
+      );
+      return;
+    }
+
     setSelectedDates(previewDates);
     setCurrentDateIndex(0);
     const initialOrders: Record<string, BowlOrder[]> = {};
@@ -306,7 +237,7 @@ export default function OrderPage() {
       initialOrders[date] = [];
     });
     setOrdersByDate(initialOrders);
-    setCurrentStep(4);
+    setCurrentStep(3);
   };
 
   const handleCustomDateChange = (dateValue: string) => {
@@ -341,10 +272,16 @@ export default function OrderPage() {
       return;
     }
     
-    const locationConfig = deliveryConfig[selectedLocation];
-    const excludedDates = locationConfig?.excludedDates || [];
+    const excludedDates = deliveryConfig.excludedDates || [];
     if (excludedDates.includes(dateValue)) {
       setCustomDateError('This date is not available for delivery.');
+      return;
+    }
+
+    if (!isDateAllowedForPostcode(postcode, dateValue)) {
+      setCustomDateError(
+        dateRestriction?.message || 'This date is not available for delivery to your postcode.'
+      );
       return;
     }
     
@@ -367,33 +304,34 @@ export default function OrderPage() {
     handleCustomDateChange(dateValue);
   };
 
-  // Function to disable dates that aren't Monday or Wednesday, or are within cutoff
+  // Function to disable dates outside the allowed schedule / cutoff
   const shouldDisableDate = (date: Dayjs) => {
-    const dayOfWeek = date.day();
     const today = dayjs();
-    
     const currentHour = today.hour();
     const daysToAdd = currentHour >= 14 ? 3 : 2;
-    
     const cutoffDate = today.add(daysToAdd, 'day').startOf('day');
-    
-    // Disable if not Monday (1) or Wednesday (3)
-    if (![1, 3].includes(dayOfWeek)) {
-      return true;
-    }
-    
+    const dateStr = date.format('YYYY-MM-DD');
     const selectedDateStart = date.startOf('day');
+
     if (selectedDateStart.isBefore(cutoffDate)) {
       return true;
     }
-    
-    // Disable if in excluded dates
-    const locationConfig = deliveryConfig[selectedLocation];
-    const excludedDates = locationConfig?.excludedDates || [];
-    if (excludedDates.includes(date.format('YYYY-MM-DD'))) {
+
+    const excludedDates = deliveryConfig.excludedDates || [];
+    if (excludedDates.includes(dateStr)) {
       return true;
     }
-    
+
+    // Fortnightly OL postcodes: only dates on that schedule
+    if (postcode && getDateRestrictionForPostcode(postcode)) {
+      return !isDateAllowedForPostcode(postcode, dateStr);
+    }
+
+    // Standard flow: Monday or Wednesday only
+    if (![1, 3].includes(date.day())) {
+      return true;
+    }
+
     return false;
   };
 
@@ -465,7 +403,7 @@ export default function OrderPage() {
     if (currentDateIndex < selectedDates.length - 1) {
       setCurrentDateIndex(currentDateIndex + 1);
     } else {
-      setCurrentStep(5);
+      setCurrentStep(4);
     }
   };
 
@@ -539,7 +477,7 @@ export default function OrderPage() {
 
   const proceedToCheckout = () => {
     if (validateAddress()) {
-      setCurrentStep(6);
+      setCurrentStep(5);
     }
   };
 
@@ -561,7 +499,7 @@ export default function OrderPage() {
           }
         },
         delivery: {
-          location: selectedLocation,
+          location: deliveryArea || getDeliveryAreaFromPostcode(postcode) || '',
           dates: selectedDates,
           notes: deliveryNotes,
           needPaperSpoons: needPaperSpoons,
@@ -779,15 +717,6 @@ export default function OrderPage() {
     </button>
   );
 
-  const ContinueButton = ({ onClick, label }: { onClick: () => void; label: string }) => (
-    <button 
-      onClick={onClick} 
-      className="cursor-pointer px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
-    >
-      Continue with {label}
-    </button>
-  );
-
   return (
     <div className="min-h-screen bg-brand-beige font-sans flex flex-col">
       <Header />
@@ -796,12 +725,11 @@ export default function OrderPage() {
         {/* Step navigation */}
         <div className="container mx-auto px-6 justify-items-center md:justify-items-start">
           <nav className="flex">
-            <StepIndicator step={1} title="Location" isActive={currentStep===1} isCompleted={currentStep>1} />
-            <StepIndicator step={2} title="Postcode" isActive={currentStep===2} isCompleted={currentStep>2} />
-            <StepIndicator step={3} title="Delivery Date" isActive={currentStep===3} isCompleted={currentStep>3} />
-            <StepIndicator step={4} title="Products" isActive={currentStep===4} isCompleted={currentStep>4} />
-            <StepIndicator step={5} title="Address" isActive={currentStep===5} isCompleted={currentStep>5} />
-            <StepIndicator step={6} title="Checkout" isActive={currentStep===6} isCompleted={currentStep>6} />
+            <StepIndicator step={1} title="Postcode" isActive={currentStep===1} isCompleted={currentStep>1} />
+            <StepIndicator step={2} title="Delivery Date" isActive={currentStep===2} isCompleted={currentStep>2} />
+            <StepIndicator step={3} title="Products" isActive={currentStep===3} isCompleted={currentStep>3} />
+            <StepIndicator step={4} title="Address" isActive={currentStep===4} isCompleted={currentStep>4} />
+            <StepIndicator step={5} title="Checkout" isActive={currentStep===5} isCompleted={currentStep>5} />
           </nav>
         </div>
       </div>
@@ -811,8 +739,8 @@ export default function OrderPage() {
           <div className="lg:w-3/4">
             {currentStep === 1 && (
               <div className="bg-background rounded-2xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold mb-4">Choose Your Location</h2>
-                <p className="mb-6">Select where you'd like your oat bowls delivered</p>
+                <h2 className="text-2xl font-bold mb-4">Verify Your Postcode</h2>
+                <p className="mb-6">Please enter your postcode to confirm we deliver to your area.</p>
                 <p className="mb-6">Ordering 12 or more bowls for one delivery date? Give us an email at {' '}
                     <a href="mailto:elliesoats@hotmail.com" className="text-brand-green hover:underline font-medium">
                       elliesoats@hotmail.com
@@ -820,42 +748,52 @@ export default function OrderPage() {
                     <a href="https://instagram.com/ellies.oats" target="_blank" rel="noopener noreferrer" className="text-brand-green hover:underline font-medium">
                       @ellies.oats
                     </a> for our bulk-buy discount</p>
-                <div className="space-y-3">
-                  {locations.map((loc) => (
-                    <button 
-                      key={loc} 
-                      onClick={() => handleLocationPreview(loc)} 
-                      className={`cursor-pointer w-full p-6 border-2 rounded-xl transition text-left relative ${
-                        previewLocation === loc 
-                          ? 'border-brand-green bg-brand-beige-light' 
-                          : 'border-brand-beige hover:border-brand-green hover:bg-brand-beige-light'
-                      }`}
-                    >
-                      <div className="font-semibold">{loc}</div>
-                      <div className="text-sm mt-1">
-                        Delivery: {loc === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}
-                      </div>
-                      {previewLocation === loc && (
-                        <div className="absolute top-6 right-6 text-brand-green text-2xl">✓</div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Proceed button - only shown when a location is previewed */}
-                {previewLocation && (
-                  <div className="mt-6 flex justify-end">
-                    <ContinueButton 
-                      onClick={() => handleLocationSelect(previewLocation)} 
-                      label={previewLocation} 
+                <p className="font-semibold mb-3">Please note we deliver to most places in east Lancashire, excluding Colne & Barnoldswick</p>
+                <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="postcode" className="block text-sm font-medium mb-2">
+                      Postcode
+                    </label>
+                    <input
+                      id="postcode"
+                      type="text"
+                      value={postcode}
+                      onChange={(e) => {
+                        setPostcode(e.target.value.toUpperCase());
+                        setPostcodeError('');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handlePostcodeSubmit();
+                        }
+                      }}
+                      placeholder="e.g. M1 1AA"
+                      className="w-full px-4 py-3 border-2 border-brand-beige rounded-lg focus:border-brand-green focus:outline-none transition"
                     />
                   </div>
-                )}
+
+                  {postcodeError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      {postcodeError}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end mt-6">
+                  <button
+                    onClick={handlePostcodeSubmit}
+                    disabled={!postcode.trim()}
+                    className="px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-text-white rounded-lg font-semibold transition"
+                  >
+                    Verify Postcode
+                  </button>
+                </div>
 
                 {/* Subscription Service Section */}
                 <div className="mt-12 bg-brand-green rounded-2xl shadow-xl p-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    {/* Left Column - Text */}
                     <div>
                       <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                         Interested in our subscription service?
@@ -865,7 +803,6 @@ export default function OrderPage() {
                       </p>
                     </div>
 
-                    {/* Right Column - Form */}
                     <div>
                       <form onSubmit={handleSubscriptionSubmit} className="space-y-4">
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -904,59 +841,14 @@ export default function OrderPage() {
 
             {currentStep === 2 && (
               <div className="bg-background rounded-2xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold mb-4">Verify Your Postcode</h2>
-                <p className="mb-6">Please enter your postcode to confirm we deliver to your area in {selectedLocation}.</p>
-                {selectedLocation == 'Lancashire' ?
-                      <p className="font-semibold mb-6">Please note we deliver to most places in east Lancashire, excluding Colne & Barnoldswick</p>
-                    : <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>}
-                
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="postcode" className="block text-sm font-medium mb-2">
-                      Postcode
-                    </label>
-                    <input
-                      id="postcode"
-                      type="text"
-                      value={postcode}
-                      onChange={(e) => {
-                        setPostcode(e.target.value.toUpperCase());
-                        setPostcodeError('');
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handlePostcodeSubmit();
-                        }
-                      }}
-                      placeholder="e.g. M1 1AA"
-                      className="w-full px-4 py-3 border-2 border-brand-beige rounded-lg focus:border-brand-green focus:outline-none transition"
-                    />
-                  </div>
-
-                  {postcodeError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                      {postcodeError}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between mt-6">
-                  <BackButton onClick={() => setCurrentStep(1)} label="Back to location" />
-                  <button
-                    onClick={handlePostcodeSubmit}
-                    disabled={!postcode.trim()}
-                    className="px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-text-white rounded-lg font-semibold transition"
-                  >
-                    Verify Postcode
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {currentStep === 3 && (
-              <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4 font-brand">Choose Delivery Dates</h2>
                 <p className="mb-6">Select one or more delivery dates. You can order different items for each day. Orders must be placed at least 2 days in advance.</p>
+
+                {dateRestriction && (
+                  <div className="mb-4 p-3 bg-brand-beige-light border border-brand-green rounded-lg">
+                    <p className="text-sm text-dark">{dateRestriction.message}</p>
+                  </div>
+                )}
                 
                 {previewDates.length > 0 && (
                   <div className="mb-4 p-3 bg-brand-green/10 border border-brand-green rounded-lg">
@@ -967,7 +859,7 @@ export default function OrderPage() {
                 )}
                 
                 <div className="space-y-3">
-                  {validDates.length > 0 ? validDates.map((d) => (
+                  {availableDates.length > 0 ? availableDates.map((d) => (
                     <button 
                       key={d} 
                       onClick={() => toggleDateSelection(d)} 
@@ -986,8 +878,8 @@ export default function OrderPage() {
                     <div className="text-center py-8">No available delivery dates within the cutoff period.</div>
                   )}
                   
-                  {/* Custom date option */}
-                  {!deliveryConfig[selectedLocation].useCustomDates && (
+                  {/* Custom date option — hidden for fortnightly OL postcodes */}
+                  {!deliveryConfig.useCustomDates && !dateRestriction && (
                     <>
                       <div className={`w-full p-4 border-2 rounded-xl transition ${
                         isCustomDateActive && previewDates.includes(customDateInput)
@@ -995,7 +887,9 @@ export default function OrderPage() {
                           : 'border-brand-beige'
                       }`}>
                         <div className="font-semibold mb-2">📅 Choose a custom date</div>
-                        <div className="text-sm text-dark mb-3">Select any Monday or Wednesday beyond 3 weeks</div>
+                        <div className="text-sm text-dark mb-3">
+                          Select any Monday or Wednesday beyond 3 weeks
+                        </div>
                         
                         <ThemeProvider theme={muiTheme}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1032,7 +926,7 @@ export default function OrderPage() {
 
                     {/* Proceed button - only shown when dates are selected */}
                     <div className="mt-6 flex items-center justify-between">
-                      <BackButton onClick={() => setCurrentStep(2)}/>
+                      <BackButton onClick={() => setCurrentStep(1)}/>
                       {previewDates.length > 0 && (
                         <button
                           onClick={handleDatesConfirm}
@@ -1045,7 +939,7 @@ export default function OrderPage() {
                 </div>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 {previewDates.length > 1 &&
                 <div className="mb-4 p-4 bg-brand-green/10 border border-brand-green rounded-lg">
@@ -1162,7 +1056,7 @@ export default function OrderPage() {
                     if (currentDateIndex > 0) {
                       setCurrentDateIndex(currentDateIndex - 1);
                     } else {
-                      setCurrentStep(3);
+                      setCurrentStep(2);
                     }
                   }} label={currentDateIndex > 0 ? 'Previous date' : 'Back'} />
                   <button 
@@ -1176,7 +1070,7 @@ export default function OrderPage() {
               </div>
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 4 && (
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Delivery Address</h2>
                 <p className="mb-6">Please provide your delivery address details.</p>
@@ -1328,7 +1222,7 @@ export default function OrderPage() {
                       className="w-full px-4 py-3 border-2 border-brand-beige rounded-lg bg-brand-beige-light text-text-dark cursor-not-allowed"
                     />
                     <p className="text-text-dark text-xs mt-1">
-                      <button onClick={() => setCurrentStep(2)} className="cursor-pointer underline text-brand-green">Change postcode</button>
+                      <button onClick={() => setCurrentStep(1)} className="cursor-pointer underline text-brand-green">Change postcode</button>
                     </p>
                   </div>
 
@@ -1385,7 +1279,7 @@ export default function OrderPage() {
                 </div>
 
                 <div className="flex space-x-4 mt-6 justify-between">
-                  <BackButton onClick={() => setCurrentStep(4)} label="Back to products" />
+                  <BackButton onClick={() => setCurrentStep(3)} label="Back to products" />
                   <button 
                     onClick={proceedToCheckout}
                     className="cursor-pointer px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold"
@@ -1396,7 +1290,7 @@ export default function OrderPage() {
               </div>
             )}
 
-            {currentStep === 6 && (
+            {currentStep === 5 && (
               <div className="bg-background rounded-2xl shadow-lg p-8">
                 <h2 className="text-2xl font-bold mb-4">Checkout</h2>
                 
@@ -1406,8 +1300,8 @@ export default function OrderPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between"><span>Name:</span><span className="font-medium">{firstName} {lastName}</span></div>
                     {email && <div className="flex justify-between"><span>Email:</span><span className="font-medium">{email}</span></div>}
-                    <div className="flex justify-between"><span>Location:</span><span className="font-medium">{selectedLocation}</span></div>
-                    <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{selectedLocation === 'Lancashire' ? 'Between 6am and 9am' : 'Between 9am and 1pm'}</span></div>
+                    <div className="flex justify-between"><span>Location:</span><span className="font-medium">{deliveryArea}</span></div>
+                    <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{getDeliveryTimeForPostcode(postcode)}</span></div>
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
                     {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes & Dietary Requirements:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
                     <div className="flex justify-between"><span>Phone:</span><span className="font-medium">{phoneNumber}</span></div>
@@ -1536,7 +1430,7 @@ export default function OrderPage() {
                 <p className="text-dark text-sm mb-6">You will be redirected to our secure payment provider to complete your order.</p>
 
                 <div className="flex space-x-4 justify-between">
-                  <BackButton onClick={() => setCurrentStep(5)} label="Back to address" />
+                  <BackButton onClick={() => setCurrentStep(4)} label="Back to address" />
                   <button 
                     onClick={handleCheckout} 
                     disabled={isProcessingPayment}
@@ -2085,7 +1979,7 @@ export default function OrderPage() {
               <div className="prose prose-sm max-w-none">
                 <h3 className="text-lg font-bold mb-3">Additional Info</h3>
                 <ul className="space-y-3 mb-6">
-                  <li>Including day of delivery, bowls will have a 4-5 day shelf life. Keep refrigerated.</li>
+                  <li>Including day of delivery, bowls will have a 3-4 day shelf life. Keep refrigerated.</li>
                   <li>Bowls will be left on the doorstep, similar to a milk delivery. Customers are responsible for ensuring a safe and suitable drop-off location. If you require the bowl handing to you, this must be specified in the &apos;additional info&apos; box when placing your order. If you would like your bowls delivered before a specific time we will do our best, but this cannot be guaranteed - must be specified in the &apos;additional info&apos; box when placing your order.</li>
                   <li>We reserve the right to make minor changes to menus or delivery schedules where necessary, with customers notified in advance where possible.</li>
                 </ul>
@@ -2121,7 +2015,7 @@ export default function OrderPage() {
               <button
                 onClick={() => {
                   setShowTCModal(false);
-                  setCurrentStep(5);
+                  setCurrentStep(4);
                 }}
                 disabled={!hasAcceptedTC}
                 className="w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover disabled:bg-brand-grey disabled:cursor-not-allowed text-white rounded-lg font-semibold transition"

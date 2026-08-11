@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { oatBites } from '@/data/products';
+import {
+  getDeliveryAreaFromPostcode,
+  validatePostcode,
+  validatePostcodeDates,
+} from '@/lib/delivery-config';
 
 function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
   const now = new Date();
@@ -45,6 +50,31 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid delivery date', details: dateValidation.error },
         { status: 400 }
       );
+    }
+
+    const postcode = orderData.customer?.address?.postcode;
+    if (postcode) {
+      const postcodeValidation = validatePostcode(postcode);
+      if (!postcodeValidation.valid) {
+        return NextResponse.json(
+          { error: 'Invalid postcode', details: postcodeValidation.error },
+          { status: 400 }
+        );
+      }
+
+      const postcodeDateValidation = validatePostcodeDates(
+        postcode,
+        orderData.delivery.dates
+      );
+      if (!postcodeDateValidation.valid) {
+        return NextResponse.json(
+          { error: 'Invalid delivery date for postcode', details: postcodeDateValidation.error },
+          { status: 400 }
+        );
+      }
+
+      // Derive area from postcode so client-sent location can't drift
+      orderData.delivery.location = getDeliveryAreaFromPostcode(postcode) || orderData.delivery.location;
     }
     const checkoutReference = `OAT-${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const amountInPence = Math.round(orderData.amount * 100);
