@@ -749,7 +749,7 @@ export default function OrderPage() {
                       @ellies.oats
                     </a> for our bulk-buy discount</p>
                 <p className="font-semibold mb-3">Please note we deliver to most places in east Lancashire, excluding Colne & Barnoldswick</p>
-                <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, Tameside or Stockport</p>
+                <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, or Tameside</p>
                 
                 <div className="space-y-4">
                   <div>
