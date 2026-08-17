@@ -748,8 +748,8 @@ export default function OrderPage() {
                     <a href="https://instagram.com/ellies.oats" target="_blank" rel="noopener noreferrer" className="text-brand-green hover:underline font-medium">
                       @ellies.oats
                     </a> for our bulk-buy discount</p>
-                <p className="font-semibold mb-3">Please note we deliver to most places in east Lancashire, excluding Colne & Barnoldswick</p>
-                <p className="font-semibold mb-6">Please note we do not deliver to Bolton, Wigan, Oldham, or Tameside</p>
+                <p className="font-semibold mb-3">We deliver to most places in east Lancashire, Greater Manchester & east Cheshire. Check your postcode below.</p>
+                <p className="font-semibold mb-6">Deliveries in Lancashire usually arrive between 6am and 9am. Deliveries in Greater Manchester & east Cheshire usually arrive between 9am and 2pm.</p>
                 
                 <div className="space-y-4">
                   <div>
