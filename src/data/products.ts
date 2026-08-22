@@ -140,6 +140,7 @@ export const products: Product[] = [
     isSignature: true,
     monthlySpecial: true,
     availableFrom: '2026-08-01',
+    availableUntil: '2026-08-31',
     ingredients: 'Soft cheese (28%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), Greek yogurt (27%) (0% Fat natural Greek yogurt (MILK)), OAT milk (19%) (OAT base (water, gluten free OATS), rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS(12%), Water (7%), Honey (4%), Chia [salvia hispanica] seeds, protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), Cocoa powder (Cocoa Powder, Acidity Regulator (Potassium Carbonate)), Decaffeinated coffee (Robusta Coffee, Arabica Coffee), Vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). May also contain: soya, cereals containing gluten, mustard, sesame seeds, sulphur dioxide, sulphites, nuts & peanuts. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.',
     nutrition: { energy_kcal: 526, energy_kj: 2201, fat_g: 18, saturates_g: 8, carbs_g: 57, sugars_g: 24, fibre_g: 8, protein_g: 30, salt_g: 1 },
   },
