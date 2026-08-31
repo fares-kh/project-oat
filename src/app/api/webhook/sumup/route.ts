@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_KEY);
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { getSumUpConfig } from '@/lib/env';
+import { getResend } from '@/lib/resend';
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const resend = getResend();
     const payload = await request.json();
     
     console.log('SumUp webhook received:', JSON.stringify(payload, null, 2));
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     const sumupResponse = await fetch(`https://api.sumup.com/v0.1/checkouts/${checkoutId}`, {
       headers: {
-        'Authorization': `Bearer ${process.env.SUMUP_API_KEY}`,
+        'Authorization': `Bearer ${getSumUpConfig().apiKey}`,
       },
     });
 

@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import fs from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
-
-const resend = new Resend(process.env.RESEND_KEY);
-
-const filePath = path.join(process.cwd(), 'public', 'events_april_2026.pdf')
-const pdfBuffer = fs.readFileSync(filePath)
+import { getResend } from '@/lib/resend';
 
 export async function POST(request: NextRequest) {
   try {
+    const resend = getResend();
     const { email } = await request.json();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -18,6 +14,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const filePath = path.join(process.cwd(), 'public', 'events_april_2026.pdf');
+    const pdfBuffer = await readFile(filePath);
 
     await resend.emails.send({
       from: 'Ellie\'s Oats <noreply@elliesoats.co.uk>',

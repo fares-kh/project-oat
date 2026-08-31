@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { getBaseUrl, getSumUpConfig } from '@/lib/env';
 import { oatBites } from '@/data/products';
 import {
   getDeliveryAreaFromPostcode,
@@ -41,6 +42,9 @@ function validateDeliveryDates(dates: string[]): { valid: boolean; error?: strin
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const sumup = getSumUpConfig();
+    const baseUrl = getBaseUrl();
     const orderData = await request.json();
     
     const dateValidation = validateDeliveryDates(orderData.delivery.dates);
@@ -259,18 +263,18 @@ export async function POST(request: NextRequest) {
     const sumupResponse = await fetch('https://api.sumup.com/v0.1/checkouts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SUMUP_API_KEY}`,
+        'Authorization': `Bearer ${sumup.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         checkout_reference: checkoutReference,
         amount: amountInPence / 100,
         currency: 'GBP',
-        merchant_code: process.env.SUMUP_MERCHANT_CODE,
+        merchant_code: sumup.merchantCode,
         description: description,
         merchant_data: merchantData,
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/sumup`,
+        redirect_url: `${baseUrl}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
+        return_url: `${baseUrl}/api/webhook/sumup`,
         hosted_checkout: { 
           enabled: true
         }
