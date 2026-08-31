@@ -39,6 +39,22 @@ interface Order {
   paid_at: string;
 }
 
+/** Shape returned by GET /api/admin/orders. */
+interface RawTransaction {
+  id: string;
+  checkout_reference: string;
+  status: string;
+  amount: number;
+  date: string;
+  merchant_data: {
+    order_details: string | Order['items'];
+    customer_phone: string;
+    customer_address: string;
+    delivery_notes: string | null;
+    need_paper_spoons: string;
+  };
+}
+
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +81,7 @@ export default function AdminDashboard() {
       }
 
       // Transform the response to match our Order interface
-      const transformedOrders = data.transactions.map((t: any) => {
+      const transformedOrders: Order[] = data.transactions.map((t: RawTransaction) => {
         const orderDetails = typeof t.merchant_data.order_details === 'string' 
           ? JSON.parse(t.merchant_data.order_details)
           : t.merchant_data.order_details;
@@ -88,7 +104,7 @@ export default function AdminDashboard() {
         };
       });
 
-      transformedOrders.sort((a: any, b: any) => {
+      transformedOrders.sort((a, b) => {
         return new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime();
       });
 

@@ -12,14 +12,14 @@ export default function PrivacyPage() {
           <p className="text-sm mb-8"><strong>Effective Date:</strong> 01/03/2026</p>
           
           <div className="mb-8 p-4 bg-brand-beige-light rounded-lg">
-            <p className="mb-2"><strong>Business Name:</strong> Ellie's Oats</p>
+            <p className="mb-2"><strong>Business Name:</strong> Ellie&apos;s Oats</p>
             <p className="mb-2"><strong>Contact Email:</strong> <a href="mailto:elliesoats@hotmail.com" className="text-brand-green hover:underline">elliesoats@hotmail.com</a></p>
             <p><strong>Contact Phone:</strong> <a href="tel:07989785066" className="text-brand-green hover:underline">07989 785066</a></p>
           </div>
 
           <div className="prose prose-lg max-w-none">
             <p className="mb-6">
-              Ellie's Oats is committed to protecting your personal data. This Privacy Notice explains how we collect, use, and protect your information in accordance with the UK General Data Protection Regulation (UK GDPR), the Data Protection Act 2018, and the Privacy and Electronic Communications Regulations (PECR).
+              Ellie&apos;s Oats is committed to protecting your personal data. This Privacy Notice explains how we collect, use, and protect your information in accordance with the UK General Data Protection Regulation (UK GDPR), the Data Protection Act 2018, and the Privacy and Electronic Communications Regulations (PECR).
             </p>
 
             <h2 className="text-2xl font-bold mt-8 mb-4">1. The Information We Collect</h2>
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
               When you make a payment, your payment details (such as your card information) are processed directly by SumUp. We do not store or have access to your full card details.
             </p>
             <p className="mb-4">
-              SumUp acts as a separate data controller for payment processing and handles your data in accordance with its own privacy policy. We recommend reviewing SumUp's privacy policy on their website for more information about how they process your personal data.
+              SumUp acts as a separate data controller for payment processing and handles your data in accordance with its own privacy policy. We recommend reviewing SumUp&apos;s privacy policy on their website for more information about how they process your personal data.
             </p>
             <p className="mb-6">
               We only receive confirmation that your payment has been successful, along with limited transaction details necessary for our records.
@@ -81,11 +81,11 @@ export default function PrivacyPage() {
               <li>Request correction of inaccurate data</li>
               <li>Request erasure of your data</li>
               <li>Request restriction or object to processing in certain circumstances</li>
-              <li>Lodge a complaint with the Information Commissioner's Office (ICO)</li>
+              <li>Lodge a complaint with the Information Commissioner&apos;s Office (ICO)</li>
             </ul>
             <p className="mb-4">If you are unhappy with how we handle your data, you may contact the ICO:</p>
             <div className="mb-6 p-4 bg-brand-beige-light rounded-lg">
-              <p className="mb-2"><strong>Information Commissioner's Office</strong></p>
+              <p className="mb-2"><strong>Information Commissioner&apos;s Office</strong></p>
               <p className="mb-2">Website: <a href="https://www.ico.org.uk" target="_blank" rel="noopener noreferrer" className="text-brand-green hover:underline">https://www.ico.org.uk</a></p>
               <p>Phone: <a href="tel:03031231113" className="text-brand-green hover:underline">0303 123 1113</a></p>
             </div>
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-bold mt-8 mb-4">8. Contact Us</h2>
             <p className="mb-4">If you have any questions about this Privacy Notice or your personal data, please contact:</p>
             <div className="p-4 bg-brand-beige-light rounded-lg">
-              <p className="mb-2"><strong>Ellie's Oats</strong></p>
+              <p className="mb-2"><strong>Ellie&apos;s Oats</strong></p>
               <p className="mb-2">Email: <a href="mailto:elliesoats@hotmail.com" className="text-brand-green hover:underline">elliesoats@hotmail.com</a></p>
               <p>Phone: <a href="tel:07989785066" className="text-brand-green hover:underline">07989 785066</a></p>
             </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminLayout({
   children,
@@ -12,14 +11,13 @@ export default function AdminLayout({
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
-    // Check if already authenticated in session
-    const authToken = sessionStorage.getItem('admin_auth');
-    if (authToken === 'authenticated') {
-      setIsAuthenticated(true);
-    }
+    // sessionStorage is unavailable during SSR, so this has to run after mount.
+    // Replaced by a server-validated session in the auth rework; keeping the
+    // read here until then.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsAuthenticated(sessionStorage.getItem('admin_auth') === 'authenticated');
     setIsLoading(false);
   }, []);
 
@@ -45,7 +43,7 @@ export default function AdminLayout({
       } else {
         setError('Invalid password');
       }
-    } catch (error) {
+    } catch {
       setError('Authentication failed');
     }
   };

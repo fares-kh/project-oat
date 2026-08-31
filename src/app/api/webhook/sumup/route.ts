@@ -312,7 +312,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Allow SumUp to verify the webhook endpoint
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({ 
     status: 'ok',
     message: 'SumUp webhook endpoint is active' 

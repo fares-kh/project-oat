@@ -38,7 +38,7 @@ export default function AboutPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to submit. Please try again later.' });
     } finally {
       setIsSubmitting(false);

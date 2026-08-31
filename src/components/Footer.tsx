@@ -90,7 +90,7 @@ export default function Footer() {
         <div
           className="border-t border-brand-border-light pt-6 text-center text-black text-sm copyright font-brand"
         >
-          &copy; 2025 Ellie's Oats. All rights reserved.
+          &copy; 2025 Ellie&apos;s Oats. All rights reserved.
         </div>
       </div>
     </footer>

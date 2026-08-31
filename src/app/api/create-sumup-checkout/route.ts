@@ -8,6 +8,30 @@ import {
   validatePostcodeDates,
 } from '@/lib/delivery-config';
 
+interface IncomingBowl {
+  productId: string;
+  oatSoaking: string | null;
+  toppings?: string[];
+  extraToppings?: Record<string, number>;
+  price: number;
+  isSignature?: boolean;
+  exclusiveDelivery?: boolean;
+}
+
+interface LineItem {
+  bowlNumber?: number;
+  productId: string;
+  productName: string;
+  isSignature: boolean;
+  exclusiveDelivery?: boolean;
+  isOatBites?: boolean;
+  oatSoaking: string | null;
+  toppings: string[];
+  extraToppings: { name: string; quantity: number }[];
+  price: number;
+  deliveryDate: string;
+}
+
 function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
   const now = new Date();
   const currentHour = now.getHours();
@@ -133,13 +157,13 @@ export async function POST(request: NextRequest) {
     };
     
     let bowlNumber = 0;
-    const detailedLineItems: any[] = [];
+    const detailedLineItems: LineItem[] = [];
     
     orderData.delivery.dates.forEach((date: string) => {
       const dateFormatted = formatDate(date);
       const dateBowls = orderData.ordersByDate[date] || [];
       
-      dateBowls.forEach((bowl: any) => {
+      dateBowls.forEach((bowl: IncomingBowl) => {
         bowlNumber++;
         const productName = productNames[bowl.productId] || bowl.productId;
         const oatSoaking = bowl.oatSoaking ? (oatSoakingNames[bowl.oatSoaking] || bowl.oatSoaking) : null;
@@ -148,7 +172,7 @@ export async function POST(request: NextRequest) {
         
         // Format extra toppings
         const extraToppings = Object.entries(bowl.extraToppings || {})
-          .map(([id, qty]: [string, any]) => ({
+          .map(([id, qty]) => ({
             name: toppingNames[id] || id,
             quantity: qty
           }));

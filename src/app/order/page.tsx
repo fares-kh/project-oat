@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -75,7 +75,6 @@ export default function OrderPage() {
   const [showTCModal, setShowTCModal] = useState(false);
   const [hasAcceptedTC, setHasAcceptedTC] = useState(false);
   
-  const datePickerRef = useRef<HTMLInputElement>(null);
   const [customDateValue, setCustomDateValue] = useState<Dayjs | null>(null);
 
   // Subscription service state
@@ -178,7 +177,7 @@ export default function OrderPage() {
       } else {
         setSubscriptionMessage({ type: 'error', text: data.error || 'Something went wrong. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setSubscriptionMessage({ type: 'error', text: 'Failed to submit. Please try again later.' });
     } finally {
       setIsSubscriptionSubmitting(false);
@@ -396,14 +395,6 @@ export default function OrderPage() {
       setTotalBowls(total);
       
       closeProductModal();
-    }
-  };
-
-  const proceedToNextDate = () => {
-    if (currentDateIndex < selectedDates.length - 1) {
-      setCurrentDateIndex(currentDateIndex + 1);
-    } else {
-      setCurrentStep(4);
     }
   };
 
@@ -678,7 +669,17 @@ export default function OrderPage() {
     return bowlsTotal + getOatBitesTotal();
   };
 
-  const StepIndicator = ({ step, title, isActive, isCompleted }: any) => (
+  const StepIndicator = ({
+    step,
+    title,
+    isActive,
+    isCompleted,
+  }: {
+    step: number;
+    title: string;
+    isActive: boolean;
+    isCompleted: boolean;
+  }) => (
     <div
       className={`relative flex items-center py-3 cursor-pointer transition-all duration-300 ${
         isActive 
@@ -799,7 +800,7 @@ export default function OrderPage() {
                         Interested in our subscription service?
                       </h3>
                       <p className="text-white/90 text-lg">
-                        You can start any time, with a four-week supply of 16 nutritious bowls delivered straight to your door. Fuel your fitness & lifestyle goals without having to remember to place your order. Add your email below and we'll be in touch.
+                        You can start any time, with a four-week supply of 16 nutritious bowls delivered straight to your door. Fuel your fitness &amp; lifestyle goals without having to remember to place your order. Add your email below and we&apos;ll be in touch.
                       </p>
                     </div>
 
@@ -1464,7 +1465,7 @@ export default function OrderPage() {
                 <div className="max-h-96 opacity-100 overflow-y-auto">
                   {totalBowls > 0 ? (
                     <div className="space-y-3">
-                      {selectedDates.map((date, dateIdx) => {
+                      {selectedDates.map((date) => {
                         const dateOrders = ordersByDate[date];
                         if (!dateOrders || dateOrders.length === 0) return null;
                         

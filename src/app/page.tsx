@@ -1,4 +1,3 @@
-import Image from "next/image";
 import HeroVideoWrapper from "@/components/HeroVideo/HeroVideoWrapper";
 import MenuColumn from "@/components/MenuColumn";
 import Header from "@/components/Header";
