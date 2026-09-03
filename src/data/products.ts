@@ -132,18 +132,6 @@ export const products: Product[] = [
     nutrition: { energy_kcal: 524, energy_kj: 2192, fat_g: 19, saturates_g: 9, carbs_g: 57, sugars_g: 20, fibre_g: 7, protein_g: 27, salt_g: 0.98 },
   },
   {
-    id: 'monthly-special-august',
-    name: 'Tiramisu Oat Bowl',
-    price: 5.95,
-    description: "Oats soaked in decaf coffee, oat milk, Greek yoghurt & chia seeds. Topped with a white chocolate protein yoghurt and a fluttering of cocoa powder.",
-    image: '/monthly-special-august.png',
-    isSignature: true,
-    availableFrom: '2026-08-01',
-    availableUntil: '2026-08-31',
-    ingredients: 'Soft cheese (28%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), Greek yogurt (27%) (0% Fat natural Greek yogurt (MILK)), OAT milk (19%) (OAT base (water, gluten free OATS), rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), OATS(12%), Water (7%), Honey (4%), Chia [salvia hispanica] seeds, protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), Cocoa powder (Cocoa Powder, Acidity Regulator (Potassium Carbonate)), Decaffeinated coffee (Robusta Coffee, Arabica Coffee), Vanilla extract (invert sugar syrup, vanilla extract, water, partially inverted sugar syrup). May also contain: soya, cereals containing gluten, mustard, sesame seeds, sulphur dioxide, sulphites, nuts & peanuts. Made in a kitchen that also handles, eggs, fish, lupin, peanuts, sesame, soya, sulphur dioxide/sulphites and tree nuts.',
-    nutrition: { energy_kcal: 526, energy_kj: 2201, fat_g: 18, saturates_g: 8, carbs_g: 57, sugars_g: 24, fibre_g: 8, protein_g: 30, salt_g: 1 },
-  },
-  {
     id: 'monthly-special-september',
     name: 'The Nutty One',
     price: 5.95,
@@ -170,7 +158,7 @@ export const products: Product[] = [
   {
     id: 'mini-egg',
     name: 'Mini Egg Protein Bowl',
-    price: 5.95,
+    price: 0.50,
     description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
     image: '/exclusive-june.png',
     isSignature: true,
