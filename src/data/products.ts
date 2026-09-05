@@ -158,7 +158,7 @@ export const products: Product[] = [
   {
     id: 'mini-egg',
     name: 'Mini Egg Protein Bowl',
-    price: 0.50,
+    price: 5.95,
     description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
     image: '/exclusive-june.png',
     isSignature: true,
