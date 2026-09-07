@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const sessionCookie = request.cookies.get('admin_session');
     const authHeader = request.headers.get('authorization');
     const adminToken = process.env.ADMIN_API_SECRET;

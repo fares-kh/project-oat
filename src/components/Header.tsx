@@ -14,13 +14,13 @@ export default function Header() {
         {/* Nav Links - center */}
         <nav className="w-full md:w-auto flex justify-center order-2 md:order-none">
           <ul className="flex gap-6 list-none font-brand">
-            <li><a href="/#menu" className="font-medium hover:text-brand-green cursor-pointer">Menu</a></li>
+            <li><Link href="/#menu" className="font-medium hover:text-brand-green cursor-pointer">Menu</Link></li>
             <li><Link href="/about" className="font-medium hover:text-brand-green">About Us</Link></li>
           </ul>
         </nav>
         {/* Order Online CTA - right */}
         <div className="w-full md:w-auto flex justify-center md:justify-end order-3 md:order-none">
-          <a href="/order" className="bg-brand-green text-white px-5 py-2 rounded-full font-semibold hover:bg-brand-green-hover transition">Order Online</a>
+          <Link href="/order" className="bg-brand-green text-white px-5 py-2 rounded-full font-semibold hover:bg-brand-green-hover transition">Order Online</Link>
         </div>
       </div>
     </header>

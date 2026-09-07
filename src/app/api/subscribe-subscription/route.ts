@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import fs from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
-
-const resend = new Resend(process.env.RESEND_KEY);
+import { getResend } from '@/lib/resend';
 
 export async function POST(request: NextRequest) {
   try {
+    const resend = getResend();
     const { email } = await request.json();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Email to customer
     const imagePath = path.join(process.cwd(), 'public', 'email-subscriptions.png');
-    const imageBuffer = fs.readFileSync(imagePath);
+    const imageBuffer = await readFile(imagePath);
     
     await resend.emails.send({
       from: 'Ellie\'s Oats <noreply@elliesoats.co.uk>',

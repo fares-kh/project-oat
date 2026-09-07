@@ -1,11 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { getBaseUrl, getSumUpConfig } from '@/lib/env';
 import { oatBites } from '@/data/products';
 import {
   getDeliveryAreaFromPostcode,
   validatePostcode,
   validatePostcodeDates,
 } from '@/lib/delivery-config';
+
+interface IncomingBowl {
+  productId: string;
+  oatSoaking: string | null;
+  toppings?: string[];
+  extraToppings?: Record<string, number>;
+  price: number;
+  isSignature?: boolean;
+  exclusiveDelivery?: boolean;
+}
+
+interface LineItem {
+  bowlNumber?: number;
+  productId: string;
+  productName: string;
+  isSignature: boolean;
+  exclusiveDelivery?: boolean;
+  isOatBites?: boolean;
+  oatSoaking: string | null;
+  toppings: string[];
+  extraToppings: { name: string; quantity: number }[];
+  price: number;
+  deliveryDate: string;
+}
 
 function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
   const now = new Date();
@@ -41,6 +66,9 @@ function validateDeliveryDates(dates: string[]): { valid: boolean; error?: strin
 
 export async function POST(request: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const sumup = getSumUpConfig();
+    const baseUrl = getBaseUrl();
     const orderData = await request.json();
     
     const dateValidation = validateDeliveryDates(orderData.delivery.dates);
@@ -128,13 +156,13 @@ export async function POST(request: NextRequest) {
     };
     
     let bowlNumber = 0;
-    const detailedLineItems: any[] = [];
+    const detailedLineItems: LineItem[] = [];
     
     orderData.delivery.dates.forEach((date: string) => {
       const dateFormatted = formatDate(date);
       const dateBowls = orderData.ordersByDate[date] || [];
       
-      dateBowls.forEach((bowl: any) => {
+      dateBowls.forEach((bowl: IncomingBowl) => {
         bowlNumber++;
         const productName = productNames[bowl.productId] || bowl.productId;
         const oatSoaking = bowl.oatSoaking ? (oatSoakingNames[bowl.oatSoaking] || bowl.oatSoaking) : null;
@@ -143,7 +171,7 @@ export async function POST(request: NextRequest) {
         
         // Format extra toppings
         const extraToppings = Object.entries(bowl.extraToppings || {})
-          .map(([id, qty]: [string, any]) => ({
+          .map(([id, qty]) => ({
             name: toppingNames[id] || id,
             quantity: qty
           }));
@@ -258,18 +286,18 @@ export async function POST(request: NextRequest) {
     const sumupResponse = await fetch('https://api.sumup.com/v0.1/checkouts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SUMUP_API_KEY}`,
+        'Authorization': `Bearer ${sumup.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         checkout_reference: checkoutReference,
         amount: amountInPence / 100,
         currency: 'GBP',
-        merchant_code: process.env.SUMUP_MERCHANT_CODE,
+        merchant_code: sumup.merchantCode,
         description: description,
         merchant_data: merchantData,
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/sumup`,
+        redirect_url: `${baseUrl}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
+        return_url: `${baseUrl}/api/webhook/sumup`,
         hosted_checkout: { 
           enabled: true
         }

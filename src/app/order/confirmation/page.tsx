@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ function ConfirmationContent() {
           <div className="text-6xl mb-4">❌</div>
           <h2 className="text-3xl font-bold text-zinc-900 mb-2">No Order Found</h2>
           <p className="text-zinc-700 mb-6">
-            We couldn't find your order reference. Please contact us if you need assistance.
+            We couldn&apos;t find your order reference. Please contact us if you need assistance.
           </p>
           <Link 
             href="/order"
@@ -36,7 +36,7 @@ function ConfirmationContent() {
         <div className="text-4xl mb-4">✅</div>
         <h2 className="text-3xl font-bold mb-2">Payment Confirmed!</h2>
         <p className="text-zinc-700 mb-4">
-          Thank you for your order! You'll receive a confirmation email shortly.
+          Thank you for your order! You&apos;ll receive a confirmation email shortly.
         </p>
         
         <div className="bg-brand-beige-light rounded-lg p-4 mb-6 text-left">
