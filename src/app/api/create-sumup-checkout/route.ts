@@ -3,41 +3,10 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { oatBites } from '@/data/products';
 import {
   getDeliveryAreaFromPostcode,
+  validateDeliveryDates,
   validatePostcode,
   validatePostcodeDates,
 } from '@/lib/delivery-config';
-
-function validateDeliveryDates(dates: string[]): { valid: boolean; error?: string } {
-  const now = new Date();
-  const currentHour = now.getHours();
-  const daysToAdd = currentHour >= 14 ? 3 : 2;
-  
-  const cutoffDate = new Date(now);
-  cutoffDate.setDate(now.getDate() + daysToAdd);
-  cutoffDate.setHours(0, 0, 0, 0);
-  
-  for (const dateStr of dates) {
-    const deliveryDate = new Date(dateStr);
-    deliveryDate.setHours(0, 0, 0, 0);
-    const dayOfWeek = deliveryDate.getDay();
-    
-    if (![1, 3].includes(dayOfWeek)) {
-      return { 
-        valid: false, 
-        error: `${dateStr} is not a Monday or Wednesday` 
-      };
-    }
-    
-    if (deliveryDate < cutoffDate) {
-      return { 
-        valid: false, 
-        error: `${dateStr} does not meet the minimum ${daysToAdd}-day advance requirement` 
-      };
-    }
-  }
-  
-  return { valid: true };
-}
 
 export async function POST(request: NextRequest) {
   try {

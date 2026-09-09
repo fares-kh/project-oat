@@ -2,6 +2,7 @@ import Image from "next/image";
 import HeroVideoWrapper from "@/components/HeroVideo/HeroVideoWrapper";
 import MenuColumn from "@/components/MenuColumn";
 import Header from "@/components/Header";
+import PromoBanner from "@/components/PromoBanner/PromoBanner";
 import Footer from "@/components/Footer";
 import SpecialCard from "@/components/SpecialCard/SpecialCard";
 import { products, oatBites, type NutritionInfo } from "@/data/products";
@@ -10,6 +11,7 @@ export default function Home() {
   return (
     <div className="min-h-screen font-sans">
       <Header />
+      <PromoBanner />
       <section className="w-full py-0 relative min-h-[400px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
         <HeroVideoWrapper />
       </section>
