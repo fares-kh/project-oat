@@ -13,11 +13,17 @@ import { ThemeProvider } from '@mui/material/styles';
 import { muiTheme } from '@/theme/muiTheme';
 import {
   deliveryConfig,
+  getAvailableSpecialDeliveryDates,
   getDateRestrictionForPostcode,
   getDeliveryAreaFromPostcode,
   getDeliveryTimeForPostcode,
+  getDeliveryTimesSummary,
   getRestrictedDeliveryDates,
+  getSpecialDeliveryDate,
   isDateAllowedForPostcode,
+  isSpecialDeliveryDate,
+  mergeDeliveryDates,
+  validateDeliveryDate,
   validatePostcode,
 } from '@/lib/delivery-config';
 
@@ -85,22 +91,24 @@ export default function OrderPage() {
 
   const getValidDeliveryDates = () => {
     const excludedDates = deliveryConfig.excludedDates || [];
+    const specialDates = getAvailableSpecialDeliveryDates({ excludedDates });
+    let baseDates: string[];
 
     // OL12/13/16: only the fortnightly Wednesday schedule (from 26 Aug 2026)
     if (postcode && getDateRestrictionForPostcode(postcode)) {
-      return getRestrictedDeliveryDates(postcode, { excludedDates });
-    }
-
-    if (deliveryConfig.useCustomDates) {
+      baseDates = getRestrictedDeliveryDates(postcode, { excludedDates });
+    } else if (deliveryConfig.useCustomDates) {
       const today = new Date();
-      return deliveryConfig.customDates.filter(dateStr => {
+      baseDates = deliveryConfig.customDates.filter(dateStr => {
         const date = new Date(dateStr);
         return date > today && !excludedDates.includes(dateStr);
       });
+    } else {
+      const automaticDates = getAutomaticDeliveryDates();
+      baseDates = automaticDates.filter(dateStr => !excludedDates.includes(dateStr));
     }
 
-    const automaticDates = getAutomaticDeliveryDates();
-    return automaticDates.filter(dateStr => !excludedDates.includes(dateStr));
+    return mergeDeliveryDates(baseDates, specialDates);
   };
 
   // Auto delivery logic
@@ -248,33 +256,10 @@ export default function OrderPage() {
       setCustomDateError('');
       return;
     }
-    
-    const selectedDay = new Date(dateValue);
-    selectedDay.setHours(0, 0, 0, 0); // Set to start of day for comparison
-    const dayOfWeek = selectedDay.getDay();
-    const today = new Date();
-    
-    const currentHour = today.getHours();
-    const daysToAdd = currentHour >= 14 ? 3 : 2;
-    
-    const cutoffDate = new Date(today);
-    cutoffDate.setDate(today.getDate() + daysToAdd);
-    cutoffDate.setHours(0, 0, 0, 0); // Set to start of the cutoff day
-    
-    // Validate: must be Mon/Wed and past cutoff
-    if (![1, 3].includes(dayOfWeek)) {
-      setCustomDateError('Please select a Monday or Wednesday.');
-      return;
-    }
-    
-    if (selectedDay < cutoffDate) {
-      setCustomDateError('Date must be more than 2 days in advance.');
-      return;
-    }
-    
-    const excludedDates = deliveryConfig.excludedDates || [];
-    if (excludedDates.includes(dateValue)) {
-      setCustomDateError('This date is not available for delivery.');
+
+    const dateValidation = validateDeliveryDate(dateValue);
+    if (!dateValidation.valid) {
+      setCustomDateError(dateValidation.error || 'This date is not available for delivery.');
       return;
     }
 
@@ -285,7 +270,6 @@ export default function OrderPage() {
       return;
     }
     
-    // Valid date - add to selection
     setCustomDateError('');
     toggleDateSelection(dateValue);
   };
@@ -306,30 +290,15 @@ export default function OrderPage() {
 
   // Function to disable dates outside the allowed schedule / cutoff
   const shouldDisableDate = (date: Dayjs) => {
-    const today = dayjs();
-    const currentHour = today.hour();
-    const daysToAdd = currentHour >= 14 ? 3 : 2;
-    const cutoffDate = today.add(daysToAdd, 'day').startOf('day');
     const dateStr = date.format('YYYY-MM-DD');
-    const selectedDateStart = date.startOf('day');
+    const dateValidation = validateDeliveryDate(dateStr);
 
-    if (selectedDateStart.isBefore(cutoffDate)) {
+    if (!dateValidation.valid) {
       return true;
     }
 
-    const excludedDates = deliveryConfig.excludedDates || [];
-    if (excludedDates.includes(dateStr)) {
-      return true;
-    }
-
-    // Fortnightly OL postcodes: only dates on that schedule
     if (postcode && getDateRestrictionForPostcode(postcode)) {
       return !isDateAllowedForPostcode(postcode, dateStr);
-    }
-
-    // Standard flow: Monday or Wednesday only
-    if (![1, 3].includes(date.day())) {
-      return true;
     }
 
     return false;
@@ -849,7 +818,22 @@ export default function OrderPage() {
                     <p className="text-sm text-dark">{dateRestriction.message}</p>
                   </div>
                 )}
-                
+
+                {availableDates.some(isSpecialDeliveryDate) && (
+                  <div className="mb-4 p-3 bg-brand-beige-light border border-brand-green rounded-lg">
+                    {availableDates
+                      .filter(isSpecialDeliveryDate)
+                      .map((dateStr) => {
+                        const special = getSpecialDeliveryDate(dateStr)!;
+                        return (
+                          <p key={dateStr} className="text-sm text-dark">
+                            {special.message}
+                          </p>
+                        );
+                      })}
+                  </div>
+                )}
+
                 {previewDates.length > 0 && (
                   <div className="mb-4 p-3 bg-brand-green/10 border border-brand-green rounded-lg">
                     <p className="text-sm font-medium text-brand-green">
@@ -859,7 +843,9 @@ export default function OrderPage() {
                 )}
                 
                 <div className="space-y-3">
-                  {availableDates.length > 0 ? availableDates.map((d) => (
+                  {availableDates.length > 0 ? availableDates.map((d) => {
+                    const special = getSpecialDeliveryDate(d);
+                    return (
                     <button 
                       key={d} 
                       onClick={() => toggleDateSelection(d)} 
@@ -870,11 +856,17 @@ export default function OrderPage() {
                       }`}
                     >
                       <div className="font-semibold">{formatDate(d)}</div>
+                      {special && (
+                        <div className="text-sm text-brand-green mt-1">
+                          {special.label} · {special.deliveryTime}
+                        </div>
+                      )}
                       {previewDates.includes(d) && (
                         <div className="absolute top-4 right-4 text-brand-green text-2xl">✓</div>
                       )}
                     </button>
-                  )) : (
+                  );
+                  }) : (
                     <div className="text-center py-8">No available delivery dates within the cutoff period.</div>
                   )}
                   
@@ -1301,7 +1293,7 @@ export default function OrderPage() {
                     <div className="flex justify-between"><span>Name:</span><span className="font-medium">{firstName} {lastName}</span></div>
                     {email && <div className="flex justify-between"><span>Email:</span><span className="font-medium">{email}</span></div>}
                     <div className="flex justify-between"><span>Location:</span><span className="font-medium">{deliveryArea}</span></div>
-                    <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium">{getDeliveryTimeForPostcode(postcode)}</span></div>
+                    <div className="flex justify-between"><span>Delivery Time:</span><span className="font-medium text-right">{getDeliveryTimesSummary(postcode, selectedDates)}</span></div>
                     <div className="flex justify-between"><span>Address:</span><span className="font-medium text-right">{addressLine1}{addressLine2 && `, ${addressLine2}`}, {city}, {postcode.toUpperCase()}</span></div>
                     {deliveryNotes && <div className="flex justify-between"><span>Delivery Notes & Dietary Requirements:</span><span className="font-medium text-right">{deliveryNotes}</span></div>}
                     <div className="flex justify-between"><span>Phone:</span><span className="font-medium">{phoneNumber}</span></div>
@@ -1319,7 +1311,12 @@ export default function OrderPage() {
                     
                     return (
                       <div key={date} className="mb-4">
-                        <h4 className="font-semibold mb-2">📅 {formatDate(date)}</h4>
+                        <h4 className="font-semibold mb-2">
+                          📅 {formatDate(date)}
+                          <span className="block text-sm font-normal text-dark mt-1">
+                            {getDeliveryTimeForPostcode(postcode, date)}
+                          </span>
+                        </h4>
                         <div className="space-y-2">
                           {dateOrders.map((bowl, index) => {
                             const product = products.find(p => p.id === bowl.productId)!;
