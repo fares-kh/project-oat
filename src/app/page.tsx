@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import SpecialCard from "@/components/SpecialCard/SpecialCard";
 import { products, oatBites, type NutritionInfo } from "@/data/products";
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <div className="min-h-screen font-sans">

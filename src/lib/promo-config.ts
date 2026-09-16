@@ -1,9 +1,11 @@
+import { isWithinOrderDeadline } from '@/lib/delivery-config';
+
 export type PromoBanner = {
   id: string;
   enabled: boolean;
   startDate: string;
   endDate: string;
-  /** Local datetime (YYYY-MM-DDTHH:mm:ss) after which the banner is hidden. */
+  /** ISO datetime with timezone offset, e.g. 2026-09-16T14:00:00+01:00 */
   orderDeadline?: string;
   headline: string;
   body: string;
@@ -14,10 +16,10 @@ export type PromoBanner = {
 export const promoBanners: PromoBanner[] = [
   {
     id: 'manchester-half-marathon-2026',
-    enabled: true,
+    enabled: false,
     startDate: '2026-09-01',
     endDate: '2026-10-02',
-    orderDeadline: '2026-09-16T14:00:00',
+    orderDeadline: '2026-09-16T14:00:00+01:00',
     headline: 'Manchester Half Marathon fuel',
     body: 'Pre-order your oat bowls for delivery on Friday 2nd October. This is a special afternoon/evening delivery.',
     ctaLabel: 'Order for race day',
@@ -29,16 +31,12 @@ function parseDateOnly(dateStr: string): Date {
   return new Date(`${dateStr}T12:00:00`);
 }
 
-function parseDateTime(dateTimeStr: string): Date {
-  return new Date(dateTimeStr);
-}
-
 function isPromoActive(promo: PromoBanner, today: Date): boolean {
   if (!promo.enabled) {
     return false;
   }
 
-  if (promo.orderDeadline && today >= parseDateTime(promo.orderDeadline)) {
+  if (!isWithinOrderDeadline(promo.orderDeadline, today)) {
     return false;
   }
 

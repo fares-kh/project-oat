@@ -1,7 +1,15 @@
-import { getActivePromo } from '@/lib/promo-config';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getActivePromo, type PromoBanner as PromoBannerConfig } from '@/lib/promo-config';
 
 export default function PromoBanner() {
-  const promo = getActivePromo();
+  const [promo, setPromo] = useState<PromoBannerConfig | null>(null);
+
+  // Evaluate on the client so time-based promos aren't baked in at build time.
+  useEffect(() => {
+    setPromo(getActivePromo());
+  }, []);
 
   if (!promo) {
     return null;

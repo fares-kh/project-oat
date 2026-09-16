@@ -23,7 +23,8 @@ export type SpecialDeliveryDate = {
   deliveryTime: string;
   label: string;
   message: string;
-  /** Local datetime (YYYY-MM-DDTHH:mm:ss) after which orders close. */
+  enabled?: boolean;
+  /** ISO datetime with timezone offset, e.g. 2026-09-16T14:00:00+01:00 */
   orderDeadline?: string;
 };
 
@@ -35,7 +36,8 @@ export const specialDeliveryDates: SpecialDeliveryDate[] = [
     label: 'Manchester Half Marathon fuel',
     message:
       'Friday 2nd October is a special Manchester Half Marathon delivery. Your order will arrive in the afternoon/evening — not our usual morning slot.',
-    orderDeadline: '2026-09-16T14:00:00',
+    enabled: false,
+    orderDeadline: '2026-09-16T14:00:00+01:00',
   },
 ];
 
@@ -160,15 +162,25 @@ export function getDeliveryAreaFromPostcode(postcode: string): string | null {
   return 'Manchester/Cheshire East';
 }
 
-function parseDateTime(dateTimeStr: string): Date {
-  return new Date(dateTimeStr);
-}
-
-function isWithinOrderDeadline(orderDeadline: string | undefined, now: Date): boolean {
+/** ISO datetime with timezone offset, e.g. 2026-09-16T14:00:00+01:00 */
+export function isWithinOrderDeadline(
+  orderDeadline: string | undefined,
+  now: Date = new Date()
+): boolean {
   if (!orderDeadline) {
     return true;
   }
-  return now < parseDateTime(orderDeadline);
+  return now < new Date(orderDeadline);
+}
+
+function isSpecialDeliveryEntryActive(
+  entry: SpecialDeliveryDate,
+  now: Date = new Date()
+): boolean {
+  if (entry.enabled === false) {
+    return false;
+  }
+  return isWithinOrderDeadline(entry.orderDeadline, now);
 }
 
 export function getSpecialDeliveryDate(
@@ -176,7 +188,7 @@ export function getSpecialDeliveryDate(
   now: Date = new Date()
 ): SpecialDeliveryDate | null {
   const entry = specialDeliveryDates.find((item) => item.date === dateStr);
-  if (!entry || !isWithinOrderDeadline(entry.orderDeadline, now)) {
+  if (!entry || !isSpecialDeliveryEntryActive(entry, now)) {
     return null;
   }
   return entry;
@@ -204,7 +216,7 @@ export function getAvailableSpecialDeliveryDates(
   const now = options?.now ?? new Date();
 
   return specialDeliveryDates
-    .filter((entry) => isWithinOrderDeadline(entry.orderDeadline, now))
+    .filter((entry) => isSpecialDeliveryEntryActive(entry, now))
     .map((entry) => entry.date)
     .filter((dateStr) => {
       if (excludedDates.includes(dateStr)) {
