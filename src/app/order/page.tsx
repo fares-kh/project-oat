@@ -819,10 +819,10 @@ export default function OrderPage() {
                   </div>
                 )}
 
-                {availableDates.some(isSpecialDeliveryDate) && (
+                {availableDates.some((d) => isSpecialDeliveryDate(d)) && (
                   <div className="mb-4 p-3 bg-brand-beige-light border border-brand-green rounded-lg">
                     {availableDates
-                      .filter(isSpecialDeliveryDate)
+                      .filter((d) => isSpecialDeliveryDate(d))
                       .map((dateStr) => {
                         const special = getSpecialDeliveryDate(dateStr)!;
                         return (
