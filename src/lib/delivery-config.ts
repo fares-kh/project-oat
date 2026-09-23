@@ -36,8 +36,7 @@ export const specialDeliveryDates: SpecialDeliveryDate[] = [
     label: 'Manchester Half Marathon fuel',
     message:
       'Friday 2nd October is a special Manchester Half Marathon delivery. Your order will arrive in the afternoon/evening — not our usual morning slot.',
-    enabled: false,
-    orderDeadline: '2026-09-16T14:00:00+01:00',
+    orderDeadline: '2026-09-30T14:00:00+01:00',
   },
 ];
 

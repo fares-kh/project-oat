@@ -16,10 +16,10 @@ export type PromoBanner = {
 export const promoBanners: PromoBanner[] = [
   {
     id: 'manchester-half-marathon-2026',
-    enabled: false,
+    enabled: true,
     startDate: '2026-09-01',
     endDate: '2026-10-02',
-    orderDeadline: '2026-09-16T14:00:00+01:00',
+    orderDeadline: '2026-09-30T14:00:00+01:00',
     headline: 'Manchester Half Marathon fuel',
     body: 'Pre-order your oat bowls for delivery on Friday 2nd October. This is a special afternoon/evening delivery.',
     ctaLabel: 'Order for race day',
