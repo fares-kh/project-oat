@@ -169,13 +169,13 @@ export const products: Product[] = [
   },
   {
     id: 'mini-egg',
-    name: 'Mini Egg Protein Bowl',
+    name: 'Speckled Egg Bowl',
     price: 5.95,
-    description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed mini eggs. Topped with a white chocolate protein layer and a sprinkle of mini eggs.",
+    description: "White chocolate flavoured oats soaked in Greek yoghurt, oat milk & crushed speckled eggs. Topped with a white chocolate protein layer and a sprinkle of speckled eggs.",
     image: '/exclusive-june.png',
     isSignature: true,
     availableFrom: '2026-06-17',
-    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, organic gluten free OATS, organic rapeseed oil, potassium carbonate, salt), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Dried Skimmed MILK, Cocoa Mass, Dried Whey (MILK), Lactose (MILK), Butter Oil (MILK), Tapioca Starch; Plant and Vegetable Extracts (Carrot Concentrate, Safflower Concentrate, Spirulina Concentrate, Beetroot Concentrate), Emulsifier (SOYA Lecithin), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts. ',
+    ingredients: 'OATS (13.2%), OAT milk (17.6%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), 0% fat natural Greek yogurt (26.5%) (MILK), Reduced Fat Soft Cheese (23.5%) (MILK, Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), chocolate eggs (17.7%) (Sugar, Cocoa Butter, Skimmed MILK Powder, Cocoa Mass, Whey Powder (MILK), Lactose (MILK), Butter Oil (MILK), Emulsifier (SOYA Lecithin), Flavouring), Sugar, Glazing Agent (Gum Arabic), Rice Starch, Malt BARLEY Extract, Colours (Ahthocyanins, Carotenes, Curcumin), Spirulina Concentrate), Vanilla Flavouring, Colours (Titanium Dioxide, Curcumin), Caramelised Sugar), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)). May also contain: cereals containing gluten, mustard, sesame seeds, sulphur dioxide, sulphites, peanuts & tree nuts. Made in a kitchen that also handles: gluten, eggs, fish, lupin, milk, peanuts, sesame, soya, sulphur dioxide/sulphites, and tree nuts.',
     nutrition: { energy_kcal: 563, energy_kj: 2356, fat_g: 20, saturates_g: 10, carbs_g: 67, sugars_g: 35, fibre_g: 6, protein_g: 27, salt_g: 0.94 },
   },
   {

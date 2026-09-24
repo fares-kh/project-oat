@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       'monthly-special-september': 'The Nutty One',
       'monthly-special-october': 'Eton Mess',
       'sticky-mango': 'Sticky Mango',
-      'mini-egg': 'Mini Egg Protein Bowl',
+      'mini-egg': 'Speckled Egg Bowl',
       'raspberry-white-chocolate': 'Raspberry & White Chocolate Cheesecake',
       'build-your-own': 'Build Your Own',
       'oat-bites': 'Oat Bites'
