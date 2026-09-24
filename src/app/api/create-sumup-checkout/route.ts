@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       'jam-dodger': 'Jam Dodger',
       'lemon-and-white-chocolate': 'Lemon & White Chocolate Oat Bowl',
       'monthly-special-september': 'The Nutty One',
+      'monthly-special-october': 'Eton Mess',
       'sticky-mango': 'Sticky Mango',
       'mini-egg': 'Mini Egg Protein Bowl',
       'raspberry-white-chocolate': 'Raspberry & White Chocolate Cheesecake',
