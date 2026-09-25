@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "TZ=Europe/London vitest run",
-    "test:watch": "TZ=Europe/London vitest"
+    "test:watch": "TZ=Europe/London vitest",
+    "sumup:verify": "node --env-file=.env.local scripts/sumup-verify.mjs"
   },
   "engines": {
     "node": ">=22"

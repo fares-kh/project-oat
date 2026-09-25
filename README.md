@@ -73,10 +73,25 @@ src/
 2. `POST /api/create-sumup-checkout` revalidates, writes a `pending` order to
    Supabase, and returns a SumUp hosted checkout URL.
 3. The customer pays on SumUp and is redirected to `/order/confirmation`.
-4. SumUp calls `POST /api/webhook/sumup`. The handler re-fetches the checkout
-   from SumUp rather than trusting the payload, marks the order `paid`, and
-   sends the customer and admin emails.
-5. `/admin` lists paid orders, grouped by delivery date.
+4. SumUp calls `POST /api/webhook/sumup` when `return_url` is reachable. The
+   handler re-fetches the checkout from SumUp, marks the order `paid`, and sends
+   emails.
+5. **Fallback:** `/order/confirmation` calls `GET /api/sync-order-payment` so
+   localhost (no webhook) and missed webhooks still reconcile with SumUp.
+6. `/admin` lists paid orders, grouped by delivery date.
+
+## E2E payment testing (sandbox)
+
+See **[docs/E2E-TESTING.md](docs/E2E-TESTING.md)** for the full guide. Quick start:
+
+```bash
+cp .env.example .env.local   # sandbox SUMUP_* + dev Supabase
+npm run sumup:verify         # confirms sandbox=true and merchant code matches
+npm run dev
+```
+
+Pay with test card `4200 0000 0000 0091`. On localhost the confirmation page
+updates `pending` → `paid` without needing a webhook.
 
 ## Delivery rules
 
