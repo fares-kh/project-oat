@@ -83,7 +83,13 @@ const OL_FORTNIGHTLY_RULE: DateRestrictionRule = {
 export const deliveryConfig: DeliveryConfig = {
   useCustomDates: false,
   customDates: [],
-  excludedDates: ['2026-07-29'],
+  excludedDates: [
+    '2026-07-29',
+    '2026-12-21',
+    '2026-12-23',
+    '2026-12-28',
+    '2026-12-30',
+  ],
   postcodeValidation: {
     enabled: true,
     // OL12/13/16 are included so the postcode is accepted any day;
