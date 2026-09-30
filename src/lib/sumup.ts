@@ -5,6 +5,7 @@ export type SumUpCheckout = {
   status: string;
   checkout_reference?: string;
   merchant_sandbox?: boolean;
+  hosted_checkout_url?: string;
 };
 
 export async function fetchSumUpCheckout(checkoutId: string): Promise<SumUpCheckout> {

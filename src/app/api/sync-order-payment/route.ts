@@ -11,12 +11,15 @@ import { syncOrderPaymentByReference } from '@/lib/order-payment-sync';
 export async function GET(request: NextRequest) {
   try {
     const reference = request.nextUrl.searchParams.get('reference');
+    const checkoutIdFromRedirect = request.nextUrl.searchParams.get('checkout_id');
 
     if (!reference) {
       return NextResponse.json({ error: 'Missing reference parameter' }, { status: 400 });
     }
 
-    const result = await syncOrderPaymentByReference(reference);
+    const result = await syncOrderPaymentByReference(reference, {
+      checkoutIdFromRedirect,
+    });
 
     if (result.status === 'not_found') {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });

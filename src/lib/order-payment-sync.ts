@@ -10,6 +10,8 @@ export type OrderPaymentSyncResult = {
   /** True when this call changed the database row. */
   synced: boolean;
   sumupStatus?: string;
+  /** Present while checkout is still open at SumUp (e.g. customer left without paying). */
+  hostedCheckoutUrl?: string;
 };
 
 type OrderLookup = {
@@ -47,6 +49,22 @@ async function loadOrderByReference(reference: string): Promise<OrderLookup | nu
   return data;
 }
 
+function normalizeCheckoutId(id: string): string {
+  return id.startsWith('c-') ? id.slice(2) : id;
+}
+
+function checkoutIdsMatch(a: string, b: string): boolean {
+  return normalizeCheckoutId(a) === normalizeCheckoutId(b);
+}
+
+function hostedCheckoutUrl(checkout: { id: string; hosted_checkout_url?: string }): string {
+  if (checkout.hosted_checkout_url) {
+    return checkout.hosted_checkout_url;
+  }
+  const id = checkout.id.startsWith('c-') ? checkout.id : `c-${checkout.id}`;
+  return `https://checkout.sumup.com/pay/${id}`;
+}
+
 function mapSumUpStatus(status: string): OrderPaymentStatus {
   if (status === 'PAID') {
     return 'paid';
@@ -67,6 +85,21 @@ async function markOrderPaid(checkoutId: string): Promise<OrderPaymentSyncResult
   }
 
   if (existing.status === 'paid') {
+    const checkout = await fetchSumUpCheckout(checkoutId);
+    if (mapSumUpStatus(checkout.status) !== 'paid') {
+      console.warn(
+        'Order marked paid in DB but SumUp checkout is not PAID:',
+        checkoutId,
+        checkout.status
+      );
+      return {
+        status: 'pending',
+        reference: existing.checkout_reference,
+        synced: false,
+        sumupStatus: checkout.status,
+        hostedCheckoutUrl: hostedCheckoutUrl(checkout),
+      };
+    }
     return {
       status: 'paid',
       reference: existing.checkout_reference,
@@ -164,11 +197,18 @@ export async function syncOrderPaymentByCheckoutId(
     reference: existing?.checkout_reference,
     synced: false,
     sumupStatus: checkout.status,
+    hostedCheckoutUrl: hostedCheckoutUrl(checkout),
   };
 }
 
+export type SyncByReferenceOptions = {
+  /** checkout_id from SumUp redirect_url, when present */
+  checkoutIdFromRedirect?: string | null;
+};
+
 export async function syncOrderPaymentByReference(
-  reference: string
+  reference: string,
+  options: SyncByReferenceOptions = {}
 ): Promise<OrderPaymentSyncResult> {
   const order = await loadOrderByReference(reference);
 
@@ -176,13 +216,17 @@ export async function syncOrderPaymentByReference(
     return { status: 'not_found', synced: false };
   }
 
-  if (order.status === 'paid') {
-    return {
-      status: 'paid',
-      reference: order.checkout_reference,
-      synced: false,
-      sumupStatus: 'PAID',
-    };
+  const redirectCheckoutId = options.checkoutIdFromRedirect?.trim();
+  if (
+    redirectCheckoutId &&
+    !checkoutIdsMatch(order.sumup_checkout_id, redirectCheckoutId)
+  ) {
+    console.warn(
+      'sync: redirect checkout_id does not match order row',
+      reference,
+      redirectCheckoutId,
+      order.sumup_checkout_id
+    );
   }
 
   return syncOrderPaymentByCheckoutId(order.sumup_checkout_id);

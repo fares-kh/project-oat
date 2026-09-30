@@ -13,24 +13,32 @@ type SyncResponse = {
   status?: 'paid' | 'pending' | 'failed' | 'not_found';
   reference?: string;
   synced?: boolean;
+  sumupStatus?: string;
+  hostedCheckoutUrl?: string;
   error?: string;
 };
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get('reference');
+  const checkoutIdFromUrl = searchParams.get('checkout_id');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('loading');
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [sumupStatus, setSumupStatus] = useState<string | null>(null);
+  const [hostedCheckoutUrl, setHostedCheckoutUrl] = useState<string | null>(null);
 
   const syncPayment = useCallback(async (): Promise<PaymentStatus> => {
     if (!reference) {
       return 'missing';
     }
 
+    const params = new URLSearchParams({ reference });
+    if (checkoutIdFromUrl) {
+      params.set('checkout_id', checkoutIdFromUrl);
+    }
+
     try {
-      const response = await fetch(
-        `/api/sync-order-payment?reference=${encodeURIComponent(reference)}`
-      );
+      const response = await fetch(`/api/sync-order-payment?${params.toString()}`);
       const data: SyncResponse = await response.json();
 
       if (response.status === 404) {
@@ -43,8 +51,10 @@ function ConfirmationContent() {
       }
 
       setSyncError(null);
+      setSumupStatus(data.sumupStatus ?? null);
+      setHostedCheckoutUrl(data.hostedCheckoutUrl ?? null);
 
-      if (data.status === 'paid') {
+      if (data.status === 'paid' && data.sumupStatus === 'PAID') {
         return 'paid';
       }
 
@@ -57,10 +67,11 @@ function ConfirmationContent() {
       setSyncError('Unable to reach the server. Please refresh in a moment.');
       return 'pending';
     }
-  }, [reference]);
+  }, [reference, checkoutIdFromUrl]);
 
   useEffect(() => {
     if (!reference) {
+      setPaymentStatus('missing');
       return;
     }
 
@@ -89,6 +100,8 @@ function ConfirmationContent() {
     };
   }, [reference, syncPayment]);
 
+  const unpaidAtSumUp = sumupStatus === 'PENDING' && paymentStatus !== 'paid';
+
   if (paymentStatus === 'missing' || !reference) {
     return (
       <div className="max-w-2xl mx-auto">
@@ -113,20 +126,34 @@ function ConfirmationContent() {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-background rounded-2xl shadow-xl p-8 text-center">
-          <div className="text-4xl mb-4">⏳</div>
+          <div className="text-4xl mb-4">{unpaidAtSumUp ? '💳' : '⏳'}</div>
           <h2 className="text-3xl font-bold mb-2">
-            {paymentStatus === 'loading' ? 'Confirming payment…' : 'Payment processing…'}
+            {paymentStatus === 'loading'
+              ? 'Checking payment status…'
+              : unpaidAtSumUp
+                ? 'Payment not completed'
+                : 'Confirming payment…'}
           </h2>
           <p className="text-zinc-700 mb-4">
             {paymentStatus === 'loading'
-              ? 'Checking your payment with our payment provider.'
-              : 'Your payment is still being confirmed. This usually takes a few seconds.'}
+              ? 'Checking with SumUp before we show a result.'
+              : unpaidAtSumUp
+                ? 'This order is not paid yet. That can happen if you left checkout early (for example via the merchant name at the top).'
+                : 'Your payment is still being confirmed. This usually takes a few seconds.'}
           </p>
           <div className="bg-brand-beige-light rounded-lg p-4 mb-6 text-left">
             <h3 className="font-semibold mb-2">Order Reference:</h3>
             <p className="font-mono text-brand-green text-lg">{reference}</p>
           </div>
           {syncError && <p className="text-sm text-brand-error mb-4">{syncError}</p>}
+          {hostedCheckoutUrl && unpaidAtSumUp && (
+            <a
+              href={hostedCheckoutUrl}
+              className="block w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold transition text-center mb-3"
+            >
+              Continue to payment
+            </a>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -155,11 +182,19 @@ function ConfirmationContent() {
             <h3 className="font-semibold mb-2">Order Reference:</h3>
             <p className="font-mono text-brand-green text-lg">{reference}</p>
           </div>
+          {hostedCheckoutUrl && (
+            <a
+              href={hostedCheckoutUrl}
+              className="block w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold transition text-center mb-3"
+            >
+              Try payment again
+            </a>
+          )}
           <Link
             href="/order"
-            className="block w-full px-6 py-3 bg-brand-green hover:bg-brand-green-hover text-text-white rounded-lg font-semibold transition text-center"
+            className="block w-full px-6 py-3 border-2 border-brand-green text-brand-green hover:bg-brand-beige-light rounded-lg font-semibold transition text-center"
           >
-            Try Again
+            Start a new order
           </Link>
         </div>
       </div>
