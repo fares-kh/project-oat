@@ -7,6 +7,7 @@ import {
   validatePostcode,
   validatePostcodeDates,
 } from '@/lib/delivery-config';
+import { getSumupConfig } from '@/lib/sumup-client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -225,21 +226,34 @@ export async function POST(request: NextRequest) {
     console.log('Total Bowls:', detailedLineItems.length);
     console.log('==================\n');
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) {
+      return NextResponse.json(
+        { error: 'Missing NEXT_PUBLIC_BASE_URL' },
+        { status: 500 }
+      );
+    }
+
+    const sumup = await getSumupConfig();
+    console.log(
+      `Creating SumUp hosted checkout (${sumup.isSandbox ? 'sandbox' : 'live'} merchant ${sumup.merchantCode})`
+    );
+
     const sumupResponse = await fetch('https://api.sumup.com/v0.1/checkouts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.SUMUP_API_KEY}`,
+        Authorization: `Bearer ${sumup.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         checkout_reference: checkoutReference,
         amount: amountInPence / 100,
         currency: 'GBP',
-        merchant_code: process.env.SUMUP_MERCHANT_CODE,
+        merchant_code: sumup.merchantCode,
         description: description,
         merchant_data: merchantData,
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/sumup`,
+        redirect_url: `${baseUrl}/order/confirmation?reference=${checkoutReference}&checkout_id={checkout_id}`,
+        return_url: `${baseUrl}/api/webhook/sumup`,
         hosted_checkout: { 
           enabled: true
         }
