@@ -5,7 +5,7 @@ import path from 'path';
 
 const resend = new Resend(process.env.RESEND_KEY);
 
-const filePath = path.join(process.cwd(), 'public', 'events_april_2026.pdf')
+const filePath = path.join(process.cwd(), 'public', 'events_october_26.pdf')
 const pdfBuffer = fs.readFileSync(filePath)
 
 export async function POST(request: NextRequest) {
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
             <p style="color: #2c2c2c; line-height: 1.6;">Thank you for expressing interest in our events packages at Ellie's Oats!</p>
             <p style="color: #2c2c2c; line-height: 1.6;">Please see attached brochure with our events packages and catering services. Just drop us a message or email if you have any questions or to book in. We can't wait to hear from you & fuel your clients to reach their fitness goals!</p>
             <p style="color: #2c2c2c; line-height: 1.6;">In the meantime, feel free to check out our Instagram <a href="https://instagram.com/ellies.oats" style="color: #9e9b65; text-decoration: none; font-weight: bold;">@ellies.oats</a> or email us directly at <a href="mailto:elliesoats@hotmail.com" style="color: #9e9b65; text-decoration: none; font-weight: bold;">elliesoats@hotmail.com</a>.</p>
+            <p style="color: #2c2c2c; line-height: 1.6;">The menu in the attached events package is an example - our menu changes slightly each month so please message us or view our pinned Instagram post for our current menu.</p>
             <p style="color: #2c2c2c; line-height: 1.6; margin-bottom: 0;">Best regards,<br/><strong>Ellie's Oats</strong></p>
           </div>
           
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       `,
       attachments: [
             {
-            filename: 'events_april_2026.pdf',
+            filename: 'events_october_26.pdf',
             content: pdfBuffer,
             }
         ]
