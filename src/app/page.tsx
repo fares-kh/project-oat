@@ -36,9 +36,9 @@ export default function Home() {
               ))
             }
             <SpecialCard
-              title="Blueberry Muffin Matcha"
+              title="Carrot Cake Matcha Latte"
               imageSrc="/monthly-special-matcha.png"
-              imageAlt="Blueberry Muffin Matcha"
+              imageAlt="Carrot Cake Matcha Latte"
             />
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function Home() {
             <MenuColumn
               title="MATCHA MENU"
               items={[
-                { title: "Blueberry Muffin Matcha", description: "Blueberry & vanilla base, topped with ceremonial matcha." },
+                { title: "Carrot Cake Matcha Latte", description: "Cream cheese frosting, carrot cake base and cream cheese cold foam. Topped with ceremonial matcha." },
                 { title: "Classic Ceremonial (vg)", description: "" },
                 { title: "Vanilla (vg)", description: "" },
                 { title: "Strawberry (vg)", description: "" },
