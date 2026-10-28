@@ -54,6 +54,8 @@ const LANCASHIRE_PREFIXES = [
   'BB12',
 ];
 
+const CHESTER_PREFIXES = ['CH1', 'CH2', 'CH3', 'CH4'];
+
 const MANCHESTER_PREFIXES = [
   'M',
   'BL9',
@@ -94,7 +96,7 @@ export const deliveryConfig: DeliveryConfig = {
     enabled: true,
     // OL12/13/16 are included so the postcode is accepted any day;
     // dateRestrictedPrefixes only limits which delivery dates are offered.
-    validPrefixes: [...LANCASHIRE_PREFIXES, ...MANCHESTER_PREFIXES],
+    validPrefixes: [...LANCASHIRE_PREFIXES, ...CHESTER_PREFIXES, ...MANCHESTER_PREFIXES],
     excludedPrefixes: [
       'BB8',
       'BB18',
