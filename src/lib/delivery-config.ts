@@ -87,6 +87,7 @@ export const deliveryConfig: DeliveryConfig = {
   customDates: [],
   excludedDates: [
     '2026-07-29',
+    '2026-12-07',
     '2026-12-21',
     '2026-12-23',
     '2026-12-28',
