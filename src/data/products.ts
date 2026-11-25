@@ -164,7 +164,7 @@ export const products: Product[] = [
     isSignature: true,
     monthlySpecial: true,
     availableFrom: '2026-11-01',
-    availableUntil: '2026-11-30',
+    availableUntil: '2026-12-31',
     ingredients: 'Greek yoghurt (32.3%) (0% Fat natural Greek yogurt (MILK)), OAT milk (23.5%) (water, OATS, rapeseed oil, calcium carbonate, acidity regulator (dipotassium phosphate), salt, vitamins (B2, D, B12), potassium iodide), Soft cheese (23.5%) (Reduced Fat Soft Cheese (MILK), Salt, Stabilisers: Guar Gum, Carrageenan; Citrus Fibre), OATS (14.7%), kinder chocolate (Sugar, MILK Powder, Cocoa Butter, Cocoa Mass, Emulsifier: Lecithins (SOYA), Vanillin), Sugar, Skimmed MILK Powder, Palm Oil, Concentrated BUTTER, Emulsifier: Lecithins (SOYA), Vanillin), hazelnut spread (2.9%) (Sugar, Rapeseed Oil, Dried Skimmed MILK, HAZELNUT, Dried Whole MILK, Whey Powder (MILK), Cocoa Butter, Sunflower Oil, Emulsifier (Lecithins), Flavouring), protein powder (WHEY protein concentrate (MILK), flavouring, thickener (xanthan gum), emulsifier (sunflower lecithin), sweetener (sucralose)), Chia [salvia hispanica] seeds, honey, white chocolate flavouring (Water, Sweetener (Sucralose), Flavouring, Colour (Plain Caramel)), HAZELNUT flavouring (Flavouring, Acidity Regulator (Citric Acid), Sweetener (Sucralose), Colour (Sulphite Ammonia Caramel)). May also contain: other trees nuts, peanuts, mustard, sesame, sulphur dioxide and sulphites. Made in a kitchen that also handles egg.',
     nutrition: { energy_kcal: 584, energy_kj: 2443, fat_g: 23, saturates_g: 9, carbs_g: 61, sugars_g: 25, fibre_g: 7, protein_g: 31, salt_g: 1.01 },
   },
